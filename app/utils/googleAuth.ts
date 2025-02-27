@@ -78,7 +78,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       storedState,
       hasCode: !!code
     });
-    return redirect('/account/login?error=auth_failed');
+    return redirect('/account/login?error=auth_failed&reason=state_mismatch');
   }
 
   // Clear session data
@@ -104,7 +104,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 
     if (!tokenResponse.ok) {
       console.error('Token exchange failed:', await tokenResponse.text());
-      return redirect('/account/login?error=token_exchange_failed');
+      return redirect('/account/login?error=auth_failed&reason=token_exchange');
     }
 
     const tokens = await tokenResponse.json() as GoogleTokenResponse;
@@ -118,7 +118,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 
     if (!userInfoResponse.ok) {
       console.error('User info fetch failed:', await userInfoResponse.text());
-      return redirect('/account/login?error=user_info_failed');
+      return redirect('/account/login?error=auth_failed&reason=user_info');
     }
 
     const userInfo = await userInfoResponse.json() as GoogleUserInfo;
@@ -171,7 +171,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 
       if (createResponse.customerCreate?.customerUserErrors?.length > 0) {
         console.error('Customer creation failed:', createResponse.customerCreate.customerUserErrors);
-        return redirect('/account/login?error=customer_creation_failed');
+        return redirect('/account/login?error=auth_failed&reason=customer_creation');
       }
       
       customerId = createResponse.customerCreate.customer.id;
@@ -181,7 +181,41 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       
       // For existing customers, we'll use their email as part of the password
       // This ensures consistent login for returning users
-      password = `Google-${userInfo.email}-${tokens.access_token.slice(-12)}`;
+      password = `Google-${userInfo.email}-${userInfo.id}`;
+      
+      // Update customer password for Google login
+      try {
+        const resetResponse = await context.storefront.mutate(
+          `mutation customerReset($id: ID!, $input: CustomerResetInput!) {
+            customerReset(id: $id, input: $input) {
+              customerAccessToken {
+                accessToken
+                expiresAt
+              }
+              customerUserErrors {
+                code
+                field
+                message
+              }
+            }
+          }`,
+          {
+            variables: {
+              id: customerId,
+              input: {
+                password: password,
+                resetToken: tokens.access_token
+              }
+            }
+          }
+        );
+
+        if (resetResponse.customerReset?.customerUserErrors?.length > 0) {
+          console.error('Password reset failed:', resetResponse.customerReset.customerUserErrors);
+        }
+      } catch (error) {
+        console.error('Failed to update customer password:', error);
+      }
       
       // Update customer if needed
       if (!existingCustomer.firstName || !existingCustomer.lastName) {
@@ -226,7 +260,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 
     if (tokenResult.customerAccessTokenCreate?.customerUserErrors?.length > 0) {
       console.error('Token creation failed:', tokenResult.customerAccessTokenCreate.customerUserErrors);
-      return redirect('/account/login?error=token_creation_failed');
+      return redirect('/account/login?error=auth_failed&reason=token_creation');
     }
 
     const {accessToken, expiresAt} = tokenResult.customerAccessTokenCreate.customerAccessToken;
@@ -234,10 +268,12 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     // Set token in cookie
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
     
+    // Store the password in session for both new and existing users
+    await session.set('temp_password', password);
+    await session.commit();
+    
     // For new users, redirect to onboarding
     if (isNewCustomer) {
-      await session.set('temp_password', password);
-      await session.commit();
       return redirect('/account/onboarding', {
         headers: {
           'Set-Cookie': await tokenCookie.serialize(accessToken, {maxAge}),
@@ -253,6 +289,6 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     });
   } catch (error) {
     console.error('OAuth flow failed:', error);
-    return redirect('/account/login?error=oauth_flow_failed');
+    return redirect('/account/login?error=auth_failed&reason=oauth_flow');
   }
 } 
