@@ -258,9 +258,9 @@ const OrSection = ({
         >
           <FcGoogle size={24} />
           <span>
-            {section === 'register' 
-              ? t('Sign up with Google')
-              : t('Sign in with Google')}
+            {section === 'login' 
+              ? t('Login with Google')
+              : t('Sign up with Google')}
           </span>
         </button>
       </div>
