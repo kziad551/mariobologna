@@ -131,6 +131,8 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
             node {
               id
               email
+              firstName
+              lastName
             }
           }
         }
@@ -143,10 +145,14 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     );
 
     let customerId;
-    // Generate a secure random password for the user
-    const password = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
+    let password;
+    let isNewCustomer = false;
     
     if (customerResponse.customers.edges.length === 0) {
+      isNewCustomer = true;
+      // Generate a secure random password for new users
+      password = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
+      
       // Create new customer
       const createResponse = await context.storefront.mutate(
         CUSTOMER_REGISTER_MUTATION,
@@ -170,7 +176,39 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       
       customerId = createResponse.customerCreate.customer.id;
     } else {
-      customerId = customerResponse.customers.edges[0].node.id;
+      const existingCustomer = customerResponse.customers.edges[0].node;
+      customerId = existingCustomer.id;
+      
+      // For existing customers, we'll use their email as part of the password
+      // This ensures consistent login for returning users
+      password = `Google-${userInfo.email}-${tokens.access_token.slice(-12)}`;
+      
+      // Update customer if needed
+      if (!existingCustomer.firstName || !existingCustomer.lastName) {
+        await context.storefront.mutate(
+          `mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+            customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+              customer {
+                id
+              }
+              customerUserErrors {
+                code
+                field
+                message
+              }
+            }
+          }`,
+          {
+            variables: {
+              customerAccessToken: tokens.access_token,
+              customer: {
+                firstName: userInfo.given_name,
+                lastName: userInfo.family_name,
+              },
+            },
+          },
+        );
+      }
     }
 
     // Create access token
@@ -197,7 +235,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
     
     // For new users, redirect to onboarding
-    if (customerResponse.customers.edges.length === 0) {
+    if (isNewCustomer) {
       await session.set('temp_password', password);
       await session.commit();
       return redirect('/account/onboarding', {
