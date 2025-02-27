@@ -27,6 +27,8 @@ export class AppSession implements HydrogenSession {
         path: '/',
         sameSite: 'lax',
         secrets,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 30, // 30 days
       },
     });
 
@@ -55,6 +57,20 @@ export class AppSession implements HydrogenSession {
 
   get set() {
     return this.#session.set;
+  }
+
+  async getOAuthState(): Promise<string | undefined> {
+    return this.get('oauth2:state');
+  }
+
+  async setOAuthState(state: string): Promise<void> {
+    this.set('oauth2:state', state);
+    await this.commit();
+  }
+
+  async clearOAuthState(): Promise<void> {
+    this.unset('oauth2:state');
+    await this.commit();
   }
 
   destroy() {

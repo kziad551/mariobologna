@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {redirect} from '@shopify/remix-oxygen';
 import {CUSTOMER_REGISTER_MUTATION} from '~/graphql/customer-account/CustomerCreateMutation';
 import {CUSTOMER_LOGIN_MUTATION} from '~/graphql/customer-account/CustomerLoginMutation';
@@ -11,15 +12,13 @@ declare global {
   }
 }
 
-const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
-
-interface GoogleTokenResponse {
+interface GoogleTokens {
   access_token: string;
+  id_token: string;
+  refresh_token?: string;
   expires_in: number;
-  refresh_token: string;
-  scope: string;
   token_type: string;
+  scope: string;
 }
 
 interface GoogleUserInfo {
@@ -33,23 +32,20 @@ interface GoogleUserInfo {
   locale: string;
 }
 
+const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+
 export async function initiateGoogleAuth(request: Request, session: any, env: any) {
-  // Generate a random state
-  const state = Math.random().toString(36).substring(7);
+  // Generate a cryptographically secure random state
+  const state = crypto.randomBytes(16).toString('hex');
   
   // Store state in session
-  await session.set('oauth2:state', state);
+  await session.setOAuthState(state);
   
-  // Store return URL and mode (login/signup)
+  // Store return URL
   const url = new URL(request.url);
   const returnTo = url.searchParams.get('returnTo') || '/';
-  const mode = url.pathname.includes('signup') ? 'signup' : 'login';
   await session.set('oauth2:returnTo', returnTo);
-  await session.set('oauth2:mode', mode);
   
-  // Make sure to commit session changes
-  await session.commit();
-
   // Build OAuth URL with state
   const params = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID,
@@ -69,10 +65,9 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
   
-  // Get stored state, return URL and mode
-  const storedState = await session.get('oauth2:state');
+  // Get stored state and return URL
+  const storedState = await session.getOAuthState();
   const returnTo = await session.get('oauth2:returnTo') || '/';
-  const mode = await session.get('oauth2:mode') || 'login';
 
   // Verify state parameter
   if (!code || !state || !storedState || state !== storedState) {
@@ -81,51 +76,22 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       storedState,
       hasCode: !!code
     });
+    
+    // Clear OAuth state from session
+    await session.clearOAuthState();
+    await session.unset('oauth2:returnTo');
+    
     return redirect('/account/login?error=auth_failed&reason=state_mismatch');
   }
 
-  // Clear session data
-  await session.unset('oauth2:state');
-  await session.unset('oauth2:returnTo');
-  await session.unset('oauth2:mode');
-  await session.commit();
-
   try {
+    // Clear OAuth state from session
+    await session.clearOAuthState();
+    await session.unset('oauth2:returnTo');
+
     // Exchange code for tokens
-    const tokenResponse = await fetch(GOOGLE_TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        code,
-        client_id: context.env.GOOGLE_CLIENT_ID,
-        client_secret: context.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: context.env.GOOGLE_REDIRECT_URI,
-        grant_type: 'authorization_code',
-      }),
-    });
-
-    if (!tokenResponse.ok) {
-      console.error('Token exchange failed:', await tokenResponse.text());
-      return redirect('/account/login?error=auth_failed&reason=token_exchange');
-    }
-
-    const tokens = await tokenResponse.json() as GoogleTokenResponse;
-
-    // Get user info
-    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${tokens.access_token}`,
-      },
-    });
-
-    if (!userInfoResponse.ok) {
-      console.error('User info fetch failed:', await userInfoResponse.text());
-      return redirect('/account/login?error=auth_failed&reason=user_info');
-    }
-
-    const userInfo = await userInfoResponse.json() as GoogleUserInfo;
+    const tokens = await exchangeCodeForTokens(code, context.env);
+    const userInfo = await getUserInfo(tokens.access_token);
 
     // Find existing customer
     const customerResponse = await context.storefront.query(
@@ -149,24 +115,10 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     );
 
     const existingCustomer = customerResponse.customers.edges[0]?.node;
-
-    // Handle login mode
-    if (mode === 'login') {
-      if (!existingCustomer) {
-        return redirect('/account/login?error=auth_failed&reason=no_account');
-      }
-    }
-    // Handle signup mode
-    else if (mode === 'signup') {
-      if (existingCustomer) {
-        return redirect('/account/login?error=auth_failed&reason=account_exists');
-      }
-    }
-
     let customerId;
     let password;
     let isNewCustomer = false;
-    
+
     if (!existingCustomer) {
       isNewCustomer = true;
       // Generate a consistent password based on user's Google ID
@@ -248,10 +200,8 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     }
 
     const {accessToken, expiresAt} = tokenResult.customerAccessTokenCreate.customerAccessToken;
-
-    // Set token in cookie
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
-    
+
     // Store the password in session for first-time users
     if (isNewCustomer) {
       await session.set('temp_password', password);
@@ -271,7 +221,45 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       },
     });
   } catch (error) {
-    console.error('OAuth flow failed:', error);
-    return redirect('/account/login?error=auth_failed&reason=oauth_flow');
+    console.error('Google auth error:', error);
+    return redirect('/account/login?error=auth_failed&reason=server_error');
   }
+}
+
+async function exchangeCodeForTokens(code: string, env: any): Promise<GoogleTokens> {
+  const response = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      code,
+      client_id: env.GOOGLE_CLIENT_ID,
+      client_secret: env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: env.GOOGLE_REDIRECT_URI,
+      grant_type: 'authorization_code',
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to exchange code for tokens');
+  }
+
+  const data = await response.json();
+  return data as GoogleTokens;
+}
+
+async function getUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to get user info');
+  }
+
+  const data = await response.json();
+  return data as GoogleUserInfo;
 } 
