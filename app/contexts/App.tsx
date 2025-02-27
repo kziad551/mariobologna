@@ -87,43 +87,44 @@ export default function ContextProvider({children}: {children: ReactNode}) {
 
   const fetchUserCountry = async () => {
     if (typeof window !== 'undefined') {
-      const currency = localStorage.getItem('currency');
-      if (currency) {
-        const c = JSON.parse(currency) as currencyType;
-        setCurrency(c);
-        Cookies.set('country', JSON.stringify(c.countryCode), {path: '/'});
-      } else {
-        const geolocation = await getUserGeoLocation();
-        let curr = allCurrencies.find(
-          (c) => c.countryCode === geolocation.country_code,
-        );
-        if (curr === undefined) {
-          if (geolocation.continent_code === 'EU') {
-            const c =
-              allCurrencies.find((c) => c.countryCode === 'FR') ??
-              allCurrencies[0];
-            setCurrency(c);
-            Cookies.set('country', JSON.stringify(c.countryCode), {path: '/'});
-            localStorage.setItem('currency', JSON.stringify(c));
-          } else {
-            const c =
-              allCurrencies.find((c) => c.countryCode === 'US') ??
-              allCurrencies[0];
-            setCurrency(c);
-            Cookies.set('country', JSON.stringify(c.countryCode), {path: '/'});
-            localStorage.setItem('currency', JSON.stringify(c));
-          }
-        } else {
-          setCurrency(curr);
-          Cookies.set('country', JSON.stringify(curr.countryCode), {path: '/'});
-          localStorage.setItem('currency', JSON.stringify(curr));
+      const geolocation = await getUserGeoLocation();
+      const storedCurrency = localStorage.getItem('currency');
+      
+      if (storedCurrency) {
+        const c = JSON.parse(storedCurrency) as currencyType;
+        // Check if stored currency matches current location
+        if (c.countryCode === geolocation.country_code) {
+          setCurrency(c);
+          Cookies.set('country', JSON.stringify(c.countryCode), {path: '/'});
+          return;
         }
       }
+      
+      // If no stored currency or location mismatch, set based on current location
+      let curr = allCurrencies.find(
+        (c) => c.countryCode === geolocation.country_code,
+      );
+      if (curr === undefined) {
+        if (geolocation.continent_code === 'EU') {
+          curr = allCurrencies.find((c) => c.countryCode === 'FR') ?? allCurrencies[0];
+        } else {
+          curr = allCurrencies.find((c) => c.countryCode === 'US') ?? allCurrencies[0];
+        }
+      }
+      
+      setCurrency(curr);
+      Cookies.set('country', JSON.stringify(curr.countryCode), {path: '/'});
+      localStorage.setItem('currency', JSON.stringify(curr));
     }
   };
 
   useEffect(() => {
     fetchUserCountry();
+    
+    // Check for location changes every hour
+    const intervalId = setInterval(fetchUserCountry, 3600000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
