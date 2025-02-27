@@ -2,20 +2,51 @@ import {AnimatePresence, motion} from 'framer-motion';
 import React, {useState, useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 
+const COOKIE_CONSENT_KEY = 'mariobologna_cookie_consent';
+const COOKIE_CONSENT_VERSION = '1.0'; // Increment this when cookie policy changes
+
+interface CookieConsentData {
+  accepted: boolean;
+  version: string;
+  timestamp: string;
+}
+
 const CookieConsent: React.FC = () => {
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const {t} = useTranslation();
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookieConsent');
-    if (!consent) {
+    try {
+      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+      const consentData = consent ? (JSON.parse(consent) as CookieConsentData) : null;
+      
+      // Show banner if no consent or if version is outdated
+      if (!consentData || consentData.version !== COOKIE_CONSENT_VERSION) {
+        setShowBanner(true);
+      }
+    } catch (error) {
+      // If localStorage is not available or parsing fails, show the banner
+      console.warn('Cookie consent check failed:', error);
       setShowBanner(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('cookieConsent', 'true');
-    setShowBanner(false);
+    try {
+      localStorage.setItem(
+        COOKIE_CONSENT_KEY,
+        JSON.stringify({
+          accepted: true,
+          version: COOKIE_CONSENT_VERSION,
+          timestamp: new Date().toISOString(),
+        }),
+      );
+      setShowBanner(false);
+    } catch (error) {
+      console.error('Failed to save cookie consent:', error);
+      // Still hide the banner even if storage fails
+      setShowBanner(false);
+    }
   };
 
   return (

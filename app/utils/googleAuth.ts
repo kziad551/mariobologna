@@ -40,10 +40,12 @@ export async function initiateGoogleAuth(request: Request, session: any, env: an
   // Store state in session
   await session.set('oauth2:state', state);
   
-  // Store return URL
+  // Store return URL and mode (login/signup)
   const url = new URL(request.url);
   const returnTo = url.searchParams.get('returnTo') || '/';
+  const mode = url.pathname.includes('signup') ? 'signup' : 'login';
   await session.set('oauth2:returnTo', returnTo);
+  await session.set('oauth2:mode', mode);
   
   // Make sure to commit session changes
   await session.commit();
@@ -67,9 +69,10 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
   
-  // Get stored state and return URL
+  // Get stored state, return URL and mode
   const storedState = await session.get('oauth2:state');
   const returnTo = await session.get('oauth2:returnTo') || '/';
+  const mode = await session.get('oauth2:mode') || 'login';
 
   // Verify state parameter
   if (!code || !state || !storedState || state !== storedState) {
@@ -84,6 +87,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
   // Clear session data
   await session.unset('oauth2:state');
   await session.unset('oauth2:returnTo');
+  await session.unset('oauth2:mode');
   await session.commit();
 
   try {
@@ -123,7 +127,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 
     const userInfo = await userInfoResponse.json() as GoogleUserInfo;
 
-    // Find or create customer
+    // Find existing customer
     const customerResponse = await context.storefront.query(
       `query GetCustomerByEmail($email: String!) {
         customers(first: 1, query: $email) {
@@ -144,14 +148,29 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       },
     );
 
+    const existingCustomer = customerResponse.customers.edges[0]?.node;
+
+    // Handle login mode
+    if (mode === 'login') {
+      if (!existingCustomer) {
+        return redirect('/account/login?error=auth_failed&reason=no_account');
+      }
+    }
+    // Handle signup mode
+    else if (mode === 'signup') {
+      if (existingCustomer) {
+        return redirect('/account/login?error=auth_failed&reason=account_exists');
+      }
+    }
+
     let customerId;
     let password;
     let isNewCustomer = false;
     
-    if (customerResponse.customers.edges.length === 0) {
+    if (!existingCustomer) {
       isNewCustomer = true;
-      // Generate a secure random password for new users
-      password = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
+      // Generate a consistent password based on user's Google ID
+      password = `Google-${userInfo.id}-${Math.random().toString(36).slice(-12)}`;
       
       // Create new customer
       const createResponse = await context.storefront.mutate(
@@ -176,16 +195,12 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       
       customerId = createResponse.customerCreate.customer.id;
     } else {
-      const existingCustomer = customerResponse.customers.edges[0].node;
       customerId = existingCustomer.id;
-      
-      // For existing customers, we'll use their email as part of the password
-      // This ensures consistent login for returning users
-      password = `Google-${userInfo.email}-${userInfo.id}`;
+      password = `Google-${userInfo.id}-${Math.random().toString(36).slice(-12)}`;
       
       // Update customer password for Google login
       try {
-        const resetResponse = await context.storefront.mutate(
+        await context.storefront.mutate(
           `mutation customerReset($id: ID!, $input: CustomerResetInput!) {
             customerReset(id: $id, input: $input) {
               customerAccessToken {
@@ -209,39 +224,8 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
             }
           }
         );
-
-        if (resetResponse.customerReset?.customerUserErrors?.length > 0) {
-          console.error('Password reset failed:', resetResponse.customerReset.customerUserErrors);
-        }
       } catch (error) {
         console.error('Failed to update customer password:', error);
-      }
-      
-      // Update customer if needed
-      if (!existingCustomer.firstName || !existingCustomer.lastName) {
-        await context.storefront.mutate(
-          `mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
-            customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
-              customer {
-                id
-              }
-              customerUserErrors {
-                code
-                field
-                message
-              }
-            }
-          }`,
-          {
-            variables: {
-              customerAccessToken: tokens.access_token,
-              customer: {
-                firstName: userInfo.given_name,
-                lastName: userInfo.family_name,
-              },
-            },
-          },
-        );
       }
     }
 
@@ -268,12 +252,11 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     // Set token in cookie
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
     
-    // Store the password in session for both new and existing users
-    await session.set('temp_password', password);
-    await session.commit();
-    
-    // For new users, redirect to onboarding
+    // Store the password in session for first-time users
     if (isNewCustomer) {
+      await session.set('temp_password', password);
+      await session.commit();
+      
       return redirect('/account/onboarding', {
         headers: {
           'Set-Cookie': await tokenCookie.serialize(accessToken, {maxAge}),
