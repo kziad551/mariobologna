@@ -254,10 +254,10 @@ const OrSection = ({
       <div className="flex flex-col gap-3">
         <button
           onClick={handleGoogleSignIn}
-          className="flex items-center justify-center gap-2 w-full border border-neutral-N-80 rounded-md py-2.5 hover:bg-neutral-N-10"
+          className="flex items-center justify-center gap-2 w-full border border-neutral-N-80 rounded-md py-2.5 hover:bg-neutral-N-10 bg-white text-black"
         >
           <FcGoogle size={24} />
-          <span>{section === 'login' ? t('Login with Google') : t('Sign up with Google')}</span>
+          <span>Login with Google</span>
         </button>
       </div>
       <div className="text-center mt-4">
