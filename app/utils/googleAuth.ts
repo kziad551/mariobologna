@@ -38,12 +38,14 @@ export async function initiateGoogleAuth(request: Request, session: any, env: an
   // Generate a cryptographically secure random state
   const state = crypto.randomBytes(16).toString('hex');
   
+  console.log('Initiating Google Auth - Generated State:', state);
+  
   // Store state in session
   await session.setOAuthState(state);
   
   // Store return URL
   const url = new URL(request.url);
-  const returnTo = url.searchParams.get('returnTo') || '/';
+  const returnTo = url.searchParams.get('returnTo') || '/account';
   await session.set('oauth2:returnTo', returnTo);
   
   // Build OAuth URL with state
@@ -57,6 +59,8 @@ export async function initiateGoogleAuth(request: Request, session: any, env: an
     prompt: 'consent',
   });
 
+  console.log('Redirecting to Google with params:', params.toString());
+
   return redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
 }
 
@@ -67,14 +71,18 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
   
   // Get stored state and return URL
   const storedState = await session.getOAuthState();
-  const returnTo = await session.get('oauth2:returnTo') || '/';
+  const returnTo = await session.get('oauth2:returnTo') || '/account';
+
+  console.log('Google Callback - Received State:', state);
+  console.log('Google Callback - Stored State:', storedState);
 
   // Verify state parameter
   if (!code || !state || !storedState || state !== storedState) {
     console.error('OAuth state verification failed:', {
       receivedState: state,
       storedState,
-      hasCode: !!code
+      hasCode: !!code,
+      sessionKeys: Object.keys(session),
     });
     
     // Clear OAuth state from session

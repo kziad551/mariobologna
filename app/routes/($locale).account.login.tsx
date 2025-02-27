@@ -237,39 +237,35 @@ const OrSection = ({
   buttonText,
 }: OrSectionType) => {
   const handleGoogleSignIn = async () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const returnTo = searchParams.get('returnTo') || '/';
-    
-    // Redirect to Google OAuth
+    const url = new URL(window.location.href);
+    const returnTo = url.searchParams.get('returnTo') || '/account';
     window.location.href = `/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
   };
 
   return (
-    <>
-      <div className="flex items-center justify-center gap-7 my-4">
-        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
-        <span className="text-neutral-N-60">{t('Or')}</span>
-        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex w-full items-center gap-4">
+        <div className="h-[1px] flex-1 bg-neutral-N-20" />
+        <span className="text-sm text-neutral-N-50">{t('Or')}</span>
+        <div className="h-[1px] flex-1 bg-neutral-N-20" />
       </div>
-      <div className="flex flex-col gap-3">
+      <button
+        onClick={handleGoogleSignIn}
+        className="flex w-full items-center justify-center gap-2 rounded border border-neutral-N-20 bg-white px-4 py-2.5 text-sm text-black transition-colors hover:bg-neutral-N-10"
+      >
+        <img src="/google.svg" alt="Google" className="h-5 w-5" />
+        {section === 'login' ? t('Login with Google') : t('Sign up with Google')}
+      </button>
+      <div className="flex items-center gap-1">
+        <span className="text-sm text-neutral-N-50">{message}</span>
         <button
-          onClick={handleGoogleSignIn}
-          className="flex items-center justify-center gap-2 w-full border border-neutral-N-80 rounded-md py-2.5 hover:bg-neutral-N-10 bg-white text-black"
-        >
-          <FcGoogle size={24} />
-          <span>Login with Google</span>
-        </button>
-      </div>
-      <div className="text-center mt-4">
-        <span className="text-neutral-N-60">{message}</span>
-        <button
-          onClick={() => setSection(section === 'login' ? 'register' : 'login')}
-          className="text-black font-medium hover:underline"
+          onClick={() => setSection(section)}
+          className="text-sm text-primary-P-50 hover:text-primary-P-60"
         >
           {buttonText}
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
