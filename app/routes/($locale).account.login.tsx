@@ -240,9 +240,8 @@ const OrSection = ({
     const searchParams = new URLSearchParams(window.location.search);
     const returnTo = searchParams.get('returnTo') || '/';
     
-    // Use different endpoints for login vs signup
-    const endpoint = section === 'login' ? 'login' : 'signup';
-    window.location.href = `/auth/google/${endpoint}?returnTo=${encodeURIComponent(returnTo)}`;
+    // Redirect to Google OAuth
+    window.location.href = `/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
   };
 
   return (
