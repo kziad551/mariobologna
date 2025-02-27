@@ -143,6 +143,8 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     );
 
     let customerId;
+    // Generate a secure random password for the user
+    const password = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
     
     if (customerResponse.customers.edges.length === 0) {
       // Create new customer
@@ -152,12 +154,19 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
           variables: {
             input: {
               email: userInfo.email,
+              password: password,
               firstName: userInfo.given_name,
               lastName: userInfo.family_name,
+              acceptsMarketing: true,
             },
           },
         },
       );
+
+      if (createResponse.customerCreate?.customerUserErrors?.length > 0) {
+        console.error('Customer creation failed:', createResponse.customerCreate.customerUserErrors);
+        return redirect('/account/login?error=customer_creation_failed');
+      }
       
       customerId = createResponse.customerCreate.customer.id;
     } else {
@@ -171,16 +180,34 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
         variables: {
           input: {
             email: userInfo.email,
+            password: password,
           },
         },
       },
     );
+
+    if (tokenResult.customerAccessTokenCreate?.customerUserErrors?.length > 0) {
+      console.error('Token creation failed:', tokenResult.customerAccessTokenCreate.customerUserErrors);
+      return redirect('/account/login?error=token_creation_failed');
+    }
 
     const {accessToken, expiresAt} = tokenResult.customerAccessTokenCreate.customerAccessToken;
 
     // Set token in cookie
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
     
+    // For new users, redirect to onboarding
+    if (customerResponse.customers.edges.length === 0) {
+      await session.set('temp_password', password);
+      await session.commit();
+      return redirect('/account/onboarding', {
+        headers: {
+          'Set-Cookie': await tokenCookie.serialize(accessToken, {maxAge}),
+        },
+      });
+    }
+    
+    // For existing users, redirect to returnTo URL or homepage
     return redirect(returnTo, {
       headers: {
         'Set-Cookie': await tokenCookie.serialize(accessToken, {maxAge}),

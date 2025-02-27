@@ -251,23 +251,25 @@ const OrSection = ({
         <p>{t('Or')}</p>
         <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
       </div>
-      <div className="flex flex-col items-stretch gap-2">
+      <div className="flex items-center justify-center gap-4">
         <button
           onClick={handleGoogleSignIn}
-          className="flex items-center justify-center gap-2 rounded py-2.5 border border-neutral-N-50"
+          className="flex items-center justify-center gap-2 border border-neutral-N-80 rounded-lg px-4 py-2 hover:bg-neutral-N-95"
         >
-          <FcGoogle className="w-5 h-5" />
-          {t('Sign Up with')} Google
+          <FcGoogle size={24} />
+          <span>{t('Continue with Google')}</span>
         </button>
       </div>
-      <div className="flex items-center justify-start gap-3 mt-3">
-        <p>{message}</p>
-        <button
-          className="text-primary-P-40 hover:underline"
-          onClick={() => setSection(section)}
-        >
-          {buttonText}
-        </button>
+      <div className="flex items-center justify-center mt-4">
+        <p className="text-sm text-neutral-N-60">
+          {message}{' '}
+          <button
+            className="text-primary-P-50 hover:underline"
+            onClick={() => setSection(section)}
+          >
+            {buttonText}
+          </button>
+        </p>
       </div>
     </>
   );
