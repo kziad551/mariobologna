@@ -265,139 +265,80 @@ fragment Address on MailingAddress {
 ` as const;
 
 export const ORDER_FRAGMENT = `#graphql
-fragment OrderMoney on MoneyV2 {
-  amount
-  currencyCode
-}
-
-fragment DiscountApplication on DiscountApplication {
-  value {
-    __typename
-    ... on MoneyV2 {
-      ...OrderMoney
-    }
-    ... on PricingPercentageValue {
-      percentage
-    }
+  fragment OrderMoney on MoneyV2 {
+    amount
+    currencyCode
   }
-}
-
-fragment OrderLineItemFull on OrderLineItem {
-  title
-  currentQuantity
-  quantity
-  originalTotalPrice {
-    ...OrderMoney
-  }
-  discountedTotalPrice {
-    ...OrderMoney
-  }
-  discountAllocations {
-    allocatedAmount {
-      ...OrderMoney
-    }
-    discountApplication {
-      ...DiscountApplication
-    }
-  }
-  variant {
-    id
-    title
-    price {
-      amount
-      currencyCode
-    }
-    selectedOptions {
-      name
-      value
-    }
-    image {
-      id
-      altText
-      height
-      width
-      url
-    }
-    product {
-      id
-      description
-      descriptionHtml
-      featuredImage {
-        id
-        altText
-        height
-        width
-        url
+  fragment DiscountApplication on DiscountApplication {
+    value {
+      __typename
+      ... on MoneyV2 {
+        ...OrderMoney
+      }
+      ... on PricingPercentageValue {
+        percentage
       }
     }
   }
-}
-
-fragment Order on Order {
-  id
-  name
-  statusUrl
-  processedAt
-  financialStatus
-  fulfillmentStatus
-  cancelReason
-  canceledAt
-  orderNumber
-  totalRefunded {
-    ...OrderMoney
-  }
-  totalShippingPrice {
-    ...OrderMoney
-  }
-  totalTax {
-    ...OrderMoney
-  }
-  totalPrice {
-    ...OrderMoney
-  }
-  subtotalPrice {
-    ...OrderMoney
-  }
-  currentTotalTax {
-    ...OrderMoney
-  }
-  currentTotalPrice {
-    ...OrderMoney
-  }
-  currentSubtotalPrice {
-    ...OrderMoney
-  }
-  billingAddress {
+  fragment Order on Order {
     id
-    firstName
-    lastName
-    phone
-    address1
-    company
-    city
-    country
-    zip
-  }
-  shippingAddress {
-    id
-    firstName
-    lastName
-    phone
-    address1
-    company
-    city
-    country
-    zip
-  }
-  discountApplications(first: 100) {
-    nodes {
-      ...DiscountApplication
+    name
+    statusUrl
+    processedAt
+    fulfillmentStatus
+    totalTax {
+      ...OrderMoney
+    }
+    totalPrice {
+      ...OrderMoney
+    }
+    originalTotalPrice {
+      ...OrderMoney
+    }
+    shippingAddress {
+      address1
+      address2
+      city
+      company
+      country
+      firstName
+      lastName
+      phone
+      province
+      zip
+    }
+    discountApplications(first: 100) {
+      nodes {
+        ...DiscountApplication
+      }
+    }
+    lineItems(first: 100) {
+      nodes {
+        variant {
+          id
+          image {
+            altText
+            height
+            url
+            id
+            width
+          }
+          title
+        }
+        title
+        quantity
+        originalTotalPrice {
+          ...OrderMoney
+        }
+        discountAllocations {
+          allocatedAmount {
+            ...OrderMoney
+          }
+          discountApplication {
+            ...DiscountApplication
+          }
+        }
+      }
     }
   }
-  lineItems(first: 100) {
-    nodes {
-      ...OrderLineItemFull
-    }
-  }
-}
 ` as const;

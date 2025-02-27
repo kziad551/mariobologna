@@ -1,86 +1,90 @@
 // NOTE: https://shopify.dev/docs/api/customer/latest/queries/order
 export const CUSTOMER_ORDER_QUERY = `#graphql
-  fragment OrderMoney on MoneyV2 {
+  fragment CustomerOrderMoney on MoneyV2 {
     amount
     currencyCode
   }
-  fragment DiscountApplication on DiscountApplication {
+  fragment CustomerOrderDiscountApplication on DiscountApplication {
     value {
       __typename
       ... on MoneyV2 {
-        ...OrderMoney
+        ...CustomerOrderMoney
       }
       ... on PricingPercentageValue {
         percentage
       }
     }
   }
-  fragment OrderLineItemFull on LineItem {
-    id
+  fragment CustomerOrderLineItemFull on OrderLineItem {
+    variant {
+      id
+    }
     title
     quantity
-    price {
-      ...OrderMoney
+    originalTotalPrice {
+      ...CustomerOrderMoney
     }
     discountAllocations {
       allocatedAmount {
-        ...OrderMoney
+        ...CustomerOrderMoney
       }
       discountApplication {
-        ...DiscountApplication
+        ...CustomerOrderDiscountApplication
       }
     }
-    totalDiscount {
-      ...OrderMoney
+    variant {
+      image {
+        altText
+        height
+        url
+        id
+        width
+      }
+      title
     }
-    image {
-      altText
-      height
-      url
-      id
-      width
-    }
-    variantTitle
   }
-  fragment Order on Order {
+  fragment CustomerOrderDetails on Order {
     id
     name
-    statusPageUrl
+    statusUrl
     processedAt
-    fulfillments(first: 1) {
-      nodes {
-        status
-      }
-    }
+    fulfillmentStatus
     totalTax {
-      ...OrderMoney
+      ...CustomerOrderMoney
     }
     totalPrice {
-      ...OrderMoney
+      ...CustomerOrderMoney
     }
-    subtotal {
-      ...OrderMoney
+    originalTotalPrice {
+      ...CustomerOrderMoney
     }
     shippingAddress {
-      name
-      formatted(withName: true)
-      formattedArea
+      address1
+      address2
+      city
+      company
+      country
+      firstName
+      lastName
+      phone
+      province
+      zip
     }
     discountApplications(first: 100) {
       nodes {
-        ...DiscountApplication
+        ...CustomerOrderDiscountApplication
       }
     }
     lineItems(first: 100) {
       nodes {
-        ...OrderLineItemFull
+        ...CustomerOrderLineItemFull
       }
     }
   }
-  query Order($orderId: ID!) {
-    order(id: $orderId) {
+  query CustomerOrder($orderId: ID!) {
+    node(id: $orderId) {
       ... on Order {
-        ...Order
+        ...CustomerOrderDetails
       }
     }
   }

@@ -45,7 +45,7 @@ export async function action({request, context, params}: ActionFunctionArgs) {
 
   if (request.method === 'DELETE') {
     const DELETE_ADDRESS_MUTATION = `#graphql
-    mutation customerAddressDelete($addressId: ID!, $token: String!) {
+    mutation RouteCustomerAddressDelete($addressId: ID!, $token: String!) {
       customerAddressDelete(customerAccessToken: $token, id: $addressId) {
         deletedCustomerAddressId
         customerUserErrors {

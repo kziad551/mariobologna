@@ -54,7 +54,7 @@ export async function fetchCustomerDetails(
   storefront: Storefront<I18nLocale>,
 ) {
   const CUSTOMER_DETAILS_QUERY = `#graphql
-  query CustomerDetails($token: String!) {
+  query AuthCustomerDetails($token: String!) {
     customer(customerAccessToken: $token) {
       ...Customer
     }
@@ -95,7 +95,7 @@ export async function updateCustomerDetails(
   props: CustomerUpdateInput,
 ) {
   const CUSTOMER_UPDATE_MUTATION = `#graphql
-    mutation customerUpdate(
+    mutation AuthCustomerUpdate(
       $token: String!,
       $customer: CustomerUpdateInput!
     ){
@@ -141,7 +141,7 @@ export async function addNewAddress(
   address: Partial<AddressFragment>,
 ) {
   const CREATE_ADDRESS_MUTATION = `#graphql
-  mutation customerAddressCreate(
+  mutation AuthCustomerAddressCreate(
     $token: String!,
     $address: MailingAddressInput!
   ) {
@@ -363,7 +363,7 @@ export async function fetchCustomerOrder(
   id: string,
 ) {
   const CUSTOMER_ORDER_QUERY = `#graphql
-  query Order($orderId: ID!) {
+  query AuthOrder($orderId: ID!) {
     node(id: $orderId) {
       ... on Order {
         ...Order

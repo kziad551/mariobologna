@@ -1,21 +1,21 @@
 export const CUSTOMER_UPDATE_MUTATION = `#graphql
   # https://shopify.dev/docs/api/customer/latest/mutations/customerUpdate
   mutation customerUpdate(
+    $customerAccessToken: String!
     $customer: CustomerUpdateInput!
-  ){
-    customerUpdate(input: $customer) {
+  ) {
+    customerUpdate(
+      customerAccessToken: $customerAccessToken
+      customer: $customer
+    ) {
       customer {
+        id
+        email
+        phone
         firstName
         lastName
-        emailAddress {
-          emailAddress
-        }
-        phoneNumber {
-          phoneNumber
-        }
       }
-      userErrors {
-        code
+      customerUserErrors {
         field
         message
       }

@@ -3,6 +3,442 @@
 /* eslint-disable */
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 
+export type CustomerAddressUpdateMutationVariables = StorefrontAPI.Exact<{
+  address: StorefrontAPI.MailingAddressInput;
+  id: StorefrontAPI.Scalars['ID']['input'];
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerAddressUpdateMutation = {
+  customerAddressUpdate?: StorefrontAPI.Maybe<{
+    customerAddress?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.MailingAddress, 'id'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'field' | 'message'>
+    >;
+  }>;
+};
+
+export type CustomerAddressDeleteMutationVariables = StorefrontAPI.Exact<{
+  id: StorefrontAPI.Scalars['ID']['input'];
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerAddressDeleteMutation = {
+  customerAddressDelete?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.CustomerAddressDeletePayload,
+      'deletedCustomerAddressId'
+    > & {
+      customerUserErrors: Array<
+        Pick<StorefrontAPI.CustomerUserError, 'field' | 'message'>
+      >;
+    }
+  >;
+};
+
+export type CustomerAddressCreateMutationVariables = StorefrontAPI.Exact<{
+  address: StorefrontAPI.MailingAddressInput;
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerAddressCreateMutation = {
+  customerAddressCreate?: StorefrontAPI.Maybe<{
+    customerAddress?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.MailingAddress, 'id'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'field' | 'message'>
+    >;
+  }>;
+};
+
+export type CustomerDetailsCustomerFragment = Pick<
+  StorefrontAPI.Customer,
+  'id' | 'firstName' | 'lastName'
+> & {
+  defaultAddress?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.MailingAddress,
+      | 'id'
+      | 'formatted'
+      | 'firstName'
+      | 'lastName'
+      | 'company'
+      | 'address1'
+      | 'address2'
+      | 'country'
+      | 'province'
+      | 'city'
+      | 'zip'
+      | 'phone'
+    >
+  >;
+  addresses: {
+    nodes: Array<
+      Pick<
+        StorefrontAPI.MailingAddress,
+        | 'id'
+        | 'formatted'
+        | 'firstName'
+        | 'lastName'
+        | 'company'
+        | 'address1'
+        | 'address2'
+        | 'country'
+        | 'province'
+        | 'city'
+        | 'zip'
+        | 'phone'
+      >
+    >;
+  };
+};
+
+export type CustomerDetailsAddressFragment = Pick<
+  StorefrontAPI.MailingAddress,
+  | 'id'
+  | 'formatted'
+  | 'firstName'
+  | 'lastName'
+  | 'company'
+  | 'address1'
+  | 'address2'
+  | 'country'
+  | 'province'
+  | 'city'
+  | 'zip'
+  | 'phone'
+>;
+
+export type CustomerDetailsQueryVariables = StorefrontAPI.Exact<{
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerDetailsQuery = {
+  customer?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Customer, 'id' | 'firstName' | 'lastName'> & {
+      defaultAddress?: StorefrontAPI.Maybe<
+        Pick<
+          StorefrontAPI.MailingAddress,
+          | 'id'
+          | 'formatted'
+          | 'firstName'
+          | 'lastName'
+          | 'company'
+          | 'address1'
+          | 'address2'
+          | 'country'
+          | 'province'
+          | 'city'
+          | 'zip'
+          | 'phone'
+        >
+      >;
+      addresses: {
+        nodes: Array<
+          Pick<
+            StorefrontAPI.MailingAddress,
+            | 'id'
+            | 'formatted'
+            | 'firstName'
+            | 'lastName'
+            | 'company'
+            | 'address1'
+            | 'address2'
+            | 'country'
+            | 'province'
+            | 'city'
+            | 'zip'
+            | 'phone'
+          >
+        >;
+      };
+    }
+  >;
+};
+
+export type CustomerOrderMoneyFragment = Pick<
+  StorefrontAPI.MoneyV2,
+  'amount' | 'currencyCode'
+>;
+
+export type CustomerOrderDiscountApplicationFragment = {
+  value:
+    | ({__typename: 'MoneyV2'} & Pick<
+        StorefrontAPI.MoneyV2,
+        'amount' | 'currencyCode'
+      >)
+    | ({__typename: 'PricingPercentageValue'} & Pick<
+        StorefrontAPI.PricingPercentageValue,
+        'percentage'
+      >);
+};
+
+export type CustomerOrderLineItemFullFragment = Pick<
+  StorefrontAPI.OrderLineItem,
+  'title' | 'quantity'
+> & {
+  variant?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
+      image?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'altText' | 'height' | 'url' | 'id' | 'width'>
+      >;
+    }
+  >;
+  originalTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+  discountAllocations: Array<{
+    allocatedAmount: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    discountApplication: {
+      value:
+        | ({__typename: 'MoneyV2'} & Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >)
+        | ({__typename: 'PricingPercentageValue'} & Pick<
+            StorefrontAPI.PricingPercentageValue,
+            'percentage'
+          >);
+    };
+  }>;
+};
+
+export type CustomerOrderDetailsFragment = Pick<
+  StorefrontAPI.Order,
+  'id' | 'name' | 'statusUrl' | 'processedAt' | 'fulfillmentStatus'
+> & {
+  totalTax?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+  >;
+  totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+  originalTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+  shippingAddress?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.MailingAddress,
+      | 'address1'
+      | 'address2'
+      | 'city'
+      | 'company'
+      | 'country'
+      | 'firstName'
+      | 'lastName'
+      | 'phone'
+      | 'province'
+      | 'zip'
+    >
+  >;
+  discountApplications: {
+    nodes: Array<{
+      value:
+        | ({__typename: 'MoneyV2'} & Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >)
+        | ({__typename: 'PricingPercentageValue'} & Pick<
+            StorefrontAPI.PricingPercentageValue,
+            'percentage'
+          >);
+    }>;
+  };
+  lineItems: {
+    nodes: Array<
+      Pick<StorefrontAPI.OrderLineItem, 'title' | 'quantity'> & {
+        variant?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
+            image?: StorefrontAPI.Maybe<
+              Pick<
+                StorefrontAPI.Image,
+                'altText' | 'height' | 'url' | 'id' | 'width'
+              >
+            >;
+          }
+        >;
+        originalTotalPrice: Pick<
+          StorefrontAPI.MoneyV2,
+          'amount' | 'currencyCode'
+        >;
+        discountAllocations: Array<{
+          allocatedAmount: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+          discountApplication: {
+            value:
+              | ({__typename: 'MoneyV2'} & Pick<
+                  StorefrontAPI.MoneyV2,
+                  'amount' | 'currencyCode'
+                >)
+              | ({__typename: 'PricingPercentageValue'} & Pick<
+                  StorefrontAPI.PricingPercentageValue,
+                  'percentage'
+                >);
+          };
+        }>;
+      }
+    >;
+  };
+};
+
+export type CustomerOrderQueryVariables = StorefrontAPI.Exact<{
+  orderId: StorefrontAPI.Scalars['ID']['input'];
+}>;
+
+export type CustomerOrderQuery = {
+  node?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.Order,
+      'id' | 'name' | 'statusUrl' | 'processedAt' | 'fulfillmentStatus'
+    > & {
+      totalTax?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+      >;
+      totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+      originalTotalPrice: Pick<
+        StorefrontAPI.MoneyV2,
+        'amount' | 'currencyCode'
+      >;
+      shippingAddress?: StorefrontAPI.Maybe<
+        Pick<
+          StorefrontAPI.MailingAddress,
+          | 'address1'
+          | 'address2'
+          | 'city'
+          | 'company'
+          | 'country'
+          | 'firstName'
+          | 'lastName'
+          | 'phone'
+          | 'province'
+          | 'zip'
+        >
+      >;
+      discountApplications: {
+        nodes: Array<{
+          value:
+            | ({__typename: 'MoneyV2'} & Pick<
+                StorefrontAPI.MoneyV2,
+                'amount' | 'currencyCode'
+              >)
+            | ({__typename: 'PricingPercentageValue'} & Pick<
+                StorefrontAPI.PricingPercentageValue,
+                'percentage'
+              >);
+        }>;
+      };
+      lineItems: {
+        nodes: Array<
+          Pick<StorefrontAPI.OrderLineItem, 'title' | 'quantity'> & {
+            variant?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
+                image?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'altText' | 'height' | 'url' | 'id' | 'width'
+                  >
+                >;
+              }
+            >;
+            originalTotalPrice: Pick<
+              StorefrontAPI.MoneyV2,
+              'amount' | 'currencyCode'
+            >;
+            discountAllocations: Array<{
+              allocatedAmount: Pick<
+                StorefrontAPI.MoneyV2,
+                'amount' | 'currencyCode'
+              >;
+              discountApplication: {
+                value:
+                  | ({__typename: 'MoneyV2'} & Pick<
+                      StorefrontAPI.MoneyV2,
+                      'amount' | 'currencyCode'
+                    >)
+                  | ({__typename: 'PricingPercentageValue'} & Pick<
+                      StorefrontAPI.PricingPercentageValue,
+                      'percentage'
+                    >);
+              };
+            }>;
+          }
+        >;
+      };
+    }
+  >;
+};
+
+export type OrderItemFragment = Pick<
+  StorefrontAPI.Order,
+  'financialStatus' | 'fulfillmentStatus' | 'id' | 'name' | 'processedAt'
+> & {totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>};
+
+export type CustomerOrdersFragment = {
+  orders: {
+    nodes: Array<
+      Pick<
+        StorefrontAPI.Order,
+        'financialStatus' | 'fulfillmentStatus' | 'id' | 'name' | 'processedAt'
+      > & {totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>}
+    >;
+    pageInfo: Pick<
+      StorefrontAPI.PageInfo,
+      'hasPreviousPage' | 'hasNextPage' | 'endCursor' | 'startCursor'
+    >;
+  };
+};
+
+export type CustomerOrdersQueryVariables = StorefrontAPI.Exact<{
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+  endCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  startCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+}>;
+
+export type CustomerOrdersQuery = {
+  customer?: StorefrontAPI.Maybe<{
+    orders: {
+      nodes: Array<
+        Pick<
+          StorefrontAPI.Order,
+          | 'financialStatus'
+          | 'fulfillmentStatus'
+          | 'id'
+          | 'name'
+          | 'processedAt'
+        > & {totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>}
+      >;
+      pageInfo: Pick<
+        StorefrontAPI.PageInfo,
+        'hasPreviousPage' | 'hasNextPage' | 'endCursor' | 'startCursor'
+      >;
+    };
+  }>;
+};
+
+export type CustomerUpdateMutationVariables = StorefrontAPI.Exact<{
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+  customer: StorefrontAPI.CustomerUpdateInput;
+}>;
+
+export type CustomerUpdateMutation = {
+  customerUpdate?: StorefrontAPI.Maybe<{
+    customer?: StorefrontAPI.Maybe<
+      Pick<
+        StorefrontAPI.Customer,
+        'id' | 'email' | 'phone' | 'firstName' | 'lastName'
+      >
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'field' | 'message'>
+    >;
+  }>;
+};
+
 export type MoneyFragment = Pick<
   StorefrontAPI.MoneyV2,
   'currencyCode' | 'amount'
@@ -293,99 +729,27 @@ export type DiscountApplicationFragment = {
       >);
 };
 
-export type OrderLineItemFullFragment = Pick<
-  StorefrontAPI.OrderLineItem,
-  'title' | 'currentQuantity' | 'quantity'
-> & {
-  originalTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  discountedTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  discountAllocations: Array<{
-    allocatedAmount: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-    discountApplication: {
-      value:
-        | ({__typename: 'MoneyV2'} & Pick<
-            StorefrontAPI.MoneyV2,
-            'amount' | 'currencyCode'
-          >)
-        | ({__typename: 'PricingPercentageValue'} & Pick<
-            StorefrontAPI.PricingPercentageValue,
-            'percentage'
-          >);
-    };
-  }>;
-  variant?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-      price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-      selectedOptions: Array<
-        Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-      >;
-      image?: StorefrontAPI.Maybe<
-        Pick<StorefrontAPI.Image, 'id' | 'altText' | 'height' | 'width' | 'url'>
-      >;
-      product: Pick<
-        StorefrontAPI.Product,
-        'id' | 'description' | 'descriptionHtml'
-      > & {
-        featuredImage?: StorefrontAPI.Maybe<
-          Pick<
-            StorefrontAPI.Image,
-            'id' | 'altText' | 'height' | 'width' | 'url'
-          >
-        >;
-      };
-    }
-  >;
-};
-
 export type OrderFragment = Pick<
   StorefrontAPI.Order,
-  | 'id'
-  | 'name'
-  | 'statusUrl'
-  | 'processedAt'
-  | 'financialStatus'
-  | 'fulfillmentStatus'
-  | 'cancelReason'
-  | 'canceledAt'
-  | 'orderNumber'
+  'id' | 'name' | 'statusUrl' | 'processedAt' | 'fulfillmentStatus'
 > & {
-  totalRefunded: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  totalShippingPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
   totalTax?: StorefrontAPI.Maybe<
     Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
   >;
   totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  subtotalPrice?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
-  >;
-  currentTotalTax: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  currentTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  currentSubtotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-  billingAddress?: StorefrontAPI.Maybe<
-    Pick<
-      StorefrontAPI.MailingAddress,
-      | 'id'
-      | 'firstName'
-      | 'lastName'
-      | 'phone'
-      | 'address1'
-      | 'company'
-      | 'city'
-      | 'country'
-      | 'zip'
-    >
-  >;
+  originalTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
   shippingAddress?: StorefrontAPI.Maybe<
     Pick<
       StorefrontAPI.MailingAddress,
-      | 'id'
+      | 'address1'
+      | 'address2'
+      | 'city'
+      | 'company'
+      | 'country'
       | 'firstName'
       | 'lastName'
       | 'phone'
-      | 'address1'
-      | 'company'
-      | 'city'
-      | 'country'
+      | 'province'
       | 'zip'
     >
   >;
@@ -404,15 +768,18 @@ export type OrderFragment = Pick<
   };
   lineItems: {
     nodes: Array<
-      Pick<
-        StorefrontAPI.OrderLineItem,
-        'title' | 'currentQuantity' | 'quantity'
-      > & {
-        originalTotalPrice: Pick<
-          StorefrontAPI.MoneyV2,
-          'amount' | 'currencyCode'
+      Pick<StorefrontAPI.OrderLineItem, 'title' | 'quantity'> & {
+        variant?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
+            image?: StorefrontAPI.Maybe<
+              Pick<
+                StorefrontAPI.Image,
+                'altText' | 'height' | 'url' | 'id' | 'width'
+              >
+            >;
+          }
         >;
-        discountedTotalPrice: Pick<
+        originalTotalPrice: Pick<
           StorefrontAPI.MoneyV2,
           'amount' | 'currencyCode'
         >;
@@ -433,31 +800,6 @@ export type OrderFragment = Pick<
                 >);
           };
         }>;
-        variant?: StorefrontAPI.Maybe<
-          Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-            price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-            selectedOptions: Array<
-              Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-            >;
-            image?: StorefrontAPI.Maybe<
-              Pick<
-                StorefrontAPI.Image,
-                'id' | 'altText' | 'height' | 'width' | 'url'
-              >
-            >;
-            product: Pick<
-              StorefrontAPI.Product,
-              'id' | 'description' | 'descriptionHtml'
-            > & {
-              featuredImage?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Image,
-                  'id' | 'altText' | 'height' | 'width' | 'url'
-                >
-              >;
-            };
-          }
-        >;
       }
     >;
   };
@@ -986,12 +1328,12 @@ export type SitemapQuery = {
   };
 };
 
-export type CustomerAddressDeleteMutationVariables = StorefrontAPI.Exact<{
+export type RouteCustomerAddressDeleteMutationVariables = StorefrontAPI.Exact<{
   addressId: StorefrontAPI.Scalars['ID']['input'];
   token: StorefrontAPI.Scalars['String']['input'];
 }>;
 
-export type CustomerAddressDeleteMutation = {
+export type RouteCustomerAddressDeleteMutation = {
   customerAddressDelete?: StorefrontAPI.Maybe<
     Pick<
       StorefrontAPI.CustomerAddressDeletePayload,
@@ -2000,11 +2342,11 @@ export type VerifyTokenQuery = {
   customer?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Customer, 'id'>>;
 };
 
-export type CustomerDetailsQueryVariables = StorefrontAPI.Exact<{
+export type AuthCustomerDetailsQueryVariables = StorefrontAPI.Exact<{
   token: StorefrontAPI.Scalars['String']['input'];
 }>;
 
-export type CustomerDetailsQuery = {
+export type AuthCustomerDetailsQuery = {
   customer?: StorefrontAPI.Maybe<
     Pick<
       StorefrontAPI.Customer,
@@ -2087,12 +2429,12 @@ export type CustomerDetailsQuery = {
   >;
 };
 
-export type CustomerUpdateMutationVariables = StorefrontAPI.Exact<{
+export type AuthCustomerUpdateMutationVariables = StorefrontAPI.Exact<{
   token: StorefrontAPI.Scalars['String']['input'];
   customer: StorefrontAPI.CustomerUpdateInput;
 }>;
 
-export type CustomerUpdateMutation = {
+export type AuthCustomerUpdateMutation = {
   customerUpdate?: StorefrontAPI.Maybe<{
     customer?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Customer, 'id'>>;
     customerUserErrors: Array<
@@ -2101,12 +2443,12 @@ export type CustomerUpdateMutation = {
   }>;
 };
 
-export type CustomerAddressCreateMutationVariables = StorefrontAPI.Exact<{
+export type AuthCustomerAddressCreateMutationVariables = StorefrontAPI.Exact<{
   token: StorefrontAPI.Scalars['String']['input'];
   address: StorefrontAPI.MailingAddressInput;
 }>;
 
-export type CustomerAddressCreateMutation = {
+export type AuthCustomerAddressCreateMutation = {
   customerAddressCreate?: StorefrontAPI.Maybe<{
     customerAddress?: StorefrontAPI.Maybe<
       Pick<StorefrontAPI.MailingAddress, 'id'>
@@ -2188,67 +2530,36 @@ export type SetDefaultAddressMutation = {
   }>;
 };
 
-export type OrderQueryVariables = StorefrontAPI.Exact<{
+export type AuthOrderQueryVariables = StorefrontAPI.Exact<{
   orderId: StorefrontAPI.Scalars['ID']['input'];
 }>;
 
-export type OrderQuery = {
+export type AuthOrderQuery = {
   node?: StorefrontAPI.Maybe<
     Pick<
       StorefrontAPI.Order,
-      | 'id'
-      | 'name'
-      | 'statusUrl'
-      | 'processedAt'
-      | 'financialStatus'
-      | 'fulfillmentStatus'
-      | 'cancelReason'
-      | 'canceledAt'
-      | 'orderNumber'
+      'id' | 'name' | 'statusUrl' | 'processedAt' | 'fulfillmentStatus'
     > & {
-      totalRefunded: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-      totalShippingPrice: Pick<
-        StorefrontAPI.MoneyV2,
-        'amount' | 'currencyCode'
-      >;
       totalTax?: StorefrontAPI.Maybe<
         Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
       >;
       totalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-      subtotalPrice?: StorefrontAPI.Maybe<
-        Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
-      >;
-      currentTotalTax: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-      currentTotalPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-      currentSubtotalPrice: Pick<
+      originalTotalPrice: Pick<
         StorefrontAPI.MoneyV2,
         'amount' | 'currencyCode'
-      >;
-      billingAddress?: StorefrontAPI.Maybe<
-        Pick<
-          StorefrontAPI.MailingAddress,
-          | 'id'
-          | 'firstName'
-          | 'lastName'
-          | 'phone'
-          | 'address1'
-          | 'company'
-          | 'city'
-          | 'country'
-          | 'zip'
-        >
       >;
       shippingAddress?: StorefrontAPI.Maybe<
         Pick<
           StorefrontAPI.MailingAddress,
-          | 'id'
+          | 'address1'
+          | 'address2'
+          | 'city'
+          | 'company'
+          | 'country'
           | 'firstName'
           | 'lastName'
           | 'phone'
-          | 'address1'
-          | 'company'
-          | 'city'
-          | 'country'
+          | 'province'
           | 'zip'
         >
       >;
@@ -2267,15 +2578,18 @@ export type OrderQuery = {
       };
       lineItems: {
         nodes: Array<
-          Pick<
-            StorefrontAPI.OrderLineItem,
-            'title' | 'currentQuantity' | 'quantity'
-          > & {
-            originalTotalPrice: Pick<
-              StorefrontAPI.MoneyV2,
-              'amount' | 'currencyCode'
+          Pick<StorefrontAPI.OrderLineItem, 'title' | 'quantity'> & {
+            variant?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
+                image?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'altText' | 'height' | 'url' | 'id' | 'width'
+                  >
+                >;
+              }
             >;
-            discountedTotalPrice: Pick<
+            originalTotalPrice: Pick<
               StorefrontAPI.MoneyV2,
               'amount' | 'currencyCode'
             >;
@@ -2296,31 +2610,6 @@ export type OrderQuery = {
                     >);
               };
             }>;
-            variant?: StorefrontAPI.Maybe<
-              Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-                price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
-                selectedOptions: Array<
-                  Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-                >;
-                image?: StorefrontAPI.Maybe<
-                  Pick<
-                    StorefrontAPI.Image,
-                    'id' | 'altText' | 'height' | 'width' | 'url'
-                  >
-                >;
-                product: Pick<
-                  StorefrontAPI.Product,
-                  'id' | 'description' | 'descriptionHtml'
-                > & {
-                  featuredImage?: StorefrontAPI.Maybe<
-                    Pick<
-                      StorefrontAPI.Image,
-                      'id' | 'altText' | 'height' | 'width' | 'url'
-                    >
-                  >;
-                };
-              }
-            >;
           }
         >;
       };
@@ -2329,6 +2618,18 @@ export type OrderQuery = {
 };
 
 interface GeneratedQueryTypes {
+  '#graphql\n  query CustomerDetails($customerAccessToken: String!) {\n    customer(customerAccessToken: $customerAccessToken) {\n      ...CustomerDetailsCustomer\n    }\n  }\n  #graphql\nfragment Customer on Customer {\n  id\n  firstName\n  lastName\n  phone\n  email\n  defaultAddress {\n    ...Address\n  }\n  addresses(first: 6) {\n    nodes {\n      ...Address\n    }\n  }\n  orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {\n    nodes {\n      ...OrderCard\n    }\n  }\n}\n\nfragment OrderCard on Order {\n  id\n  processedAt\n  canceledAt\n  cancelReason\n  financialStatus\n  fulfillmentStatus\n  totalPrice {\n    amount\n    currencyCode\n  }\n  totalRefunded {\n    amount\n    currencyCode\n  }\n  lineItems(first: 3) {\n    nodes {\n      currentQuantity\n      variant {\n        id\n        price {\n          amount\n          currencyCode\n        }\n        image{\n          id\n          altText\n          height\n          width\n          url\n        }\n      }\n    }\n  }\n}\n\nfragment Address on MailingAddress {\n  id\n  firstName\n  lastName\n  company\n  address1\n  address2\n  city\n  country\n  countryCodeV2\n  zip\n  phone\n}\n\n': {
+    return: CustomerDetailsQuery;
+    variables: CustomerDetailsQueryVariables;
+  };
+  '#graphql\n  fragment CustomerOrderMoney on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment CustomerOrderDiscountApplication on DiscountApplication {\n    value {\n      __typename\n      ... on MoneyV2 {\n        ...CustomerOrderMoney\n      }\n      ... on PricingPercentageValue {\n        percentage\n      }\n    }\n  }\n  fragment CustomerOrderLineItemFull on OrderLineItem {\n    variant {\n      id\n    }\n    title\n    quantity\n    originalTotalPrice {\n      ...CustomerOrderMoney\n    }\n    discountAllocations {\n      allocatedAmount {\n        ...CustomerOrderMoney\n      }\n      discountApplication {\n        ...CustomerOrderDiscountApplication\n      }\n    }\n    variant {\n      image {\n        altText\n        height\n        url\n        id\n        width\n      }\n      title\n    }\n  }\n  fragment CustomerOrderDetails on Order {\n    id\n    name\n    statusUrl\n    processedAt\n    fulfillmentStatus\n    totalTax {\n      ...CustomerOrderMoney\n    }\n    totalPrice {\n      ...CustomerOrderMoney\n    }\n    originalTotalPrice {\n      ...CustomerOrderMoney\n    }\n    shippingAddress {\n      address1\n      address2\n      city\n      company\n      country\n      firstName\n      lastName\n      phone\n      province\n      zip\n    }\n    discountApplications(first: 100) {\n      nodes {\n        ...CustomerOrderDiscountApplication\n      }\n    }\n    lineItems(first: 100) {\n      nodes {\n        ...CustomerOrderLineItemFull\n      }\n    }\n  }\n  query CustomerOrder($orderId: ID!) {\n    node(id: $orderId) {\n      ... on Order {\n        ...CustomerOrderDetails\n      }\n    }\n  }\n': {
+    return: CustomerOrderQuery;
+    variables: CustomerOrderQueryVariables;
+  };
+  '#graphql\n  #graphql\n  fragment CustomerOrders on Customer {\n    orders(\n      sortKey: PROCESSED_AT,\n      reverse: true,\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor\n    ) {\n      nodes {\n        ...OrderItem\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        endCursor\n        startCursor\n      }\n    }\n  }\n  #graphql\n  fragment OrderItem on Order {\n    totalPrice {\n      amount\n      currencyCode\n    }\n    financialStatus\n    fulfillmentStatus\n    id\n    name\n    processedAt\n  }\n\n\n  query CustomerOrders(\n    $customerAccessToken: String!\n    $endCursor: String\n    $first: Int\n    $last: Int\n    $startCursor: String\n  ) {\n    customer(customerAccessToken: $customerAccessToken) {\n      ...CustomerOrders\n    }\n  }\n': {
+    return: CustomerOrdersQuery;
+    variables: CustomerOrdersQueryVariables;
+  };
   '#graphql\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    publishedAt\n    handle\n    vendor\n    productType\n    tags\n    collections(first: 100) {\n      nodes {\n        handle\n      }\n    }\n    descriptionHtml\n    description\n    availableForSale\n    options {\n      name\n      values\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    compareAtPriceRange{\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    images(first: 5) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    variants(first: 250) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          altText\n          width\n          height\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          handle\n          title\n        }\n      }\n    }\n  }\n\n  query Look(\n    $handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      description\n      image {\n        __typename\n        id\n        url\n        altText\n        width\n        height\n      }\n      products(first: 250) {\n        nodes {\n          ...ProductCard\n        }\n      }\n    }\n  }\n': {
     return: LookQuery;
     variables: LookQueryVariables;
@@ -2405,28 +2706,44 @@ interface GeneratedQueryTypes {
     return: VerifyTokenQuery;
     variables: VerifyTokenQueryVariables;
   };
-  '#graphql\n  query CustomerDetails($token: String!) {\n    customer(customerAccessToken: $token) {\n      ...Customer\n    }\n  }\n  #graphql\nfragment Customer on Customer {\n  id\n  firstName\n  lastName\n  phone\n  email\n  defaultAddress {\n    ...Address\n  }\n  addresses(first: 6) {\n    nodes {\n      ...Address\n    }\n  }\n  orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {\n    nodes {\n      ...OrderCard\n    }\n  }\n}\n\nfragment OrderCard on Order {\n  id\n  processedAt\n  canceledAt\n  cancelReason\n  financialStatus\n  fulfillmentStatus\n  totalPrice {\n    amount\n    currencyCode\n  }\n  totalRefunded {\n    amount\n    currencyCode\n  }\n  lineItems(first: 3) {\n    nodes {\n      currentQuantity\n      variant {\n        id\n        price {\n          amount\n          currencyCode\n        }\n        image{\n          id\n          altText\n          height\n          width\n          url\n        }\n      }\n    }\n  }\n}\n\nfragment Address on MailingAddress {\n  id\n  firstName\n  lastName\n  company\n  address1\n  address2\n  city\n  country\n  countryCodeV2\n  zip\n  phone\n}\n\n': {
-    return: CustomerDetailsQuery;
-    variables: CustomerDetailsQueryVariables;
+  '#graphql\n  query AuthCustomerDetails($token: String!) {\n    customer(customerAccessToken: $token) {\n      ...Customer\n    }\n  }\n  #graphql\nfragment Customer on Customer {\n  id\n  firstName\n  lastName\n  phone\n  email\n  defaultAddress {\n    ...Address\n  }\n  addresses(first: 6) {\n    nodes {\n      ...Address\n    }\n  }\n  orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {\n    nodes {\n      ...OrderCard\n    }\n  }\n}\n\nfragment OrderCard on Order {\n  id\n  processedAt\n  canceledAt\n  cancelReason\n  financialStatus\n  fulfillmentStatus\n  totalPrice {\n    amount\n    currencyCode\n  }\n  totalRefunded {\n    amount\n    currencyCode\n  }\n  lineItems(first: 3) {\n    nodes {\n      currentQuantity\n      variant {\n        id\n        price {\n          amount\n          currencyCode\n        }\n        image{\n          id\n          altText\n          height\n          width\n          url\n        }\n      }\n    }\n  }\n}\n\nfragment Address on MailingAddress {\n  id\n  firstName\n  lastName\n  company\n  address1\n  address2\n  city\n  country\n  countryCodeV2\n  zip\n  phone\n}\n\n': {
+    return: AuthCustomerDetailsQuery;
+    variables: AuthCustomerDetailsQueryVariables;
   };
-  '#graphql\n  query Order($orderId: ID!) {\n    node(id: $orderId) {\n      ... on Order {\n        ...Order\n      }\n    }\n  }\n  #graphql\nfragment OrderMoney on MoneyV2 {\n  amount\n  currencyCode\n}\n\nfragment DiscountApplication on DiscountApplication {\n  value {\n    __typename\n    ... on MoneyV2 {\n      ...OrderMoney\n    }\n    ... on PricingPercentageValue {\n      percentage\n    }\n  }\n}\n\nfragment OrderLineItemFull on OrderLineItem {\n  title\n  currentQuantity\n  quantity\n  originalTotalPrice {\n    ...OrderMoney\n  }\n  discountedTotalPrice {\n    ...OrderMoney\n  }\n  discountAllocations {\n    allocatedAmount {\n      ...OrderMoney\n    }\n    discountApplication {\n      ...DiscountApplication\n    }\n  }\n  variant {\n    id\n    title\n    price {\n      amount\n      currencyCode\n    }\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      altText\n      height\n      width\n      url\n    }\n    product {\n      id\n      description\n      descriptionHtml\n      featuredImage {\n        id\n        altText\n        height\n        width\n        url\n      }\n    }\n  }\n}\n\nfragment Order on Order {\n  id\n  name\n  statusUrl\n  processedAt\n  financialStatus\n  fulfillmentStatus\n  cancelReason\n  canceledAt\n  orderNumber\n  totalRefunded {\n    ...OrderMoney\n  }\n  totalShippingPrice {\n    ...OrderMoney\n  }\n  totalTax {\n    ...OrderMoney\n  }\n  totalPrice {\n    ...OrderMoney\n  }\n  subtotalPrice {\n    ...OrderMoney\n  }\n  currentTotalTax {\n    ...OrderMoney\n  }\n  currentTotalPrice {\n    ...OrderMoney\n  }\n  currentSubtotalPrice {\n    ...OrderMoney\n  }\n  billingAddress {\n    id\n    firstName\n    lastName\n    phone\n    address1\n    company\n    city\n    country\n    zip\n  }\n  shippingAddress {\n    id\n    firstName\n    lastName\n    phone\n    address1\n    company\n    city\n    country\n    zip\n  }\n  discountApplications(first: 100) {\n    nodes {\n      ...DiscountApplication\n    }\n  }\n  lineItems(first: 100) {\n    nodes {\n      ...OrderLineItemFull\n    }\n  }\n}\n\n  ': {
-    return: OrderQuery;
-    variables: OrderQueryVariables;
+  '#graphql\n  query AuthOrder($orderId: ID!) {\n    node(id: $orderId) {\n      ... on Order {\n        ...Order\n      }\n    }\n  }\n  #graphql\n  fragment OrderMoney on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment DiscountApplication on DiscountApplication {\n    value {\n      __typename\n      ... on MoneyV2 {\n        ...OrderMoney\n      }\n      ... on PricingPercentageValue {\n        percentage\n      }\n    }\n  }\n  fragment Order on Order {\n    id\n    name\n    statusUrl\n    processedAt\n    fulfillmentStatus\n    totalTax {\n      ...OrderMoney\n    }\n    totalPrice {\n      ...OrderMoney\n    }\n    originalTotalPrice {\n      ...OrderMoney\n    }\n    shippingAddress {\n      address1\n      address2\n      city\n      company\n      country\n      firstName\n      lastName\n      phone\n      province\n      zip\n    }\n    discountApplications(first: 100) {\n      nodes {\n        ...DiscountApplication\n      }\n    }\n    lineItems(first: 100) {\n      nodes {\n        variant {\n          id\n          image {\n            altText\n            height\n            url\n            id\n            width\n          }\n          title\n        }\n        title\n        quantity\n        originalTotalPrice {\n          ...OrderMoney\n        }\n        discountAllocations {\n          allocatedAmount {\n            ...OrderMoney\n          }\n          discountApplication {\n            ...DiscountApplication\n          }\n        }\n      }\n    }\n  }\n\n  ': {
+    return: AuthOrderQuery;
+    variables: AuthOrderQueryVariables;
   };
 }
 
 interface GeneratedMutationTypes {
-  '#graphql\n    mutation customerAddressDelete($addressId: ID!, $token: String!) {\n      customerAddressDelete(customerAccessToken: $token, id: $addressId) {\n        deletedCustomerAddressId\n        customerUserErrors {\n          code\n          field\n          message\n        }\n      }\n    }\n    ': {
+  '#graphql\n  mutation customerAddressUpdate(\n    $address: MailingAddressInput!\n    $id: ID!\n    $customerAccessToken: String!\n  ) {\n    customerAddressUpdate(\n      address: $address\n      id: $id\n      customerAccessToken: $customerAccessToken\n    ) {\n      customerAddress {\n        id\n      }\n      customerUserErrors {\n        field\n        message\n      }\n    }\n  }\n': {
+    return: CustomerAddressUpdateMutation;
+    variables: CustomerAddressUpdateMutationVariables;
+  };
+  '#graphql\n  mutation customerAddressDelete(\n    $id: ID!,\n    $customerAccessToken: String!\n  ) {\n    customerAddressDelete(\n      id: $id,\n      customerAccessToken: $customerAccessToken\n    ) {\n      deletedCustomerAddressId\n      customerUserErrors {\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerAddressDeleteMutation;
     variables: CustomerAddressDeleteMutationVariables;
   };
-  '#graphql\n    mutation customerUpdate(\n      $token: String!,\n      $customer: CustomerUpdateInput!\n    ){\n      customerUpdate(\n        customerAccessToken: $token,\n        customer: $customer\n      ){\n        customer {\n          id\n        }\n        customerUserErrors{\n          message,\n          code,\n          field,\n        }\n      }\n    }\n  ': {
+  '#graphql\n  mutation customerAddressCreate(\n    $address: MailingAddressInput!\n    $customerAccessToken: String!\n  ) {\n    customerAddressCreate(\n      address: $address\n      customerAccessToken: $customerAccessToken\n    ) {\n      customerAddress {\n        id\n      }\n      customerUserErrors {\n        field\n        message\n      }\n    }\n  }\n': {
+    return: CustomerAddressCreateMutation;
+    variables: CustomerAddressCreateMutationVariables;
+  };
+  '#graphql\n  # https://shopify.dev/docs/api/customer/latest/mutations/customerUpdate\n  mutation customerUpdate(\n    $customerAccessToken: String!\n    $customer: CustomerUpdateInput!\n  ) {\n    customerUpdate(\n      customerAccessToken: $customerAccessToken\n      customer: $customer\n    ) {\n      customer {\n        id\n        email\n        phone\n        firstName\n        lastName\n      }\n      customerUserErrors {\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerUpdateMutation;
     variables: CustomerUpdateMutationVariables;
   };
-  '#graphql\n  mutation customerAddressCreate(\n    $token: String!,\n    $address: MailingAddressInput!\n  ) {\n    customerAddressCreate(\n      customerAccessToken:$token,\n      address: $address\n    ) {\n      customerAddress {\n        id\n      }\n      customerUserErrors{\n        message,\n        code,\n        field,\n      }\n    }\n  }\n  ': {
-    return: CustomerAddressCreateMutation;
-    variables: CustomerAddressCreateMutationVariables;
+  '#graphql\n    mutation RouteCustomerAddressDelete($addressId: ID!, $token: String!) {\n      customerAddressDelete(customerAccessToken: $token, id: $addressId) {\n        deletedCustomerAddressId\n        customerUserErrors {\n          code\n          field\n          message\n        }\n      }\n    }\n    ': {
+    return: RouteCustomerAddressDeleteMutation;
+    variables: RouteCustomerAddressDeleteMutationVariables;
+  };
+  '#graphql\n    mutation AuthCustomerUpdate(\n      $token: String!,\n      $customer: CustomerUpdateInput!\n    ){\n      customerUpdate(\n        customerAccessToken: $token,\n        customer: $customer\n      ){\n        customer {\n          id\n        }\n        customerUserErrors{\n          message,\n          code,\n          field,\n        }\n      }\n    }\n  ': {
+    return: AuthCustomerUpdateMutation;
+    variables: AuthCustomerUpdateMutationVariables;
+  };
+  '#graphql\n  mutation AuthCustomerAddressCreate(\n    $token: String!,\n    $address: MailingAddressInput!\n  ) {\n    customerAddressCreate(\n      customerAccessToken:$token,\n      address: $address\n    ) {\n      customerAddress {\n        id\n      }\n      customerUserErrors{\n        message,\n        code,\n        field,\n      }\n    }\n  }\n  ': {
+    return: AuthCustomerAddressCreateMutation;
+    variables: AuthCustomerAddressCreateMutationVariables;
   };
   '#graphql\n  mutation UpdateCart($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {\n    cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {\n      cart {\n        id\n        checkoutUrl\n      }\n      userErrors {\n        field\n        message\n      }\n    }\n  }\n  ': {
     return: UpdateCartMutation;
