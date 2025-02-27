@@ -240,40 +240,35 @@ const OrSection = ({
     const searchParams = new URLSearchParams(window.location.search);
     const returnTo = searchParams.get('returnTo') || '/';
     
-    // Redirect to Google OAuth
-    window.location.href = `/auth/google/login?returnTo=${encodeURIComponent(returnTo)}`;
+    // Use different endpoints for login vs signup
+    const endpoint = section === 'login' ? 'login' : 'signup';
+    window.location.href = `/auth/google/${endpoint}?returnTo=${encodeURIComponent(returnTo)}`;
   };
 
   return (
     <>
       <div className="flex items-center justify-center gap-7 my-4">
         <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
-        <p>{t('Or')}</p>
+        <span className="text-neutral-N-60">{t('Or')}</span>
         <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
       </div>
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-col gap-3">
         <button
           onClick={handleGoogleSignIn}
-          className="flex items-center justify-center gap-2 border border-neutral-N-80 rounded-lg px-4 py-2 hover:bg-neutral-N-95"
+          className="flex items-center justify-center gap-2 w-full border border-neutral-N-80 rounded-md py-2.5 hover:bg-neutral-N-10"
         >
           <FcGoogle size={24} />
-          <span>
-            {section === 'login' 
-              ? t('Login with Google')
-              : t('Sign up with Google')}
-          </span>
+          <span>{section === 'login' ? t('Login with Google') : t('Sign up with Google')}</span>
         </button>
       </div>
-      <div className="flex items-center justify-center mt-4">
-        <p className="text-sm text-neutral-N-60">
-          {message}{' '}
-          <button
-            className="text-primary-P-50 hover:underline"
-            onClick={() => setSection(section)}
-          >
-            {buttonText}
-          </button>
-        </p>
+      <div className="text-center mt-4">
+        <span className="text-neutral-N-60">{message}</span>
+        <button
+          onClick={() => setSection(section === 'login' ? 'register' : 'login')}
+          className="text-black font-medium hover:underline"
+        >
+          {buttonText}
+        </button>
       </div>
     </>
   );
