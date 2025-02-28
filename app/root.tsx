@@ -32,12 +32,19 @@ import {
   CountryCode,
   MenuItem,
   MenuItemType,
+  type Shop,
+  type Menu,
 } from '@shopify/hydrogen/storefront-api-types';
-import {Storefront} from './lib/type';
+import {Storefront, type I18nLocale} from './lib/type';
 import GoogleMapWrapper from './components/GoogleMapWrapper';
 import {CompareProductProvider} from './contexts/CompareProducts';
 import CookieConsent from './components/Popup/PopupCookie';
 import {HelmetProvider, Helmet} from 'react-helmet-async';
+import type {
+  CartApiQueryFragment,
+  FooterQuery,
+} from 'storefrontapi.generated';
+import {Jsonify} from '@remix-run/server-runtime/dist/jsonify';
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -180,6 +187,51 @@ const handleFilters = async ({
   }
 };
 
+type ShopData = {
+  id: string;
+  name: string;
+  description: string;
+  primaryDomain: {
+    url: string;
+  };
+  brand?: {
+    logo?: {
+      image?: {
+        url?: string;
+      };
+    };
+  };
+};
+
+type HeaderData = {
+  shop: ShopData;
+  menu: Menu | null;
+} | {
+  shop: null;
+  menu: null;
+};
+
+export type LayoutProps = {
+  cart: CartApiQueryFragment | null;
+  children?: React.ReactNode;
+  footer: {
+    mainFooter: Jsonify<FooterQuery>;
+    aboutFooter: Jsonify<FooterQuery>;
+    ordersFooter: Jsonify<FooterQuery>;
+    customerFooter: Jsonify<FooterQuery>;
+    privacyFooter: Jsonify<FooterQuery>;
+  };
+  header: Jsonify<HeaderData>;
+  submenus: {
+    men: submenuType[];
+    women: submenuType[];
+    kids: submenuType[];
+  };
+  GOOGLE_API_KEY: string;
+  publicStoreDomain: string;
+  selectedLocale: I18nLocale;
+};
+
 export async function loader({context, request}: LoaderFunctionArgs) {
   const {storefront, cart, env} = context;
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
@@ -201,39 +253,49 @@ export async function loader({context, request}: LoaderFunctionArgs) {
     cache: storefront.CacheLong(),
     variables: {
       footerMenuHandle: 'footer',
+      language: storefront.i18n.language,
     },
-  });
+  }).catch(() => ({ menu: null }));
+
   const aboutFooter = await storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
       footerMenuHandle: 'about-footer-menu',
+      language: storefront.i18n.language,
     },
-  });
+  }).catch(() => ({ menu: null }));
+
   const ordersFooter = await storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
       footerMenuHandle: 'orders-footer-menu',
+      language: storefront.i18n.language,
     },
-  });
+  }).catch(() => ({ menu: null }));
+
   const customerFooter = await storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
       footerMenuHandle: 'customer-care-footer-menu',
+      language: storefront.i18n.language,
     },
-  });
+  }).catch(() => ({ menu: null }));
+
   const privacyFooter = await storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
       footerMenuHandle: 'privacy-footer-menu',
+      language: storefront.i18n.language,
     },
-  });
+  }).catch(() => ({ menu: null }));
 
   const header = await storefront.query(HEADER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
       headerMenuHandle: 'main-menu',
+      language: storefront.i18n.language,
     },
-  });
+  }).catch(() => ({ shop: null, menu: null }));
 
   const submenus: {
     men: submenuType[];

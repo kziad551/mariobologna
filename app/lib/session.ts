@@ -20,6 +20,14 @@ export class AppSession implements HydrogenSession {
   }
 
   static async init(request: Request, secrets: string[]) {
+    const host = request.headers.get('host') || '';
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    // Get the domain without www
+    const domain = isProduction 
+      ? host.replace('www.', '.')
+      : undefined;
+
     const storage = createCookieSessionStorage({
       cookie: {
         name: 'session',
@@ -27,9 +35,9 @@ export class AppSession implements HydrogenSession {
         path: '/',
         sameSite: 'lax',
         secrets,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
         maxAge: 60 * 60 * 24 * 30, // 30 days
-        domain: process.env.NODE_ENV === 'production' ? '.mariobologna.moda' : undefined,
+        domain: domain,
       },
     });
 

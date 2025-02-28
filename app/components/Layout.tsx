@@ -1,7 +1,6 @@
 import type {
   CartApiQueryFragment,
   FooterQuery,
-  HeaderQuery,
 } from 'storefrontapi.generated';
 import {Footer} from '~/components/Footer';
 import {Header} from '~/components/Header';
@@ -10,6 +9,26 @@ import {useCustomContext} from '~/contexts/App';
 import FooterMobile from './FooterMobile';
 import {submenuType} from '~/root';
 import SaleBanner from './SaleBanner';
+import type {Shop, Menu} from '@shopify/hydrogen/storefront-api-types';
+
+type HeaderData = {
+  shop: Pick<Shop, 'id' | 'name' | 'description'> & {
+    primaryDomain: {
+      url: string;
+    };
+    brand?: {
+      logo?: {
+        image?: {
+          url?: string;
+        };
+      };
+    };
+  };
+  menu: Menu | null;
+} | {
+  shop: null;
+  menu: null;
+};
 
 export type LayoutProps = {
   cart: CartApiQueryFragment | null;
@@ -21,7 +40,7 @@ export type LayoutProps = {
     customerFooter: Jsonify<FooterQuery>;
     privacyFooter: Jsonify<FooterQuery>;
   };
-  header: HeaderQuery;
+  header: Jsonify<HeaderData>;
   submenus: {
     men: submenuType[];
     women: submenuType[];
@@ -50,7 +69,7 @@ export function Layout({
       {showHeaderFooter ? (
         <>
           <FooterMobile cart={cart} />
-          <Footer menus={footer} shop={header.shop} />
+          {footer && <Footer menus={footer} shop={header?.shop} />}
         </>
       ) : (
         <></>
