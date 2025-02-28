@@ -4,17 +4,30 @@ import {BsTwitterX} from 'react-icons/bs';
 import {FaFacebook, FaInstagram, FaLinkedin, FaTiktok, FaYoutube} from 'react-icons/fa';
 import {IoStarSharp} from 'react-icons/io5';
 const QRCode = React.lazy(() => import('react-qr-code'));
-import type {FooterQuery, HeaderQuery} from 'storefrontapi.generated';
+import type {FooterQuery} from 'storefrontapi.generated';
 import {useRootLoaderData} from '~/root';
 import {Jsonify} from '@remix-run/server-runtime/dist/jsonify';
 import {IoIosArrowForward} from 'react-icons/io';
-import {Domain} from '@shopify/hydrogen/storefront-api-types';
+import {Domain, Shop} from '@shopify/hydrogen/storefront-api-types';
 import {useCustomContext} from '~/contexts/App';
 import {useTranslation} from 'react-i18next';
 import {Dropdown} from 'primereact/dropdown';
 import CurrencyDropdown from './Currency';
 import {TFunction} from 'i18next';
 import PopupLocateStore from './Popup/PopupLocateStore';
+
+type ShopData = (Pick<Shop, 'id' | 'name' | 'description'> & {
+  primaryDomain: {
+    url: string;
+  };
+  brand?: {
+    logo?: {
+      image?: {
+        url?: string;
+      };
+    };
+  };
+}) | null;
 
 type FooterProps = {
   menus: {
@@ -24,7 +37,7 @@ type FooterProps = {
     customerFooter: Jsonify<FooterQuery>;
     privacyFooter: Jsonify<FooterQuery>;
   };
-  shop: HeaderQuery['shop'];
+  shop: ShopData;
   showFooterAlways?: boolean;
 };
 
@@ -43,25 +56,29 @@ export function Footer({menus, shop, showFooterAlways = false}: FooterProps) {
   const footerLinks = [
     {
       name: t('Shop'),
-      menu: menus.mainFooter,
+      menu: menus?.mainFooter,
     },
     {
       name: t('About Us'),
-      menu: menus.aboutFooter,
+      menu: menus?.aboutFooter,
     },
     {
       name: t('Orders'),
-      menu: menus.ordersFooter,
+      menu: menus?.ordersFooter,
     },
     {
       name: t('Customer Care'),
-      menu: menus.customerFooter,
+      menu: menus?.customerFooter,
     },
     {
       name: t('Privacy'),
-      menu: menus.privacyFooter,
+      menu: menus?.privacyFooter,
     },
-  ];
+  ].filter(link => link.menu?.menu?.items?.length);
+
+  if (!shop?.primaryDomain) {
+    return null;
+  }
 
   const currentYear = new Date().getFullYear();
 
@@ -170,7 +187,9 @@ type FooterMenusProps = {
     menu: FooterQuery;
   }[];
   menus: any;
-  primaryDomain: Pick<Domain, 'url'>;
+  primaryDomain: {
+    url: string;
+  };
   direction: 'ltr' | 'rtl';
   t: TFunction<'translation', undefined>;
 };
@@ -246,7 +265,7 @@ function FooterMenu({
   primaryDomainUrl,
 }: {
   menu: FooterQuery['menu'];
-  primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
+  primaryDomainUrl: string;
   t: TFunction<'translation', undefined>;
 }) {
   const {publicStoreDomain} = useRootLoaderData();

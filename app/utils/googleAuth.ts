@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import {redirect} from '@shopify/remix-oxygen';
 import {CUSTOMER_REGISTER_MUTATION} from '~/graphql/customer-account/CustomerCreateMutation';
 import {CUSTOMER_LOGIN_MUTATION} from '~/graphql/customer-account/CustomerLoginMutation';
@@ -33,69 +32,103 @@ interface GoogleUserInfo {
 }
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
+const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo';
+
+function generateRandomState(): string {
+  const array = new Uint8Array(32); // Increased from 16 to 32 bytes for better security
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
 
 export async function initiateGoogleAuth(request: Request, session: any, env: any) {
-  // Generate a cryptographically secure random state
-  const state = crypto.randomBytes(16).toString('hex');
-  
-  console.log('Initiating Google Auth - Generated State:', state);
-  
-  // Store state in session
-  await session.setOAuthState(state);
-  
-  // Store return URL
-  const url = new URL(request.url);
-  const returnTo = url.searchParams.get('returnTo') || '/account';
-  await session.set('oauth2:returnTo', returnTo);
-  
-  // Build OAuth URL with state
-  const params = new URLSearchParams({
-    client_id: env.GOOGLE_CLIENT_ID,
-    redirect_uri: env.GOOGLE_REDIRECT_URI,
-    response_type: 'code',
-    scope: 'email profile',
-    state,
-    access_type: 'offline',
-    prompt: 'consent',
-  });
+  try {
+    // Clear any existing OAuth state
+    session.unset('oauth2:state');
+    session.unset('oauth2:returnTo');
+    
+    // Generate a new state
+    const state = generateRandomState();
+    
+    console.log('Initiating Google Auth - Generated State:', state);
+    
+    // Store state in session
+    session.set('oauth2:state', state);
+    
+    // Store return URL
+    const url = new URL(request.url);
+    const returnTo = url.searchParams.get('returnTo') || '/account';
+    session.set('oauth2:returnTo', returnTo);
+    
+    // Build OAuth URL with state
+    const params = new URLSearchParams({
+      client_id: env.GOOGLE_CLIENT_ID,
+      redirect_uri: env.GOOGLE_REDIRECT_URI,
+      response_type: 'code',
+      scope: 'email profile',
+      state,
+      access_type: 'offline',
+      prompt: 'consent',
+    });
 
-  console.log('Redirecting to Google with params:', params.toString());
+    // Commit session BEFORE redirect
+    const headers = new Headers();
+    headers.append('Set-Cookie', await session.commit());
 
-  return redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
+    console.log('Redirecting to Google with params:', params.toString());
+    
+    return redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`, {
+      headers,
+    });
+  } catch (error) {
+    console.error('Error initiating Google Auth:', error);
+    return redirect('/account/login?error=auth_failed&reason=initiation_error');
+  }
 }
 
 export async function handleGoogleCallback(request: Request, context: any, session: any) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
-  
-  // Get stored state and return URL
-  const storedState = await session.getOAuthState();
-  const returnTo = await session.get('oauth2:returnTo') || '/account';
-
-  console.log('Google Callback - Received State:', state);
-  console.log('Google Callback - Stored State:', storedState);
-
-  // Verify state parameter
-  if (!code || !state || !storedState || state !== storedState) {
-    console.error('OAuth state verification failed:', {
-      receivedState: state,
-      storedState,
-      hasCode: !!code,
-      sessionKeys: Object.keys(session),
-    });
-    
-    // Clear OAuth state from session
-    await session.clearOAuthState();
-    await session.unset('oauth2:returnTo');
-    
-    return redirect('/account/login?error=auth_failed&reason=state_mismatch');
-  }
-
   try {
+    const url = new URL(request.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    
+    // Get stored state and return URL
+    const storedState = session.get('oauth2:state');
+    const returnTo = session.get('oauth2:returnTo') || '/account';
+
+    console.log('Google Callback - Received State:', state);
+    console.log('Google Callback - Stored State:', storedState);
+    console.log('Session Data:', {
+      keys: Object.keys(session),
+      storedState,
+      returnTo,
+    });
+
+    // Verify state parameter
+    if (!code || !state || !storedState || state !== storedState) {
+      console.error('OAuth state verification failed:', {
+        receivedState: state,
+        storedState,
+        hasCode: !!code,
+        sessionKeys: Object.keys(session),
+      });
+      
+      // Clear OAuth state from session
+      session.unset('oauth2:state');
+      session.unset('oauth2:returnTo');
+      
+      const headers = new Headers();
+      headers.append('Set-Cookie', await session.commit());
+      
+      return redirect('/account/login?error=auth_failed&reason=state_mismatch', {
+        headers,
+      });
+    }
+
     // Clear OAuth state from session
-    await session.clearOAuthState();
-    await session.unset('oauth2:returnTo');
+    session.unset('oauth2:state');
+    session.unset('oauth2:returnTo');
+    await session.commit();
 
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code, context.env);
@@ -157,36 +190,6 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     } else {
       customerId = existingCustomer.id;
       password = `Google-${userInfo.id}-${Math.random().toString(36).slice(-12)}`;
-      
-      // Update customer password for Google login
-      try {
-        await context.storefront.mutate(
-          `mutation customerReset($id: ID!, $input: CustomerResetInput!) {
-            customerReset(id: $id, input: $input) {
-              customerAccessToken {
-                accessToken
-                expiresAt
-              }
-              customerUserErrors {
-                code
-                field
-                message
-              }
-            }
-          }`,
-          {
-            variables: {
-              id: customerId,
-              input: {
-                password: password,
-                resetToken: tokens.access_token
-              }
-            }
-          }
-        );
-      } catch (error) {
-        console.error('Failed to update customer password:', error);
-      }
     }
 
     // Create access token
@@ -210,23 +213,24 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     const {accessToken, expiresAt} = tokenResult.customerAccessTokenCreate.customerAccessToken;
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
 
+    const headers = new Headers();
+
     // Store the password in session for first-time users
     if (isNewCustomer) {
-      await session.set('temp_password', password);
-      await session.commit();
+      session.set('temp_password', password);
+      headers.append('Set-Cookie', await session.commit());
+      headers.append('Set-Cookie', await tokenCookie.serialize(accessToken, {maxAge}));
       
       return redirect('/account/onboarding', {
-        headers: {
-          'Set-Cookie': await tokenCookie.serialize(accessToken, {maxAge}),
-        },
+        headers,
       });
     }
     
     // For existing users, redirect to returnTo URL or homepage
+    headers.append('Set-Cookie', await tokenCookie.serialize(accessToken, {maxAge}));
+    
     return redirect(returnTo, {
-      headers: {
-        'Set-Cookie': await tokenCookie.serialize(accessToken, {maxAge}),
-      },
+      headers,
     });
   } catch (error) {
     console.error('Google auth error:', error);
@@ -235,7 +239,7 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 }
 
 async function exchangeCodeForTokens(code: string, env: any): Promise<GoogleTokens> {
-  const response = await fetch('https://oauth2.googleapis.com/token', {
+  const response = await fetch(GOOGLE_TOKEN_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -250,6 +254,8 @@ async function exchangeCodeForTokens(code: string, env: any): Promise<GoogleToke
   });
 
   if (!response.ok) {
+    const error = await response.text();
+    console.error('Token exchange failed:', error);
     throw new Error('Failed to exchange code for tokens');
   }
 
@@ -258,13 +264,15 @@ async function exchangeCodeForTokens(code: string, env: any): Promise<GoogleToke
 }
 
 async function getUserInfo(accessToken: string): Promise<GoogleUserInfo> {
-  const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+  const response = await fetch(GOOGLE_USERINFO_URL, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
+    const error = await response.text();
+    console.error('User info fetch failed:', error);
     throw new Error('Failed to get user info');
   }
 
