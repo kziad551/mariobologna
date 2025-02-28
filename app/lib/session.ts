@@ -22,10 +22,11 @@ export class AppSession implements HydrogenSession {
   static async init(request: Request, secrets: string[]) {
     const host = request.headers.get('host') || '';
     const isProduction = process.env.NODE_ENV === 'production';
+    const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
     
-    // Get the domain without www
-    const domain = isProduction 
-      ? host.replace('www.', '.')
+    // Get the domain without www for production
+    const domain = isProduction && !isLocalhost
+      ? '.' + host.replace('www.', '')
       : undefined;
 
     const storage = createCookieSessionStorage({
@@ -33,9 +34,9 @@ export class AppSession implements HydrogenSession {
         name: 'session',
         httpOnly: true,
         path: '/',
-        sameSite: 'lax',
+        sameSite: isLocalhost ? 'lax' : 'strict',
         secrets,
-        secure: isProduction,
+        secure: isProduction || host.includes('https'),
         maxAge: 60 * 60 * 24 * 30, // 30 days
         domain: domain,
       },
@@ -68,25 +69,29 @@ export class AppSession implements HydrogenSession {
     return this.#session.set;
   }
 
-  async getOAuthState(): Promise<string | undefined> {
-    return this.get('oauth2:state');
-  }
-
-  async setOAuthState(state: string): Promise<void> {
-    this.set('oauth2:state', state);
-    await this.commit();
-  }
-
-  async clearOAuthState(): Promise<void> {
-    this.unset('oauth2:state');
-    await this.commit();
-  }
-
   destroy() {
     return this.#sessionStorage.destroySession(this.#session);
   }
 
-  commit() {
+  async commit() {
     return this.#sessionStorage.commitSession(this.#session);
+  }
+
+  // Add helper methods for OAuth state management
+  async getOAuthState() {
+    return this.get('oauth2:state');
+  }
+
+  async setOAuthState(state: string) {
+    this.set('oauth2:state', state);
+    await this.commit();
+  }
+
+  async clearOAuthState() {
+    this.unset('oauth2:state');
+    this.unset('oauth2:returnTo');
+    this.unset('oauth2:error');
+    this.unset('oauth2:token');
+    await this.commit();
   }
 }

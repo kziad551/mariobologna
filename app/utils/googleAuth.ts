@@ -43,16 +43,18 @@ function generateRandomState(): string {
 
 export async function initiateGoogleAuth(request: Request, session: any, env: any) {
   try {
-    // Clear any existing OAuth state
+    // Clear ALL existing OAuth related data
     session.unset('oauth2:state');
     session.unset('oauth2:returnTo');
+    session.unset('oauth2:error');
+    session.unset('oauth2:token');
     
     // Generate a new state
     const state = generateRandomState();
     
     console.log('Initiating Google Auth - Generated State:', state);
     
-    // Store state in session
+    // Store state in session and commit immediately
     session.set('oauth2:state', state);
     
     // Store return URL
@@ -91,17 +93,30 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
+    const error = url.searchParams.get('error');
+    
+    // Check for OAuth error response
+    if (error) {
+      console.error('Google OAuth Error:', {
+        error,
+        error_description: url.searchParams.get('error_description'),
+        error_uri: url.searchParams.get('error_uri')
+      });
+      return redirect('/account/login?error=auth_failed&reason=' + error);
+    }
     
     // Get stored state and return URL
     const storedState = session.get('oauth2:state');
     const returnTo = session.get('oauth2:returnTo') || '/account';
 
+    console.log('Google Callback - Full URL:', url.toString());
     console.log('Google Callback - Received State:', state);
     console.log('Google Callback - Stored State:', storedState);
     console.log('Session Data:', {
       keys: Object.keys(session),
       storedState,
       returnTo,
+      cookies: request.headers.get('Cookie'),
     });
 
     // Verify state parameter
@@ -111,11 +126,14 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
         storedState,
         hasCode: !!code,
         sessionKeys: Object.keys(session),
+        requestHeaders: Object.fromEntries(request.headers),
       });
       
       // Clear OAuth state from session
       session.unset('oauth2:state');
       session.unset('oauth2:returnTo');
+      session.unset('oauth2:error');
+      session.unset('oauth2:token');
       
       const headers = new Headers();
       headers.append('Set-Cookie', await session.commit());
@@ -128,6 +146,8 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
     // Clear OAuth state from session
     session.unset('oauth2:state');
     session.unset('oauth2:returnTo');
+    session.unset('oauth2:error');
+    session.unset('oauth2:token');
     await session.commit();
 
     // Exchange code for tokens
