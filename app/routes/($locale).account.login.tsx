@@ -251,19 +251,20 @@ const OrSection = ({
       </div>
       <button
         onClick={handleGoogleSignIn}
-        className="flex w-full items-center justify-center gap-2 rounded border border-neutral-N-20 bg-white px-4 py-2.5 text-sm text-black transition-colors hover:bg-neutral-N-10"
+        className="flex w-full items-center justify-center gap-2 rounded border border-neutral-N-20 bg-white px-4 py-2.5 text-sm text-black transition-colors hover:bg-white"
       >
         <img src="/google.svg" alt="Google" className="h-5 w-5" />
-        {section === 'login' ? t('Login with Google') : t('Sign up with Google')}
+        {section === 'login' ? t('Sign in with Google') : t('Sign up with Google')}
       </button>
       <div className="flex items-center gap-1">
         <span className="text-sm text-neutral-N-50">{message}</span>
         <button
-          onClick={() => setSection(section)}
-          className="text-sm text-primary-P-50 hover:text-primary-P-60"
-        >
-          {buttonText}
-        </button>
+  onClick={() => setSection(section === 'login' ? 'register' : 'login')}
+  className="text-sm text-primary-P-50 hover:text-primary-P-60"
+>
+  {buttonText}
+</button>
+
       </div>
     </div>
   );
