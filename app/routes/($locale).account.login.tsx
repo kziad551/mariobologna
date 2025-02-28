@@ -96,6 +96,10 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
+      // Clear email/password fields to prevent them from being marked as invalid
+      setEmail('');
+      setPassword('');
+      
       const response = await fetch('/api/account/authentication/social_login', {
         method: 'POST',
         headers: {
@@ -112,6 +116,11 @@ export default function Login() {
       if (data.error) {
         console.error('Social auth error:', data.error);
         setErrorMessage(data.error);
+        if (data.error === 'No account found. Please Sign Up with Google first.') {
+          setSection('register');
+        } else if (data.error === 'Account already exists. Please use Log In with Google instead.') {
+          setSection('login');
+        }
       } else if (data.success) {
         if (data.isNewUser) {
           // Store the generated password in Firebase for future logins
