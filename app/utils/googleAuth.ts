@@ -89,11 +89,26 @@ export async function initiateGoogleAuth(request: Request, session: any, env: an
 }
 
 export async function handleGoogleCallback(request: Request, context: any, session: any) {
+  let headers = new Headers();
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
     const error = url.searchParams.get('error');
+    
+    // Get stored state BEFORE any session modifications
+    const storedState = session.get('oauth2:state');
+    const returnTo = session.get('oauth2:returnTo') || '/account';
+
+    console.log('Google Callback - Debug Info:', {
+      fullUrl: url.toString(),
+      receivedState: state,
+      storedState,
+      hasCode: !!code,
+      error,
+      sessionKeys: Object.keys(session),
+      cookies: request.headers.get('Cookie'),
+    });
     
     // Check for OAuth error response
     if (error) {
@@ -102,40 +117,27 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
         error_description: url.searchParams.get('error_description'),
         error_uri: url.searchParams.get('error_uri')
       });
-      return redirect('/account/login?error=auth_failed&reason=' + error);
+      
+      // Clear session state on error
+      await session.clearOAuthState();
+      headers.append('Set-Cookie', await session.commit());
+      
+      return redirect('/account/login?error=auth_failed&reason=' + error, {
+        headers,
+      });
     }
-    
-    // Get stored state and return URL
-    const storedState = session.get('oauth2:state');
-    const returnTo = session.get('oauth2:returnTo') || '/account';
 
-    console.log('Google Callback - Full URL:', url.toString());
-    console.log('Google Callback - Received State:', state);
-    console.log('Google Callback - Stored State:', storedState);
-    console.log('Session Data:', {
-      keys: Object.keys(session),
-      storedState,
-      returnTo,
-      cookies: request.headers.get('Cookie'),
-    });
-
-    // Verify state parameter
+    // Verify state parameter BEFORE any session clearing
     if (!code || !state || !storedState || state !== storedState) {
       console.error('OAuth state verification failed:', {
         receivedState: state,
         storedState,
         hasCode: !!code,
         sessionKeys: Object.keys(session),
-        requestHeaders: Object.fromEntries(request.headers),
       });
       
-      // Clear OAuth state from session
-      session.unset('oauth2:state');
-      session.unset('oauth2:returnTo');
-      session.unset('oauth2:error');
-      session.unset('oauth2:token');
-      
-      const headers = new Headers();
+      // Clear session state on mismatch
+      await session.clearOAuthState();
       headers.append('Set-Cookie', await session.commit());
       
       return redirect('/account/login?error=auth_failed&reason=state_mismatch', {
@@ -143,12 +145,9 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
       });
     }
 
-    // Clear OAuth state from session
-    session.unset('oauth2:state');
-    session.unset('oauth2:returnTo');
-    session.unset('oauth2:error');
-    session.unset('oauth2:token');
-    await session.commit();
+    // Clear OAuth state from session AFTER successful verification
+    await session.clearOAuthState();
+    headers.append('Set-Cookie', await session.commit());
 
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code, context.env);
@@ -232,8 +231,6 @@ export async function handleGoogleCallback(request: Request, context: any, sessi
 
     const {accessToken, expiresAt} = tokenResult.customerAccessTokenCreate.customerAccessToken;
     const maxAge = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
-
-    const headers = new Headers();
 
     // Store the password in session for first-time users
     if (isNewCustomer) {
