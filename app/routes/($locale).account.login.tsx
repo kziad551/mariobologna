@@ -68,8 +68,6 @@ export default function Login() {
     setShowHeaderFooter,
     setShowBoardingPage,
     direction,
-    setPasswordOnce,
-    ref,
   } = useCustomContext();
   const {height, width} = useWindowDimensions(50);
   const data = useLoaderData<typeof loader>();
@@ -90,67 +88,51 @@ export default function Login() {
 
   const handleSocialSignIn = async (
     provider: GoogleAuthProvider | FacebookAuthProvider,
+    isSignUp: boolean,
   ) => {
     setLoading(true);
     setErrorMessage('');
     try {
       const result = await signInWithPopup(auth, provider);
-      // console.log('result', result);
       const user = result.user;
-      const userDoc = await getUserByEmail(user.email as string);
+      
       const response = await fetch('/api/account/authentication/social_login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({user, userDoc}),
+        body: JSON.stringify({
+          user,
+          isSignUp,
+        }),
       });
+
       const data = (await response.json()) as any;
+      
       if (data.error) {
-        console.log('data.error', data.error);
+        console.error('Social auth error:', data.error);
         setErrorMessage(data.error);
       } else if (data.success) {
         if (data.isNewUser) {
+          // Store the generated password in Firebase for future logins
           await addDocument({
             uid: user.uid,
             email: user.email as string,
             password: data.password,
           });
-
           setShowBoardingPage(true);
           navigate('/account/onboarding');
-          setPasswordOnce(data.password);
-          ref.current.openTrigger();
-        } else if (userDoc) {
-          const response = await fetch('/api/account/authentication/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: userDoc.email,
-              password: userDoc.password,
-            }),
-          });
-
-          const data = (await response.json()) as any;
-
-          if (data.error) {
-            navigate(
-              `/account/enter_password_once?email=${userDoc.email}&uid=${user.uid}`,
-            );
-          } else {
-            navigate('/account');
-          }
         } else {
-          navigate(
-            `/account/enter_password_once?email=${user.email}&uid=${user.uid}&newDoc=true`,
-          );
+          navigate('/account');
         }
       }
     } catch (error: any) {
-      console.log('error', error);
-      setErrorMessage(error.message);
+      console.error('Social auth error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setErrorMessage(t('Sign in cancelled. Please try again.'));
+      } else {
+        setErrorMessage(error.message);
+      }
     }
     setLoading(false);
   };
@@ -227,6 +209,10 @@ type OrSectionType = {
   section: string;
   message: string;
   buttonText: string;
+  handleSocialSignIn: (
+    provider: GoogleAuthProvider | FacebookAuthProvider,
+    isSignUp: boolean,
+  ) => Promise<void>;
 };
 
 const OrSection = ({
@@ -235,38 +221,34 @@ const OrSection = ({
   section,
   message,
   buttonText,
+  handleSocialSignIn,
 }: OrSectionType) => {
-  const handleGoogleSignIn = async () => {
-    const url = new URL(window.location.href);
-    const returnTo = url.searchParams.get('returnTo') || '/account';
-    window.location.href = `/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
-  };
-
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex w-full items-center gap-4">
-        <div className="h-[1px] flex-1 bg-neutral-N-20" />
-        <span className="text-sm text-neutral-N-50">{t('Or')}</span>
-        <div className="h-[1px] flex-1 bg-neutral-N-20" />
+    <>
+      <div className="flex items-center justify-center gap-7 my-4">
+        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
+        <p>{t('Or')}</p>
+        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
       </div>
-      <button
-        onClick={handleGoogleSignIn}
-        className="flex w-full items-center justify-center gap-2 rounded border border-neutral-N-20 bg-white px-4 py-2.5 text-sm text-black transition-colors hover:bg-white"
-      >
-        <img src="/google.svg" alt="Google" className="h-5 w-5" />
-        {section === 'login' ? t('Sign in with Google') : t('Sign up with Google')}
-      </button>
-      <div className="flex items-center gap-1">
-        <span className="text-sm text-neutral-N-50">{message}</span>
+      <div className="flex flex-col items-stretch gap-2">
         <button
-  onClick={() => setSection(section === 'login' ? 'register' : 'login')}
-  className="text-sm text-primary-P-50 hover:text-primary-P-60"
->
-  {buttonText}
-</button>
-
+          onClick={() => handleSocialSignIn(googleProvider, section === 'register')}
+          className="flex items-center justify-center gap-2 rounded py-2.5 border border-neutral-N-50"
+        >
+          <FcGoogle className="w-5 h-5" />
+          {section === 'register' ? t('Sign Up with Google') : t('Log In with Google')}
+        </button>
       </div>
-    </div>
+      <div className="flex items-center justify-start gap-3 mt-3">
+        <p>{message}</p>
+        <button
+          className="text-primary-P-40 hover:underline"
+          onClick={() => setSection(section === 'register' ? 'login' : 'register')}
+        >
+          {buttonText}
+        </button>
+      </div>
+    </>
   );
 };
 
@@ -283,6 +265,7 @@ type LoginSectionType = {
   direction: 'ltr' | 'rtl';
   handleSocialSignIn: (
     provider: GoogleAuthProvider | FacebookAuthProvider,
+    isSignUp: boolean,
   ) => Promise<void>;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
@@ -406,6 +389,7 @@ function LoginSection({
         section="register"
         message={t("Don't have an account?")}
         buttonText={t('Sign Up')}
+        handleSocialSignIn={handleSocialSignIn}
       />
     </>
   );
@@ -438,6 +422,7 @@ type RegisterSectionType = {
   direction: 'ltr' | 'rtl';
   handleSocialSignIn: (
     provider: GoogleAuthProvider | FacebookAuthProvider,
+    isSignUp: boolean,
   ) => Promise<void>;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
@@ -649,6 +634,7 @@ function RegisterSection({
         section="login"
         message={t('Have an account?')}
         buttonText={t('Log In')}
+        handleSocialSignIn={handleSocialSignIn}
       />
     </>
   );
