@@ -20,6 +20,9 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  server: {
+    hmr: false, // Disable Hot Module Replacement
+  },
   ssr: {
     optimizeDeps: {
       include: [
