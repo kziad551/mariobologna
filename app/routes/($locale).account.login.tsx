@@ -96,20 +96,6 @@ export default function Login() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      
-      const userDoc = await getUserByEmail(user.email as string);
-      
-      if (userDoc && isSignUp) {
-        setSection('login');
-        handleSocialSignIn(provider, false);
-        return;
-      }
-      
-      if (!userDoc && !isSignUp) {
-        setSection('register');
-        handleSocialSignIn(provider, true);
-        return;
-      }
 
       const response = await fetch('/account/authentication/social_login', {
         method: 'POST',
@@ -119,7 +105,6 @@ export default function Login() {
         body: JSON.stringify({
           user,
           isSignUp,
-          password: userDoc?.password,
         }),
       });
 
@@ -188,18 +173,23 @@ export default function Login() {
         <p>{t('Or')}</p>
         <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
       </div>
-      <GoogleAuthButton isSignUp={section === 'register'} />
-      <div className="flex items-center justify-start gap-3 mt-3">
-        <p>{message}</p>
-        <button
-          className="text-primary-P-40 hover:underline"
-          onClick={() => {
-            setSection(section === 'register' ? 'login' : 'register');
-            setSocialError('');
-          }}
-        >
-          {buttonText}
-        </button>
+      <div className="flex flex-col gap-4">
+        <GoogleAuthButton isSignUp={section === 'register'} />
+        <div className="flex items-center justify-start gap-3">
+          <p>{message}</p>
+          <button
+            className="text-primary-P-40 hover:underline"
+            onClick={() => {
+              setSection(section === 'register' ? 'login' : 'register');
+              setSocialError('');
+              setErrorMessage('');
+              setEmail('');
+              setPassword('');
+            }}
+          >
+            {buttonText}
+          </button>
+        </div>
       </div>
     </>
   );
