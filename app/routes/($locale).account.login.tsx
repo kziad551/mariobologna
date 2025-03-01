@@ -139,6 +139,13 @@ export default function Login() {
     setLoading(true);
     setSocialError('');
     try {
+      // First check if popups are blocked
+      const popup = window.open('', '_blank', 'width=1,height=1');
+      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        throw new Error('Please enable popups for this website to use Google sign-in');
+      }
+      popup.close();
+
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
