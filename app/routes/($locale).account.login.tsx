@@ -139,43 +139,49 @@ export default function Login() {
     setLoading(true);
     setSocialError('');
     try {
-      // First check if popups are blocked
-      const popup = window.open('', '_blank', 'width=1,height=1');
-      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-        throw new Error('Please enable popups for this website to use Google sign-in');
-      }
-      popup.close();
-
+      // Get Google user info
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const response = await fetch('/account/authentication/social_login', {
+      // Send to backend for authentication
+      const response = await fetch('/api/account/authentication/social_login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user,
-          isSignUp,
+          user: {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+          },
+          isSignUp
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = (await response.json()) as {
-        error: string;
-        success: boolean;
-        isNewUser: boolean;
-        password: string;
+      const data = await response.json() as {
+        error?: string;
+        success?: boolean;
+        isNewUser?: boolean;
+        password?: string;
       };
       
+      if (!response.ok) {
+        console.error('Response error:', response.status, data.error);
+        setSocialError(t(data.error || 'Failed to authenticate'));
+        return;
+      }
+
       if (data.error) {
         console.error('Social auth error:', data.error);
-        setSocialError(data.error);
-      } else if (data.success) {
-        if (data.isNewUser) {
+        setSocialError(t(data.error));
+        return;
+      }
+
+      // Success - either log in or create new account
+      if (data.success) {
+        if (data.isNewUser && data.password) {
+          // For new users, store their password in Firebase
           await addDocument({
             uid: user.uid,
             email: user.email as string,
@@ -184,6 +190,7 @@ export default function Login() {
           setShowBoardingPage(true);
           navigate('/account/onboarding');
         } else {
+          // For existing users, just redirect to account
           navigate('/account');
         }
       }
@@ -191,8 +198,10 @@ export default function Login() {
       console.error('Social auth error:', error);
       if (error.code === 'auth/popup-closed-by-user') {
         setSocialError(t('Sign in cancelled. Please try again.'));
+      } else if (error.code === 'auth/popup-blocked') {
+        setSocialError(t('Please enable popups in your browser settings and try again.'));
       } else {
-        setSocialError(error.message);
+        setSocialError(t(error.message || 'Failed to authenticate. Please try again.'));
       }
     }
     setLoading(false);

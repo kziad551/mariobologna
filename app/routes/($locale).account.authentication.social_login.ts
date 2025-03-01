@@ -28,68 +28,40 @@ export async function action({request, context}: ActionFunctionArgs) {
       );
     }
 
-    // Check if user exists in Firebase
+    // Check if user exists in both systems
     const userDoc = await getUserByEmail(user.email);
-    
-    // Check if user exists in Shopify
     const customer = await checkCustomerByEmail(user.email, env);
 
-    // For sign up: If user exists in either Firebase or Shopify, redirect to sign in
-    if (isSignUp && (userDoc || customer)) {
-      return json(
-        {error: 'Account already exists. Please use Log In with Google instead.'},
-        {
-          status: 400,
-          headers: {
-            'Set-Cookie': await context.session.commit(),
-          },
-        },
-      );
-    }
-
-    // For sign in: If user doesn't exist in either Firebase or Shopify, redirect to sign up
-    if (!isSignUp && (!userDoc || !customer)) {
-      return json(
-        {error: 'No account found. Please Sign Up with Google first.'},
-        {
-          status: 400,
-          headers: {
-            'Set-Cookie': await context.session.commit(),
-          },
-        },
-      );
-    }
-
-    // For existing users, attempt to sign in
-    if (!isSignUp && userDoc?.password) {
-      try {
-        const loginResponse = await context.storefront.mutate(
-          CUSTOMER_LOGIN_MUTATION,
+    // For Login: User must exist in both Firebase and Shopify
+    if (!isSignUp) {
+      if (!customer || !userDoc) {
+        return json(
+          {error: 'No account found with this email. Please sign up first.'},
           {
-            variables: {
-              input: {
-                email: user.email,
-                password: userDoc.password,
-              },
+            status: 400,
+            headers: {
+              'Set-Cookie': await context.session.commit(),
             },
           },
         );
+      }
 
-        const {customerAccessTokenCreate} = loginResponse;
-        
-        if (loginResponse.errors?.length || customerAccessTokenCreate?.customerUserErrors?.length) {
-          console.error('Login error:', loginResponse.errors?.[0] || customerAccessTokenCreate?.customerUserErrors?.[0]);
-          return json(
-            {error: 'Failed to sign in. Please try again later.'},
-            {
-              status: 400,
-              headers: {
-                'Set-Cookie': await context.session.commit(),
-              },
+      // Attempt to log in with stored password
+      const loginResponse = await storefront.mutate(
+        CUSTOMER_LOGIN_MUTATION,
+        {
+          variables: {
+            input: {
+              email: user.email,
+              password: userDoc.password,
             },
-          );
-        }
+          },
+        },
+      );
 
+      const {customerAccessTokenCreate} = loginResponse;
+      
+      if (!loginResponse.errors?.length && !customerAccessTokenCreate?.customerUserErrors?.length) {
         const accessToken = customerAccessTokenCreate.customerAccessToken.accessToken;
         const expiresAt = customerAccessTokenCreate.customerAccessToken.expiresAt;
         const maxAge = Math.floor(
@@ -104,10 +76,25 @@ export async function action({request, context}: ActionFunctionArgs) {
             },
           },
         );
-      } catch (error) {
-        console.error('Sign in error:', error);
+      }
+      
+      console.error('Login error:', loginResponse.errors?.[0] || customerAccessTokenCreate?.customerUserErrors?.[0]);
+      return json(
+        {error: 'Failed to sign in. Please try again.'},
+        {
+          status: 400,
+          headers: {
+            'Set-Cookie': await context.session.commit(),
+          },
+        },
+      );
+    }
+
+    // For Signup: User must not exist in either system
+    if (isSignUp) {
+      if (customer || userDoc) {
         return json(
-          {error: 'Failed to sign in. Please try again later.'},
+          {error: 'An account with this email already exists. Please log in instead.'},
           {
             status: 400,
             headers: {
@@ -116,100 +103,60 @@ export async function action({request, context}: ActionFunctionArgs) {
           },
         );
       }
-    }
 
-    // For new users, create account
-    if (isSignUp) {
-      try {
-        // Generate a strong password for Shopify
-        const password = Array(16)
-          .fill(0)
-          .map(() => {
-            const chars =
-              'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-            return chars[Math.floor(Math.random() * chars.length)];
-          })
-          .join('');
+      // Generate password for new account
+      const password = Array(16)
+        .fill(0)
+        .map(() => {
+          const chars =
+            'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+          return chars[Math.floor(Math.random() * chars.length)];
+        })
+        .join('');
 
-        const createUserResponse = await context.storefront.mutate(
-          CUSTOMER_REGISTER_MUTATION,
+      // Create Shopify account
+      const createResponse = await storefront.mutate(
+        CUSTOMER_REGISTER_MUTATION,
+        {
+          variables: {
+            input: {
+              email: user.email,
+              password,
+            },
+          },
+        },
+      );
+
+      if (createResponse.errors?.length || createResponse?.customerCreate?.customerUserErrors?.length) {
+        const error = createResponse.errors?.[0] || createResponse?.customerCreate?.customerUserErrors?.[0];
+        console.error('Create account error:', error);
+        return json(
+          {error: 'Failed to create account. Please try again.'},
           {
-            variables: {
-              input: {
-                email: user.email,
-                password,
-              },
+            status: 400,
+            headers: {
+              'Set-Cookie': await context.session.commit(),
             },
           },
         );
+      }
 
-        if (createUserResponse.errors?.length || createUserResponse?.customerCreate?.customerUserErrors?.length) {
-          const error = createUserResponse.errors?.[0] || createUserResponse?.customerCreate?.customerUserErrors?.[0];
-          console.error('Create user error:', error);
-          
-          if ((error as {message?: string})?.message?.includes('Email has already been taken')) {
-            return json(
-              {error: 'Account already exists. Please use Log In with Google instead.'},
-              {
-                status: 400,
-                headers: {
-                  'Set-Cookie': await context.session.commit(),
-                },
-              },
-            );
-          }
-          
-          if (error.message?.includes('Limit exceeded')) {
-            return json(
-              {error: 'We are experiencing high traffic. Please try again in a few minutes.'},
-              {
-                status: 429,
-                headers: {
-                  'Set-Cookie': await context.session.commit(),
-                },
-              },
-            );
-          }
-          
-          return json(
-            {error: 'Failed to create account. Please try again later.'},
-            {
-              status: 400,
-              headers: {
-                'Set-Cookie': await context.session.commit(),
-              },
-            },
-          );
-        }
-
-        // Log in the newly created user
-        const loginResponse = await context.storefront.mutate(
-          CUSTOMER_LOGIN_MUTATION,
-          {
-            variables: {
-              input: {
-                email: user.email,
-                password,
-              },
+      // Log in the new user
+      const loginResponse = await storefront.mutate(
+        CUSTOMER_LOGIN_MUTATION,
+        {
+          variables: {
+            input: {
+              email: user.email,
+              password,
             },
           },
-        );
+        },
+      );
 
-        const {customerAccessTokenCreate} = loginResponse;
-        
-        if (loginResponse.errors?.length || customerAccessTokenCreate?.customerUserErrors?.length) {
-          console.error('Login error after signup:', loginResponse.errors?.[0] || customerAccessTokenCreate?.customerUserErrors?.[0]);
-          return json(
-            {error: 'Account created but failed to sign in. Please try logging in.'},
-            {
-              status: 400,
-              headers: {
-                'Set-Cookie': await context.session.commit(),
-              },
-            },
-          );
-        }
-
+      const {customerAccessTokenCreate} = loginResponse;
+      
+      if (!loginResponse.errors?.length && !customerAccessTokenCreate?.customerUserErrors?.length) {
         const accessToken = customerAccessTokenCreate.customerAccessToken.accessToken;
         const expiresAt = customerAccessTokenCreate.customerAccessToken.expiresAt;
         const maxAge = Math.floor(
@@ -224,18 +171,17 @@ export async function action({request, context}: ActionFunctionArgs) {
             },
           },
         );
-      } catch (error) {
-        console.error('Signup error:', error);
-        return json(
-          {error: 'Failed to create account. Please try again later.'},
-          {
-            status: 400,
-            headers: {
-              'Set-Cookie': await context.session.commit(),
-            },
-          },
-        );
       }
+
+      return json(
+        {error: 'Account created but failed to sign in. Please try logging in.'},
+        {
+          status: 400,
+          headers: {
+            'Set-Cookie': await context.session.commit(),
+          },
+        },
+      );
     }
 
     return json(
@@ -248,9 +194,9 @@ export async function action({request, context}: ActionFunctionArgs) {
       },
     );
   } catch (error) {
-    console.error('General error:', error);
+    console.error('Social login error:', error);
     return json(
-      {error: (error as {message?: string})?.message || 'Something went wrong'},
+      {error: 'Something went wrong. Please try again.'},
       {
         status: 400,
         headers: {
