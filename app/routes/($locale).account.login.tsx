@@ -208,11 +208,10 @@ export default function Login() {
       // Success - either log in or create new account
       if (data.success) {
         if (data.isNewUser && data.password && data.customerId) {
-          // For new users, store their password and customer ID in Firebase
           try {
             await addDocument({
               uid: user.uid,
-              email: user.email,
+              email: user.email || '',
               shopifyPassword: data.password,
               shopifyCustomerId: data.customerId,
               createdAt: new Date().toISOString()
@@ -221,13 +220,12 @@ export default function Login() {
             navigate('/account/onboarding');
           } catch (error) {
             console.error('Firebase store error:', error);
-            // Don't show Firebase error to user, just redirect to onboarding
-            // The password will be saved on next login attempt
+            // Even if Firebase storage fails, still redirect to onboarding
             setShowBoardingPage(true);
             navigate('/account/onboarding');
           }
         } else {
-          // For existing users, just redirect to account
+          // For existing users, redirect to account
           navigate('/account');
         }
       }
