@@ -55,7 +55,7 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
     return redirect('/account');
   }
 
-  return defer({handle, customer, order});
+  return defer({handle, customer, order: order as ExtendedOrderFragment});
 }
 
 const AccountPurchases = () => {
@@ -86,9 +86,36 @@ const AccountPurchases = () => {
   );
 };
 
+type ExtendedOrderFragment = OrderFragment & {
+  financialStatus: 'PAID' | 'PARTIALLY_REFUNDED' | 'REFUNDED';
+  fulfillmentStatus: 'FULFILLED' | 'UNFULFILLED';
+  orderNumber: string;
+  billingAddress?: {
+    firstName?: string;
+    address1?: string;
+    city?: string;
+    country?: string;
+    phone?: string;
+    zip?: string;
+  };
+  totalShippingPrice: { amount: string };
+  currentTotalTax: { amount: string };
+  currentTotalPrice: { amount: string };
+  lineItems: {
+    nodes: Array<{
+      title: string;
+      discountedTotalPrice: { amount: string };
+      variant?: {
+        image?: { height: number; width: number; url: string; id: string; altText?: string };
+        selectedOptions: Array<{ value: string }>;
+      };
+    }>;
+  };
+};
+
 type OrderDetailsProps = {
   handle: string;
-  order: OrderFragment;
+  order: ExtendedOrderFragment;
   t: TFunction<'translation', undefined>;
   direction: 'rtl' | 'ltr';
 };
@@ -182,13 +209,13 @@ function OrderDetails({handle, order, t, direction}: OrderDetailsProps) {
                   as="span"
                   data={{
                     amount: (
-                      parseFloat(item.discountedTotalPrice.amount) *
+                      parseFloat((item as any).discountedTotalPrice.amount) *
                       currency.exchange_rate
                     ).toString(),
                     currencyCode: currency.currency['en'] as CurrencyCode,
                   }}
                 />
-                {item.variant?.selectedOptions.map((option, index) => (
+                {(item.variant as any)?.selectedOptions?.map((option: { value: string }, index: number) => (
                   <span key={index} className="text-neutral-N-30 text-sm">
                     {option.value}
                   </span>
