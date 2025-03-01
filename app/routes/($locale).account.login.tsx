@@ -136,12 +136,30 @@ export default function Login() {
     provider: GoogleAuthProvider | FacebookAuthProvider,
     isSignUp: boolean,
   ) => {
+    if (loading) return; // Prevent multiple clicks while loading
+    
     setLoading(true);
     setSocialError('');
+    
     try {
       // Get Google user info
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+
+      if (!user.email) {
+        setSocialError(t('No email provided from Google. Please try again.'));
+        setLoading(false);
+        return;
+      }
+
+      // Check if user exists in Firebase
+      const existingUser = await getUserByEmail(user.email);
+      
+      // If trying to sign up but user exists, switch to login
+      if (isSignUp && existingUser) {
+        console.log('User exists in Firebase, switching to login flow');
+        isSignUp = false;
+      }
 
       // Send to backend for authentication
       const response = await fetch('/api/account/authentication/social_login', {
@@ -155,7 +173,8 @@ export default function Login() {
             email: user.email,
             displayName: user.displayName,
           },
-          isSignUp
+          isSignUp,
+          existingPassword: existingUser?.shopifyPassword // Pass existing password if available
         }),
       });
 
@@ -164,31 +183,49 @@ export default function Login() {
         success?: boolean;
         isNewUser?: boolean;
         password?: string;
+        customerId?: string;
       };
       
-      if (!response.ok) {
+      if (!response.ok || data.error) {
         console.error('Response error:', response.status, data.error);
-        setSocialError(t(data.error || 'Failed to authenticate'));
-        return;
-      }
-
-      if (data.error) {
-        console.error('Social auth error:', data.error);
-        setSocialError(t(data.error));
+        if (data.error?.includes('taken') || data.error?.includes('exists')) {
+          // If account exists, switch to login flow
+          console.log('Account exists in Shopify, retrying as login');
+          if (!isSignUp) {
+            setSocialError(t('Failed to sign in. Please try again.'));
+          } else {
+            // Retry as login
+            handleSocialSignIn(provider, false);
+            return;
+          }
+        } else {
+          setSocialError(t(data.error || 'Failed to authenticate. Please try again.'));
+        }
+        setLoading(false);
         return;
       }
 
       // Success - either log in or create new account
       if (data.success) {
-        if (data.isNewUser && data.password) {
-          // For new users, store their password in Firebase
-          await addDocument({
-            uid: user.uid,
-            email: user.email as string,
-            password: data.password,
-          });
-          setShowBoardingPage(true);
-          navigate('/account/onboarding');
+        if (data.isNewUser && data.password && data.customerId) {
+          // For new users, store their password and customer ID in Firebase
+          try {
+            await addDocument({
+              uid: user.uid,
+              email: user.email,
+              shopifyPassword: data.password,
+              shopifyCustomerId: data.customerId,
+              createdAt: new Date().toISOString()
+            });
+            setShowBoardingPage(true);
+            navigate('/account/onboarding');
+          } catch (error) {
+            console.error('Firebase store error:', error);
+            // Don't show Firebase error to user, just redirect to onboarding
+            // The password will be saved on next login attempt
+            setShowBoardingPage(true);
+            navigate('/account/onboarding');
+          }
         } else {
           // For existing users, just redirect to account
           navigate('/account');
@@ -203,8 +240,9 @@ export default function Login() {
       } else {
         setSocialError(t(error.message || 'Failed to authenticate. Please try again.'));
       }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const GoogleAuthButton = ({ isSignUp }: { isSignUp: boolean }) => (
