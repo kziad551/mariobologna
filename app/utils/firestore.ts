@@ -15,30 +15,34 @@ const auth = getAuth();
 type AddDocumentType = {
   uid: string;
   email: string;
-  password: string;
+  shopifyPassword: string;
+  shopifyCustomerId?: string;
+  createdAt?: string;
 };
 
-export const addDocument = async ({uid, email, password}: AddDocumentType) => {
+export const addDocument = async ({uid, email, shopifyPassword, shopifyCustomerId, createdAt}: AddDocumentType) => {
   await setDoc(doc(db, 'users', uid), {
     email,
-    password,
+    shopifyPassword,
+    shopifyCustomerId,
+    createdAt,
   });
 };
 
 type UpdateDocumentType = {
   uid: string;
-  password: string;
+  shopifyPassword: string;
 };
 
-export const updateDocument = async ({uid, password}: UpdateDocumentType) => {
+export const updateDocument = async ({uid, shopifyPassword}: UpdateDocumentType) => {
   await updateDoc(doc(db, 'users', uid), {
-    password,
+    shopifyPassword,
   });
 };
 
 export const updateDocumentUsingEmail = async (
   email: string,
-  password: string,
+  shopifyPassword: string,
 ) => {
   const usersRef = collection(db, 'users');
   const q = query(usersRef, where('email', '==', email));
@@ -48,13 +52,13 @@ export const updateDocumentUsingEmail = async (
   if (!querySnapshot.empty) {
     const userDoc = querySnapshot.docs[0];
 
-    await updateDocument({uid: userDoc.id, password});
+    await updateDocument({uid: userDoc.id, shopifyPassword});
   } else {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password,
+        shopifyPassword,
       );
       const newUser = userCredential.user;
 
@@ -62,7 +66,7 @@ export const updateDocumentUsingEmail = async (
       await addDocument({
         uid: newUser.uid,
         email,
-        password,
+        shopifyPassword,
       });
     } catch (error) {
       console.error(
