@@ -35,6 +35,51 @@ import {
 } from 'firebaseConfig';
 import {addDocument, getUserByEmail} from '~/utils/firestore';
 
+type OrSectionType = {
+  t: TFunction<'translation', undefined>;
+  setSection: React.Dispatch<React.SetStateAction<string>>;
+  section: string;
+  message: string;
+  buttonText: string;
+};
+
+type LoginSectionProps = {
+  t: TFunction<'translation', undefined>;
+  direction: 'ltr' | 'rtl';
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  rememberMeChecked: boolean;
+  setRememberMeChecked: React.Dispatch<React.SetStateAction<boolean>>;
+  setSection: React.Dispatch<React.SetStateAction<string>>;
+  navigate: NavigateFunction;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+type RegisterSectionProps = {
+  t: TFunction<'translation', undefined>;
+  direction: 'ltr' | 'rtl';
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  agreementChecked: boolean;
+  setAgreementChecked: React.Dispatch<React.SetStateAction<boolean>>;
+  setSection: React.Dispatch<React.SetStateAction<string>>;
+  preferences: {[x: string]: boolean};
+  setPreferences: React.Dispatch<React.SetStateAction<{[x: string]: boolean}>>;
+  navigate: NavigateFunction;
+  setShowBoardingPage: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 export const meta: MetaFunction = () => {
   return [{title: 'Login'}];
 };
@@ -193,51 +238,6 @@ export default function Login() {
       </div>
     </>
   );
-
-  type OrSectionType = {
-    t: TFunction<'translation', undefined>;
-    setSection: React.Dispatch<React.SetStateAction<string>>;
-    section: string;
-    message: string;
-    buttonText: string;
-  };
-
-  type LoginSectionProps = {
-    t: TFunction<'translation', undefined>;
-    direction: 'ltr' | 'rtl';
-    email: string;
-    setEmail: React.Dispatch<React.SetStateAction<string>>;
-    password: string;
-    setPassword: React.Dispatch<React.SetStateAction<string>>;
-    rememberMeChecked: boolean;
-    setRememberMeChecked: React.Dispatch<React.SetStateAction<boolean>>;
-    setSection: React.Dispatch<React.SetStateAction<string>>;
-    navigate: NavigateFunction;
-    errorMessage: string;
-    setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-    loading: boolean;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  };
-
-  type RegisterSectionProps = {
-    t: TFunction<'translation', undefined>;
-    direction: 'ltr' | 'rtl';
-    email: string;
-    setEmail: React.Dispatch<React.SetStateAction<string>>;
-    password: string;
-    setPassword: React.Dispatch<React.SetStateAction<string>>;
-    agreementChecked: boolean;
-    setAgreementChecked: React.Dispatch<React.SetStateAction<boolean>>;
-    setSection: React.Dispatch<React.SetStateAction<string>>;
-    preferences: {[x: string]: boolean};
-    setPreferences: React.Dispatch<React.SetStateAction<{[x: string]: boolean}>>;
-    navigate: NavigateFunction;
-    setShowBoardingPage: React.Dispatch<React.SetStateAction<boolean>>;
-    errorMessage: string;
-    setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-    loading: boolean;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  };
 
   function LoginSection({
     t,
