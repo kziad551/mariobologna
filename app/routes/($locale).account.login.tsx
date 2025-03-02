@@ -182,7 +182,8 @@ export default function Login() {
       // If no account exists, switch to signup flow
       if (checkData.error?.includes('No account found')) {
         console.log('No account found, switching to signup flow');
-        const signupPassword = `Google-${user.uid}-${Math.random().toString(36).slice(-12)}`;
+        // Generate a shorter password that meets Shopify's requirements
+        const signupPassword = `G${user.uid.slice(0, 8)}${Math.random().toString(36).slice(-8)}`;
         
         const signupResponse = await fetch('/api/account/authentication/social_login', {
           method: 'POST',

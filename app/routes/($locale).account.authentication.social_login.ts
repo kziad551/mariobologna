@@ -166,8 +166,8 @@ export async function action({request, context}: ActionFunctionArgs) {
         hasProvidedPassword: !!shopifyPassword
       });
       
-      // Generate a new password if none exists
-      const newPassword = `Google-${user.uid}-${Math.random().toString(36).slice(-12)}`;
+      // Generate a shorter password that meets Shopify's requirements
+      const newPassword = `G${user.uid.slice(0, 8)}${Math.random().toString(36).slice(-8)}`;
       
       // Try logging in with the new password
       try {
