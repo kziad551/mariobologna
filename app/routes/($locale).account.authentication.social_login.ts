@@ -11,6 +11,22 @@ import {updateDocument, addDocument} from '~/utils/firestore';
 export async function action({request, context}: ActionFunctionArgs) {
   const {env, storefront} = context;
   
+  // Configure storefront API with required headers
+  const headers: HeadersInit = {
+    'X-Shopify-Storefront-Access-Token': env.PUBLIC_STOREFRONT_API_TOKEN,
+  };
+  
+  // Add optional headers only if they exist
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const requestId = request.headers.get('request-id');
+  
+  if (forwardedFor) {
+    headers['X-Forwarded-For'] = forwardedFor;
+  }
+  if (requestId) {
+    headers['Request-ID'] = requestId;
+  }
+  
   try {
     const {user, isSignUp, shopifyPassword} = (await request.json()) as {
       user: User;
@@ -59,7 +75,7 @@ export async function action({request, context}: ActionFunctionArgs) {
       }
 
       try {
-        // Create Shopify account
+        // Create Shopify account with headers
         const createResponse = await storefront.mutate(
           CUSTOMER_REGISTER_MUTATION,
           {
@@ -71,6 +87,7 @@ export async function action({request, context}: ActionFunctionArgs) {
                 lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
               },
             },
+            headers,
           },
         );
 
@@ -90,7 +107,7 @@ export async function action({request, context}: ActionFunctionArgs) {
         // Get customer ID from response
         const customerId = createResponse?.customerCreate?.customer?.id;
 
-        // Log in the new user
+        // Log in the new user with scoped client
         const loginResponse = await storefront.mutate(
           CUSTOMER_LOGIN_MUTATION,
           {
@@ -100,6 +117,7 @@ export async function action({request, context}: ActionFunctionArgs) {
                 password: shopifyPassword,
               },
             },
+            headers,
           },
         );
 
@@ -180,6 +198,7 @@ export async function action({request, context}: ActionFunctionArgs) {
                 password: newPassword,
               },
             },
+            headers,
           },
         );
 
@@ -250,6 +269,7 @@ export async function action({request, context}: ActionFunctionArgs) {
               password,
             },
           },
+          headers,
         },
       );
 
