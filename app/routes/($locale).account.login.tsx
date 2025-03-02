@@ -155,14 +155,8 @@ export default function Login() {
       // Check if user exists in Firebase
       const existingUser = await getUserByEmail(user.email);
       
-      // If trying to sign up but user exists, switch to login
-      if (isSignUp && existingUser) {
-        console.log('User exists in Firebase, switching to login flow');
-        isSignUp = false;
-      }
-
-      // Send to backend for authentication
-      const response = await fetch('/api/account/authentication/social_login', {
+      // Check if user exists in Shopify (via backend)
+      const checkResponse = await fetch('/api/account/authentication/social_login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,47 +167,60 @@ export default function Login() {
             email: user.email,
             displayName: user.displayName,
           },
-          isSignUp,
-          existingPassword: existingUser?.shopifyPassword // Pass existing password if available
+          isSignUp: false, // First try as login
+          shopifyPassword: existingUser?.shopifyPassword
         }),
       });
 
-      const data = await response.json() as {
+      const checkData = await checkResponse.json() as {
         error?: string;
         success?: boolean;
         isNewUser?: boolean;
-        password?: string;
         customerId?: string;
       };
-      
-      if (!response.ok || data.error) {
-        console.error('Response error:', response.status, data.error);
-        if (data.error?.includes('taken') || data.error?.includes('exists')) {
-          // If account exists, switch to login flow
-          console.log('Account exists in Shopify, retrying as login');
-          if (!isSignUp) {
-            setSocialError(t('Failed to sign in. Please try again.'));
-          } else {
-            // Retry as login
-            handleSocialSignIn(provider, false);
-            return;
-          }
-        } else {
-          setSocialError(t(data.error || 'Failed to authenticate. Please try again.'));
-        }
-        setLoading(false);
-        return;
-      }
 
-      // Success - either log in or create new account
-      if (data.success) {
-        if (data.isNewUser && data.password && data.customerId) {
+      // If no account exists, switch to signup flow
+      if (checkData.error?.includes('No account found')) {
+        console.log('No account found, switching to signup flow');
+        const signupPassword = `Google-${user.uid}-${Math.random().toString(36).slice(-12)}`;
+        
+        const signupResponse = await fetch('/api/account/authentication/social_login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user: {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+            },
+            isSignUp: true,
+            shopifyPassword: signupPassword
+          }),
+        });
+
+        const signupData = await signupResponse.json() as {
+          error?: string;
+          success?: boolean;
+          isNewUser?: boolean;
+          customerId?: string;
+        };
+
+        if (signupData.error) {
+          setSocialError(t(signupData.error));
+          setLoading(false);
+          return;
+        }
+
+        if (signupData.success) {
           try {
+            // Store the password in Firebase
             await addDocument({
               uid: user.uid,
               email: user.email || '',
-              shopifyPassword: data.password,
-              shopifyCustomerId: data.customerId,
+              shopifyPassword: signupPassword,
+              shopifyCustomerId: signupData.customerId,
               createdAt: new Date().toISOString()
             });
             setShowBoardingPage(true);
@@ -224,10 +231,13 @@ export default function Login() {
             setShowBoardingPage(true);
             navigate('/account/onboarding');
           }
-        } else {
-          // For existing users, redirect to account
-          navigate('/account');
         }
+      } else if (checkData.error) {
+        // If it's a different error, show it
+        setSocialError(t(checkData.error));
+      } else if (checkData.success) {
+        // Login successful
+        navigate('/account');
       }
     } catch (error: any) {
       console.error('Social auth error:', error);
