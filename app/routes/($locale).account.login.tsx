@@ -35,49 +35,16 @@ import {
 } from 'firebaseConfig';
 import {addDocument, getUserByEmail} from '~/utils/firestore';
 
-type OrSectionType = {
-  t: TFunction<'translation', undefined>;
-  setSection: React.Dispatch<React.SetStateAction<string>>;
-  section: string;
-  message: string;
-  buttonText: string;
+type LoginResponse = {
+  error?: string;
+  success?: boolean;
 };
 
-type LoginSectionProps = {
-  t: TFunction<'translation', undefined>;
-  direction: 'ltr' | 'rtl';
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  password: string;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
-  rememberMeChecked: boolean;
-  setRememberMeChecked: React.Dispatch<React.SetStateAction<boolean>>;
-  setSection: React.Dispatch<React.SetStateAction<string>>;
-  navigate: NavigateFunction;
-  errorMessage: string;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-type RegisterSectionProps = {
-  t: TFunction<'translation', undefined>;
-  direction: 'ltr' | 'rtl';
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  password: string;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
-  agreementChecked: boolean;
-  setAgreementChecked: React.Dispatch<React.SetStateAction<boolean>>;
-  setSection: React.Dispatch<React.SetStateAction<string>>;
-  preferences: {[x: string]: boolean};
-  setPreferences: React.Dispatch<React.SetStateAction<{[x: string]: boolean}>>;
-  navigate: NavigateFunction;
-  setShowBoardingPage: React.Dispatch<React.SetStateAction<boolean>>;
-  errorMessage: string;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+type SocialLoginResponse = {
+  error?: string;
+  success?: boolean;
+  isNewUser?: boolean;
+  shopifyPassword?: string;
 };
 
 export const meta: MetaFunction = () => {
@@ -113,6 +80,8 @@ export default function Login() {
     setShowHeaderFooter,
     setShowBoardingPage,
     direction,
+    setPasswordOnce,
+    ref,
   } = useCustomContext();
   const {height, width} = useWindowDimensions(50);
   const data = useLoaderData<typeof loader>();
@@ -124,7 +93,6 @@ export default function Login() {
   const [preferences, setPreferences] = useState<{[x: string]: boolean}>({});
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [socialError, setSocialError] = useState('');
 
   useEffect(() => {
     setCurrentPage('Login | Sign Up');
@@ -134,286 +102,57 @@ export default function Login() {
 
   const handleSocialSignIn = async (
     provider: GoogleAuthProvider | FacebookAuthProvider,
-    isSignUp: boolean,
   ) => {
-    if (loading) return; // Prevent multiple clicks while loading
-    
     setLoading(true);
-    setSocialError('');
-    
+    setErrorMessage('');
     try {
-      // Get Google user info
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      if (!user.email) {
-        setSocialError(t('No email provided from Google. Please try again.'));
-        setLoading(false);
-        return;
-      }
-
-      // Check if user exists in Firebase
-      const existingUser = await getUserByEmail(user.email);
-      
-      // Check if user exists in Shopify (via backend)
-      const checkResponse = await fetch('/api/account/authentication/social_login', {
+      const userDoc = await getUserByEmail(user.email as string);
+      const response = await fetch('/api/account/authentication/social_login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user: {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-          },
-          isSignUp: false, // First try as login
-          shopifyPassword: existingUser?.shopifyPassword
+          user,
+          isSignUp: section === 'register',
+          shopifyPassword: userDoc?.shopifyPassword,
         }),
       });
 
-      const checkData = await checkResponse.json() as {
-        error?: string;
-        success?: boolean;
-        isNewUser?: boolean;
-        customerId?: string;
-      };
+      const data = await response.json() as SocialLoginResponse;
 
-      // If no account exists, switch to signup flow
-      if (checkData.error?.includes('No account found')) {
-        console.log('No account found, switching to signup flow');
-        // Generate a shorter password that meets Shopify's requirements
-        const signupPassword = `G${user.uid.slice(0, 8)}${Math.random().toString(36).slice(-8)}`;
-        
-        const signupResponse = await fetch('/api/account/authentication/social_login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user: {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-            },
-            isSignUp: true,
-            shopifyPassword: signupPassword
-          }),
-        });
+      if (data.error) {
+        setErrorMessage(t(data.error));
+      } else if (data.success) {
+        if (data.isNewUser && data.shopifyPassword) {
+          await addDocument({
+            uid: user.uid,
+            email: user.email as string,
+            shopifyPassword: data.shopifyPassword,
+            createdAt: new Date().toISOString(),
+          });
 
-        const signupData = await signupResponse.json() as {
-          error?: string;
-          success?: boolean;
-          isNewUser?: boolean;
-          customerId?: string;
-        };
-
-        if (signupData.error) {
-          setSocialError(t(signupData.error));
-          setLoading(false);
-          return;
+          setShowBoardingPage(true);
+          navigate('/account/onboarding');
+        } else {
+          navigate('/account');
         }
-
-        if (signupData.success) {
-          try {
-            // Store the password in Firebase
-            await addDocument({
-              uid: user.uid,
-              email: user.email || '',
-              shopifyPassword: signupPassword,
-              shopifyCustomerId: signupData.customerId,
-              createdAt: new Date().toISOString()
-            });
-            setShowBoardingPage(true);
-            navigate('/account/onboarding');
-          } catch (error) {
-            console.error('Firebase store error:', error);
-            // Even if Firebase storage fails, still redirect to onboarding
-            setShowBoardingPage(true);
-            navigate('/account/onboarding');
-          }
-        }
-      } else if (checkData.error) {
-        // If it's a different error, show it
-        setSocialError(t(checkData.error));
-      } else if (checkData.success) {
-        // Login successful
-        navigate('/account');
       }
     } catch (error: any) {
       console.error('Social auth error:', error);
       if (error.code === 'auth/popup-closed-by-user') {
-        setSocialError(t('Sign in cancelled. Please try again.'));
+        setErrorMessage(t('Sign in cancelled. Please try again.'));
       } else if (error.code === 'auth/popup-blocked') {
-        setSocialError(t('Please enable popups in your browser settings and try again.'));
+        setErrorMessage(t('Please enable popups in your browser settings and try again.'));
       } else {
-        setSocialError(t(error.message || 'Failed to authenticate. Please try again.'));
+        setErrorMessage(t(error.message || 'Failed to authenticate. Please try again.'));
       }
     } finally {
       setLoading(false);
     }
   };
-
-  const GoogleAuthButton = ({ isSignUp }: { isSignUp: boolean }) => (
-    <div className="flex flex-col gap-2">
-      <button
-        onClick={() => handleSocialSignIn(googleProvider, isSignUp)}
-        className="flex items-center justify-center gap-2 rounded py-2.5 border border-neutral-N-50"
-        disabled={loading}
-      >
-        <FcGoogle className="w-5 h-5" />
-        {isSignUp ? t('Sign Up with Google') : t('Log In with Google')}
-      </button>
-      {socialError && <p className="text-red-600">{socialError}</p>}
-    </div>
-  );
-
-  const OrSection = ({
-    t,
-    setSection,
-    section,
-    message,
-    buttonText,
-  }: OrSectionType) => (
-    <>
-      <div className="flex items-center justify-center gap-7 my-4">
-        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
-        <p>{t('Or')}</p>
-        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
-      </div>
-      <div className="flex flex-col gap-4">
-        <GoogleAuthButton isSignUp={section === 'register'} />
-        <div className="flex items-center justify-start gap-3">
-          <p>{message}</p>
-          <button
-            className="text-primary-P-40 hover:underline"
-            onClick={() => {
-              setSection(section === 'register' ? 'login' : 'register');
-              setSocialError('');
-              setErrorMessage('');
-              setEmail('');
-              setPassword('');
-            }}
-          >
-            {buttonText}
-          </button>
-        </div>
-      </div>
-    </>
-  );
-
-  function LoginSection({
-    t,
-    direction,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    rememberMeChecked,
-    setRememberMeChecked,
-    setSection,
-    navigate,
-    errorMessage,
-    setErrorMessage,
-    loading,
-    setLoading,
-  }: LoginSectionProps) {
-    useEffect(() => {
-      setErrorMessage('');
-    }, [email, password]);
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setErrorMessage('');
-      setLoading(true);
-
-      const response = await fetch('/api/account/authentication/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({email, password}),
-      });
-
-      const data = (await response.json()) as any;
-
-      if (data.error) {
-        setErrorMessage(data.error);
-      } else {
-        navigate('/account');
-      }
-      setLoading(false);
-    };
-
-    return (
-      <>
-        <form
-          onSubmit={handleSubmit}
-          className="min-w-full flex flex-col items-stretch justify-start gap-4"
-        >
-          <div className="flex flex-col items-stretch gap-8">
-            <div className={direction === 'rtl' ? 'rtl-container' : ''}>
-              <FloatLabel>
-                <InputText
-                  required
-                  invalid={errorMessage !== ''}
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="!bg-transparent p-4 w-full rounded border border-neutral-N-50 focus:shadow-none focus:outline-none"
-                />
-                <label className="ml-2 -mt-2" htmlFor="email">
-                  {t('Email')}
-                </label>
-              </FloatLabel>
-            </div>
-            <div className={direction === 'rtl' ? 'rtl-container' : ''}>
-              <FloatLabel>
-                <InputText
-                  required
-                  invalid={errorMessage !== ''}
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="!bg-transparent p-4 w-full rounded border border-neutral-N-50 focus:shadow-none focus:outline-none"
-                />
-                <label className="ml-2 -mt-2" htmlFor="password">
-                  {t('Password')}
-                </label>
-              </FloatLabel>
-              <Link to="/account/forgot_password" className="text-xs ml-4">
-                {t('Forgot password?')}
-              </Link>
-            </div>
-          </div>
-          <label className="w-fit flex items-center justify-self-center gap-2 ml-4 cursor-pointer">
-            <input
-              type="checkbox"
-              name="remember_me"
-              id="remember_me"
-              className="w-5 h-5 cursor-pointer"
-              checked={rememberMeChecked}
-              onChange={(e) => setRememberMeChecked(e.target.checked)}
-            />
-            <span>{t('Remember me?')}</span>
-          </label>
-          {errorMessage !== '' ? (
-            <p className="text-red-600">{errorMessage}</p>
-          ) : (
-            <></>
-          )}
-          <input
-            type="submit"
-            disabled={loading}
-            value={!loading ? t('Log In') : t('Processing...')}
-            className={`${loading ? 'bg-primary-P-40/50 cursor-not-allowed' : 'bg-primary-P-40 cursor-pointer transition-colors hover:shadow hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90'} text-white py-2.5 text-sm rounded border-transparent`}
-          />
-        </form>
-      </>
-    );
-  }
 
   return (
     <div className="login">
@@ -435,65 +174,259 @@ export default function Login() {
             </button>
           </div>
           {section === 'login' ? (
-            <>
-              <LoginSection
-                t={t}
-                direction={direction}
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                rememberMeChecked={rememberMeChecked}
-                setRememberMeChecked={setRememberMeChecked}
-                setSection={setSection}
-                navigate={navigate}
-                errorMessage={errorMessage}
-                setErrorMessage={setErrorMessage}
-                loading={loading}
-                setLoading={setLoading}
-              />
-              <OrSection
-                t={t}
-                setSection={setSection}
-                section="register"
-                message={t("Don't have an account?")}
-                buttonText={t('Sign Up')}
-              />
-            </>
+            <LoginSection
+              t={t}
+              direction={direction}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              rememberMeChecked={rememberMeChecked}
+              setRememberMeChecked={setRememberMeChecked}
+              setSection={setSection}
+              navigate={navigate}
+              handleSocialSignIn={handleSocialSignIn}
+              errorMessage={errorMessage}
+              setErrorMessage={setErrorMessage}
+              loading={loading}
+              setLoading={setLoading}
+            />
           ) : (
-            <>
-              <RegisterSection
-                t={t}
-                direction={direction}
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                agreementChecked={agreementChecked}
-                setAgreementChecked={setAgreementChecked}
-                setSection={setSection}
-                preferences={preferences}
-                setPreferences={setPreferences}
-                navigate={navigate}
-                setShowBoardingPage={setShowBoardingPage}
-                errorMessage={errorMessage}
-                setErrorMessage={setErrorMessage}
-                loading={loading}
-                setLoading={setLoading}
-              />
-              <OrSection
-                t={t}
-                setSection={setSection}
-                section="login"
-                message={t('Have an account?')}
-                buttonText={t('Log In')}
-              />
-            </>
+            <RegisterSection
+              t={t}
+              direction={direction}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              agreementChecked={agreementChecked}
+              setAgreementChecked={setAgreementChecked}
+              setSection={setSection}
+              preferences={preferences}
+              setPreferences={setPreferences}
+              navigate={navigate}
+              setShowBoardingPage={setShowBoardingPage}
+              handleSocialSignIn={handleSocialSignIn}
+              errorMessage={errorMessage}
+              setErrorMessage={setErrorMessage}
+              loading={loading}
+              setLoading={setLoading}
+            />
           )}
         </div>
         {section === 'login' ? <LoginBanner t={t} /> : <RegisterBanner t={t} />}
       </div>
     </div>
+  );
+}
+
+type OrSectionType = {
+  t: TFunction<'translation', undefined>;
+  setSection: React.Dispatch<React.SetStateAction<string>>;
+  section: string;
+  message: string;
+  buttonText: string;
+  handleSocialSignIn: (
+    provider: GoogleAuthProvider | FacebookAuthProvider,
+  ) => Promise<void>;
+};
+
+const OrSection = ({
+  t,
+  setSection,
+  section,
+  message,
+  buttonText,
+  handleSocialSignIn,
+}: OrSectionType) => {
+  return (
+    <>
+      <div className="flex items-center justify-center gap-7 my-4">
+        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
+        <p>{t('Or')}</p>
+        <div className="flex-1 h-0.25 bg-neutral-N-80"></div>
+      </div>
+      <div className="flex flex-col items-stretch gap-2">
+        <button
+          onClick={() => handleSocialSignIn(googleProvider)}
+          className="flex items-center justify-center gap-2 rounded py-2.5 border border-neutral-N-50"
+        >
+          <FcGoogle className="w-5 h-5" />
+          {t('Sign Up with')} Google
+        </button>
+        {/* <button
+          onClick={() => handleSocialSignIn(facebookProvider)}
+          className="flex items-center justify-center gap-2 rounded py-2.5 border border-neutral-N-50"
+        >
+          <FaFacebookF className="w-5 h-5 text-[#0E88F0]" />
+          {t('Sign Up with Facebook')}
+        </button> */}
+        {/* <button className="flex items-center justify-center gap-2 rounded py-2.5 border border-neutral-N-50">
+          <FaApple className="w-5 h-5 text-black" />
+          {t('Sign Up with')} {t('Apple')}
+        </button> */}
+      </div>
+      <div className="flex items-center justify-start gap-3 mt-3">
+        <p>{message}</p>
+        <button
+          className="text-primary-P-40 hover:underline"
+          onClick={() => setSection(section)}
+        >
+          {buttonText}
+        </button>
+      </div>
+    </>
+  );
+};
+
+type LoginSectionType = {
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  rememberMeChecked: boolean;
+  setRememberMeChecked: React.Dispatch<React.SetStateAction<boolean>>;
+  setSection: React.Dispatch<React.SetStateAction<string>>;
+  navigate: NavigateFunction;
+  t: TFunction<'translation', undefined>;
+  direction: 'ltr' | 'rtl';
+  handleSocialSignIn: (
+    provider: GoogleAuthProvider | FacebookAuthProvider,
+  ) => Promise<void>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+function LoginSection({
+  t,
+  direction,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  rememberMeChecked,
+  setRememberMeChecked,
+  setSection,
+  navigate,
+  handleSocialSignIn,
+  errorMessage,
+  setErrorMessage,
+  loading,
+  setLoading,
+}: LoginSectionType) {
+  useEffect(() => {
+    setErrorMessage('');
+  }, [email, password]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/account/authentication/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json() as LoginResponse;
+
+      if (data.error) {
+        setErrorMessage(t(data.error));
+      } else {
+        navigate('/account');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage(t('Failed to login. Please try again.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <form
+        onSubmit={handleSubmit}
+        className="min-w-full flex flex-col items-stretch justify-start gap-4"
+      >
+        <div className="flex flex-col items-stretch gap-8">
+          <div className={direction === 'rtl' ? 'rtl-container' : ''}>
+            <FloatLabel>
+              <InputText
+                required
+                invalid={errorMessage !== ''}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="!bg-transparent p-4 w-full rounded border border-neutral-N-50 focus:shadow-none focus:outline-none"
+              />
+              <label className="ml-2 -mt-2" htmlFor="email">
+                {t('Email')}
+              </label>
+            </FloatLabel>
+          </div>
+          <div className={direction === 'rtl' ? 'rtl-container' : ''}>
+            <FloatLabel>
+              <InputText
+                required
+                invalid={errorMessage !== ''}
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="!bg-transparent p-4 w-full rounded border border-neutral-N-50 focus:shadow-none focus:outline-none"
+              />
+              <label className="ml-2 -mt-2" htmlFor="password">
+                {t('Password')}
+              </label>
+            </FloatLabel>
+            <Link to="/account/forgot_password" className="text-xs ml-4">
+              {t('Forgot password?')}
+            </Link>
+          </div>
+        </div>
+        <label className="w-fit flex items-center justify-self-center gap-2 ml-4 cursor-pointer">
+          <input
+            type="checkbox"
+            name="remember_me"
+            id="remember_me"
+            className="w-5 h-5 cursor-pointer"
+            checked={rememberMeChecked}
+            onChange={(e) => setRememberMeChecked(e.target.checked)}
+          />
+          <span>{t('Remember me?')}</span>
+        </label>
+        {errorMessage !== '' ? (
+          <p className="text-red-600">{errorMessage}</p>
+        ) : (
+          <></>
+        )}
+        <input
+          type="submit"
+          disabled={loading}
+          value={!loading ? t('Log In') : t('Processing...')}
+          className={`${loading ? 'bg-primary-P-40/50 cursor-not-allowed' : 'bg-primary-P-40 cursor-pointer transition-colors hover:shadow hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90'} text-white py-2.5 text-sm rounded border-transparent`}
+        />
+      </form>
+      <OrSection
+        t={t}
+        setSection={setSection}
+        section="register"
+        message={t("Don't have an account?")}
+        buttonText={t('Sign Up')}
+        handleSocialSignIn={handleSocialSignIn}
+      />
+    </>
   );
 }
 
@@ -507,6 +440,29 @@ function LoginBanner({t}: {t: TFunction<'translation', undefined>}) {
     </div>
   );
 }
+
+type RegisterSectionType = {
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  agreementChecked: boolean;
+  setAgreementChecked: React.Dispatch<React.SetStateAction<boolean>>;
+  setSection: React.Dispatch<React.SetStateAction<string>>;
+  preferences: {[x: string]: boolean};
+  setPreferences: React.Dispatch<React.SetStateAction<{[x: string]: boolean}>>;
+  navigate: NavigateFunction;
+  setShowBoardingPage: React.Dispatch<React.SetStateAction<boolean>>;
+  t: TFunction<'translation', undefined>;
+  direction: 'ltr' | 'rtl';
+  handleSocialSignIn: (
+    provider: GoogleAuthProvider | FacebookAuthProvider,
+  ) => Promise<void>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 function RegisterSection({
   t,
@@ -522,11 +478,12 @@ function RegisterSection({
   setPreferences,
   navigate,
   setShowBoardingPage,
+  handleSocialSignIn,
   errorMessage,
   setErrorMessage,
   loading,
   setLoading,
-}: RegisterSectionProps) {
+}: RegisterSectionType) {
   useEffect(() => {
     setErrorMessage('');
   }, [email, password]);
@@ -537,23 +494,34 @@ function RegisterSection({
     setLoading(true);
     localStorage.setItem('preferences', JSON.stringify(preferences));
 
-    const response = await fetch('/api/account/authentication/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({email, password}),
-    });
+    try {
+      const response = await fetch('/api/account/authentication/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          firstName: '',
+          lastName: '',
+        }),
+      });
 
-    const data = (await response.json()) as any;
+      const data = await response.json() as LoginResponse;
 
-    if (data.error) {
-      setErrorMessage(data.error);
-    } else {
-      setShowBoardingPage(true);
-      navigate('/account/onboarding');
+      if (data.error) {
+        setErrorMessage(t(data.error));
+      } else {
+        setShowBoardingPage(true);
+        navigate('/account/onboarding');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setErrorMessage(t('Failed to register. Please try again.'));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -705,6 +673,14 @@ function RegisterSection({
           } transition-colors text-white py-2.5 text-sm rounded border-transparent`}
         />
       </form>
+      <OrSection
+        t={t}
+        setSection={setSection}
+        section="login"
+        message={t('Have an account?')}
+        buttonText={t('Log In')}
+        handleSocialSignIn={handleSocialSignIn}
+      />
     </>
   );
 }
