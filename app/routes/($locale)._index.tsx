@@ -320,7 +320,7 @@ function HeroSection({
     <div className="relative overflow-hidden flex items-center justify-between gap-10 mt-10 px-4 sm:px-10 w-full h-75 sm:h-120 lg:h-165">
       <img
         src={middleImageSrc}
-        className="object-cover absolute top-0 h-120 -translate-y-20 sm:h-200 sm:-translate-y-30 lg:h-auto lg:-translate-y-50 left-1/2 -translate-x-1/2"
+        className="object-contain absolute top-1/2 -translate-y-1/2 h-full w-auto left-1/2 -translate-x-1/2"
       />
       <img
         src={leftImageSrc}
