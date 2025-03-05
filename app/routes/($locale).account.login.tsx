@@ -35,18 +35,6 @@ import {
 } from 'firebaseConfig';
 import {addDocument, getUserByEmail} from '~/utils/firestore';
 
-type LoginResponse = {
-  error?: string;
-  success?: boolean;
-};
-
-type SocialLoginResponse = {
-  error?: string;
-  success?: boolean;
-  isNewUser?: boolean;
-  shopifyPassword?: string;
-};
-
 export const meta: MetaFunction = () => {
   return [{title: 'Login'}];
 };
@@ -117,41 +105,56 @@ export default function Login() {
         body: JSON.stringify({
           user,
           isSignUp: section === 'register',
-          shopifyPassword: userDoc?.shopifyPassword,
         }),
       });
-
-      const data = await response.json() as SocialLoginResponse;
-
+      const data = (await response.json()) as any;
       if (data.error) {
-        setErrorMessage(t(data.error));
+        console.log('data.error', data.error);
+        setErrorMessage(data.error);
       } else if (data.success) {
-        if (data.isNewUser && data.shopifyPassword) {
+        if (data.isNewUser) {
           await addDocument({
             uid: user.uid,
             email: user.email as string,
-            shopifyPassword: data.shopifyPassword,
-            createdAt: new Date().toISOString(),
+            shopifyPassword: data.password,
           });
 
           setShowBoardingPage(true);
           navigate('/account/onboarding');
+          setPasswordOnce(data.password);
+          ref.current.openTrigger();
+        } else if (userDoc) {
+          const loginResponse = await fetch('/api/account/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: user.email,
+              password: userDoc.shopifyPassword,
+            }),
+          });
+
+          const data = (await loginResponse.json()) as any;
+
+          if (data.error) {
+            navigate(
+              `/account/enter_password_once?email=${userDoc.email}&uid=${user.uid}`,
+            );
+          } else {
+            navigate('/account');
+          }
         } else {
-          navigate('/account');
+          navigate(
+            `/account/enter_password_once?email=${user.email}&uid=${user.uid}&newDoc=true`,
+          );
         }
       }
     } catch (error: any) {
-      console.error('Social auth error:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
-        setErrorMessage(t('Sign in cancelled. Please try again.'));
-      } else if (error.code === 'auth/popup-blocked') {
-        setErrorMessage(t('Please enable popups in your browser settings and try again.'));
-      } else {
-        setErrorMessage(t(error.message || 'Failed to authenticate. Please try again.'));
-      }
-    } finally {
-      setLoading(false);
+      console.log('error', error);
+      setErrorMessage(error.message);
     }
+    setLoading(false);
   };
 
   return (
@@ -325,31 +328,22 @@ function LoginSection({
     setErrorMessage('');
     setLoading(true);
 
-    try {
-      const response = await fetch('/api/account/authentication/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    const response = await fetch('/api/account/authentication/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({email, password}),
+    });
 
-      const data = await response.json() as LoginResponse;
+    const data = (await response.json()) as any;
 
-      if (data.error) {
-        setErrorMessage(t(data.error));
-      } else {
-        navigate('/account');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setErrorMessage(t('Failed to login. Please try again.'));
-    } finally {
-      setLoading(false);
+    if (data.error) {
+      setErrorMessage(data.error);
+    } else {
+      navigate('/account');
     }
+    setLoading(false);
   };
 
   return (
@@ -494,34 +488,23 @@ function RegisterSection({
     setLoading(true);
     localStorage.setItem('preferences', JSON.stringify(preferences));
 
-    try {
-      const response = await fetch('/api/account/authentication/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          firstName: '',
-          lastName: '',
-        }),
-      });
+    const response = await fetch('/api/account/authentication/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({email, password}),
+    });
 
-      const data = await response.json() as LoginResponse;
+    const data = (await response.json()) as any;
 
-      if (data.error) {
-        setErrorMessage(t(data.error));
-      } else {
-        setShowBoardingPage(true);
-        navigate('/account/onboarding');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setErrorMessage(t('Failed to register. Please try again.'));
-    } finally {
-      setLoading(false);
+    if (data.error) {
+      setErrorMessage(data.error);
+    } else {
+      setShowBoardingPage(true);
+      navigate('/account/onboarding');
     }
+    setLoading(false);
   };
 
   return (

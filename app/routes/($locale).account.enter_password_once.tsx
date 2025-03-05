@@ -67,7 +67,7 @@ export default function EnterPasswordOnce() {
         const searchParams = new URLSearchParams(location.search);
         const newDoc = searchParams.get('newDoc');
         if (newDoc) {
-          await addDocument({uid, email, password});
+          await addDocument({uid, email, shopifyPassword: password});
         } else {
           await updateDocument({uid, password});
         }
