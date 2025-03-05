@@ -16,33 +16,39 @@ type AddDocumentType = {
   uid: string;
   email: string;
   shopifyPassword: string;
-  shopifyCustomerId?: string;
   createdAt?: string;
 };
 
-export const addDocument = async ({uid, email, shopifyPassword, shopifyCustomerId, createdAt}: AddDocumentType) => {
-  await setDoc(doc(db, 'users', uid), {
+export const addDocument = async ({uid, email, shopifyPassword, createdAt}: AddDocumentType) => {
+  // Create a base document with required fields
+  const docData: Record<string, any> = {
     email,
     shopifyPassword,
-    shopifyCustomerId,
-    createdAt,
-  });
+  };
+  
+  // Only add createdAt if it's defined
+  if (createdAt) {
+    docData.createdAt = createdAt;
+  }
+  
+  // Use setDoc with the filtered document data
+  await setDoc(doc(db, 'users', uid), docData);
 };
 
 type UpdateDocumentType = {
   uid: string;
-  shopifyPassword: string;
+  password: string;
 };
 
-export const updateDocument = async ({uid, shopifyPassword}: UpdateDocumentType) => {
+export const updateDocument = async ({uid, password}: UpdateDocumentType) => {
   await updateDoc(doc(db, 'users', uid), {
-    shopifyPassword,
+    password,
   });
 };
 
 export const updateDocumentUsingEmail = async (
   email: string,
-  shopifyPassword: string,
+  password: string,
 ) => {
   const usersRef = collection(db, 'users');
   const q = query(usersRef, where('email', '==', email));
@@ -52,13 +58,13 @@ export const updateDocumentUsingEmail = async (
   if (!querySnapshot.empty) {
     const userDoc = querySnapshot.docs[0];
 
-    await updateDocument({uid: userDoc.id, shopifyPassword});
+    await updateDocument({uid: userDoc.id, password});
   } else {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        shopifyPassword,
+        password,
       );
       const newUser = userCredential.user;
 
@@ -66,7 +72,7 @@ export const updateDocumentUsingEmail = async (
       await addDocument({
         uid: newUser.uid,
         email,
-        shopifyPassword,
+        shopifyPassword: password,
       });
     } catch (error) {
       console.error(
