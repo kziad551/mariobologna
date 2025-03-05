@@ -43,6 +43,7 @@ import {calculateSalePercentage, handleCreateCheckout} from '~/lib/utils';
 import {OTHER_COLLECTION_QUERY} from '~/lib/queries';
 import {useViewedProducts} from '~/contexts/ViewedProducts';
 import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
+import ColorCircleIcon from '~/components/Icons/ColorCircleIcon';
 
 export const meta: MetaFunction<typeof loader> = ({data, location}) => {
   return [{title: `${data?.product.title ?? ''}`}];
@@ -848,11 +849,11 @@ function ProductOptions({
   };
 
   return (
-    <div key={option.name}>
+    <div key={option.name} className="mb-4">
       <div
         className={`${option.name === 'Color' ? 'justify-start' : 'justify-between'} flex items-end gap-1.25`}
       >
-        <p>{t(option.name)}</p>
+        <p className="text-lg font-medium">{t(option.name)}</p>
         {option.name === 'Color' ? (
           <span className="text-sm text-neutral-N-80">
             {t(option.value as string)}
@@ -870,7 +871,7 @@ function ProductOptions({
           </Link>
         )}
       </div>
-      <div className="flex items-start sm:justify-start flex-wrap gap-1 mt-0.5">
+      <div className="flex items-start sm:justify-start flex-wrap gap-2 mt-2">
         {option.values.map(({value, isAvailable, isActive, to}) => {
           const exists = isOptionAvailable(option.name, value);
           return (
@@ -878,44 +879,38 @@ function ProductOptions({
             (option.name === 'Color' ? (
               <Link
                 className={`hover:no-underline ${
-                  isActive ? 'border-secondary-S-90' : 'border-transparent'
-                } ${
                   isAvailable ? 'opacity-100' : 'opacity-30'
-                } block rounded-full w-8 h-8 border-[5px]`}
-                key={option.name + value}
-                prefetch="intent"
-                preventScrollReset
-                replace
-                to={to}
-                style={
-                  value === 'Multi Color'
-                    ? {
-                        backgroundImage:
-                          'linear-gradient(to right, #ff6e6e, #6eff6e, #6e6eff, #ffff6e, #ff6eff, #6effff)',
-                        backgroundSize: '200% 200%',
-                        backgroundPosition: 'center',
-                      }
-                    : {backgroundColor: value}
-                }
-              ></Link>
-            ) : (
-              <Link
-                className={`hover:no-underline ${
-                  isActive
-                    ? 'bg-secondary-S-90 text-white border-transparent'
-                    : 'bg-transparent text-neutral-N-30 border-neutral-N-50'
-                } ${
-                  isAvailable ? 'opacity-100' : 'opacity-30'
-                } px-4 py-1.5 border rounded text-sm font-medium transition-all`}
+                } block rounded-full w-10 h-10`}
                 key={option.name + value}
                 prefetch="intent"
                 preventScrollReset
                 replace
                 to={to}
               >
-                <span className="flex items-center gap-2">
+                <ColorCircleIcon
+                  option={value}
+                  productId={option.name}
+                  selectedVariant={isActive ? {[option.name]: {Color: value}} : {}}
+                />
+              </Link>
+            ) : (
+              <Link
+                className={`hover:no-underline ${
+                  isActive
+                    ? 'bg-secondary-S-90 text-white border-transparent'
+                    : 'bg-transparent text-neutral-N-30 border-neutral-N-50 hover:border-neutral-N-30'
+                } ${
+                  isAvailable ? 'opacity-100' : 'opacity-30'
+                } min-w-[48px] h-12 flex items-center justify-center border rounded-lg text-base font-medium transition-all`}
+                key={option.name + value}
+                prefetch="intent"
+                preventScrollReset
+                replace
+                to={to}
+              >
+                <span className="flex items-center gap-2 px-4">
                   <FaCheck
-                    className={`${isActive ? 'block' : 'hidden'} ${direction === 'rtl' ? 'order-2' : ''} w-4.5 h-4.5`}
+                    className={`${isActive ? 'block' : 'hidden'} ${direction === 'rtl' ? 'order-2' : ''} w-4 h-4`}
                   />
                   {value}
                 </span>

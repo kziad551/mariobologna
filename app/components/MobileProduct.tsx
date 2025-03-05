@@ -228,6 +228,7 @@ const MobileProduct = ({
                       option={option}
                       productId={product.id}
                       selectedVariant={selectedCardVariant}
+                      size="small"
                     />
                   </button>
                 ),

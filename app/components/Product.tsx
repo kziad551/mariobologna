@@ -384,6 +384,7 @@ const Product = ({
                       option={option}
                       productId={product.id}
                       selectedVariant={selectedCardVariant}
+                      size="small"
                     />
                   </button>
                 ),
@@ -400,6 +401,7 @@ const Product = ({
               option={uniqueColorOptions[0]}
               productId={product.id}
               selectedVariant={{[product.id]: {Color: uniqueColorOptions[0]}}}
+              size="small"
             />
             <span className="text-xs text-gray-600">{uniqueColorOptions[0]}</span>
           </div>

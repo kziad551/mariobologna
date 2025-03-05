@@ -374,14 +374,11 @@ const PopupProduct = forwardRef(
                             event.stopPropagation();
                           }}
                         >
-                          {/* <FaCircle
-                            className={`${Object.keys(selectedCardVariant)[0] === product.id && selectedCardVariant[product.id].Color === option ? 'border-secondary-S-90 border-[3px]' : 'border-transparent'} rounded-full w-4 h-4 xs:w-5 xs:h-5`}
-                            style={{color: `${option}`}}
-                          /> */}
                           <ColorCircleIcon
                             option={option}
                             productId={product.id}
                             selectedVariant={selectedCardVariant}
+                            size="small"
                           />
                         </button>
                       ),
