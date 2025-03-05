@@ -59,8 +59,12 @@ export async function action({request, context}: ActionFunctionArgs) {
     // For new user signup
     if (isSignUp && !customer) {
       try {
-        // Generate a simple password for Shopify - limit to 40 chars
-        const password = (user.uid + Date.now().toString()).substring(0, 40);
+        // Generate a simple 7-character password for Shopify
+        const randomChars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        let password = '';
+        for (let i = 0; i < 7; i++) {
+          password += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+        }
 
         // Create new customer in Shopify
         const createResponse = await storefront.mutate(
