@@ -129,26 +129,66 @@ export const handleUpdateSelectedVariant = ({
   setCartLine,
 }: handleUpdateSelectedVariantType) => {
   const selectedVariant = selectedCardVariant[productId];
-  if (!selectedVariant) {
-    return false;
+  
+  // If no variant is selected yet, check if any variant is available
+  if (!selectedVariant || Object.keys(selectedVariant).length === 0) {
+    const hasAvailableVariant = productVariants.some(variant => variant.availableForSale);
+    return hasAvailableVariant;
   }
-  return productVariants.some((variant) => {
+  
+  // Get selected options
+  const selectedColor = selectedVariant.Color;
+  const selectedSize = selectedVariant.Size;
+  
+  // Find matching variant based on selected options
+  const matchingVariant = productVariants.find(variant => {
     const variantOptions = variant.selectedOptions;
-    if (Object.keys(selectedVariant).length !== variantOptions.length) {
-      return false;
+    
+    // If both color and size are selected, check for exact match
+    if (selectedColor && selectedSize) {
+      return variantOptions.some(opt => opt.name === 'Color' && opt.value === selectedColor) &&
+             variantOptions.some(opt => opt.name === 'Size' && opt.value === selectedSize);
     }
-    const isAvailable = variantOptions.every(
-      (variantOption) =>
-        selectedVariant[variantOption.name] === variantOption.value,
-    );
-    if (isAvailable && variant.availableForSale) {
-      setCartLine({
-        merchandiseId: variant.id,
-        quantity: 1,
-      });
+    
+    // If only color is selected
+    if (selectedColor && !selectedSize) {
+      return variantOptions.some(opt => opt.name === 'Color' && opt.value === selectedColor);
     }
-    return isAvailable && variant.availableForSale;
+    
+    // If only size is selected
+    if (!selectedColor && selectedSize) {
+      return variantOptions.some(opt => opt.name === 'Size' && opt.value === selectedSize);
+    }
+    
+    return false;
   });
+  
+  // If we found a matching variant and it's available
+  if (matchingVariant?.availableForSale) {
+    setCartLine({
+      merchandiseId: matchingVariant.id,
+      quantity: 1,
+    });
+    return true;
+  }
+  
+  // If no exact match found but we have a color selected, check if any size is available
+  if (selectedColor && !selectedSize) {
+    return productVariants.some(variant => 
+      variant.availableForSale && 
+      variant.selectedOptions.some(opt => opt.name === 'Color' && opt.value === selectedColor)
+    );
+  }
+  
+  // If no exact match found but we have a size selected, check if any color is available
+  if (!selectedColor && selectedSize) {
+    return productVariants.some(variant => 
+      variant.availableForSale && 
+      variant.selectedOptions.some(opt => opt.name === 'Size' && opt.value === selectedSize)
+    );
+  }
+  
+  return false;
 };
 
 export type handleUpdateSelectedVariantsType = {
@@ -173,29 +213,69 @@ export const handleUpdateSelectedVariants = ({
   setIds,
 }: handleUpdateSelectedVariantsType) => {
   const selectedVariant = selectedCardVariant[productId];
-  if (!selectedVariant) {
-    return false;
+  
+  // If no variant is selected yet, check if any variant is available
+  if (!selectedVariant || Object.keys(selectedVariant).length === 0) {
+    const hasAvailableVariant = productVariants.some(variant => variant.availableForSale);
+    return hasAvailableVariant;
   }
-  return productVariants.some((variant) => {
+  
+  // Get selected options
+  const selectedColor = selectedVariant.Color;
+  const selectedSize = selectedVariant.Size;
+  
+  // Find matching variant based on selected options
+  const matchingVariant = productVariants.find(variant => {
     const variantOptions = variant.selectedOptions;
-    if (Object.keys(selectedVariant).length !== variantOptions.length) {
-      return false;
+    
+    // If both color and size are selected, check for exact match
+    if (selectedColor && selectedSize) {
+      return variantOptions.some(opt => opt.name === 'Color' && opt.value === selectedColor) &&
+             variantOptions.some(opt => opt.name === 'Size' && opt.value === selectedSize);
     }
-    const isAvailable = variantOptions.every(
-      (variantOption) =>
-        selectedVariant[variantOption.name] === variantOption.value,
-    );
-    if (isAvailable && variant.availableForSale) {
-      setIds((prev) => ({
-        ...prev,
-        [productId]: {
-          merchandiseId: variant.id,
-          quantity: 1,
-        },
-      }));
+    
+    // If only color is selected
+    if (selectedColor && !selectedSize) {
+      return variantOptions.some(opt => opt.name === 'Color' && opt.value === selectedColor);
     }
-    return isAvailable && variant.availableForSale;
+    
+    // If only size is selected
+    if (!selectedColor && selectedSize) {
+      return variantOptions.some(opt => opt.name === 'Size' && opt.value === selectedSize);
+    }
+    
+    return false;
   });
+  
+  // If we found a matching variant and it's available
+  if (matchingVariant?.availableForSale) {
+    setIds((prev) => ({
+      ...prev,
+      [productId]: {
+        merchandiseId: matchingVariant.id,
+        quantity: 1,
+      },
+    }));
+    return true;
+  }
+  
+  // If no exact match found but we have a color selected, check if any size is available
+  if (selectedColor && !selectedSize) {
+    return productVariants.some(variant => 
+      variant.availableForSale && 
+      variant.selectedOptions.some(opt => opt.name === 'Color' && opt.value === selectedColor)
+    );
+  }
+  
+  // If no exact match found but we have a size selected, check if any color is available
+  if (!selectedColor && selectedSize) {
+    return productVariants.some(variant => 
+      variant.availableForSale && 
+      variant.selectedOptions.some(opt => opt.name === 'Size' && opt.value === selectedSize)
+    );
+  }
+  
+  return false;
 };
 
 export function calculateSalePercentage(
