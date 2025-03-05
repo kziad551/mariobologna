@@ -317,14 +317,16 @@ function HeroSection({
   }, [language]);
 
   return (
-    <div className="relative overflow-hidden flex items-center justify-between gap-10 mt-10 px-4 sm:px-10 w-full h-75 sm:h-120 lg:h-165">
+    <div className="relative overflow-hidden flex items-center justify-between gap-4 lg:gap-6 xl:gap-10 mt-10 px-4 sm:px-10 w-full h-75 sm:h-120 lg:h-165 xl:h-180">
       <img
         src={middleImageSrc}
         className="object-contain absolute top-1/2 -translate-y-1/2 h-full w-auto left-1/2 -translate-x-1/2"
+        alt="Hero middle"
       />
       <img
         src={leftImageSrc}
-        className="hidden lg:block max-w-0 lg:max-w-40 xl:max-w-50"
+        className="hidden lg:block object-contain max-w-0 lg:max-w-60 xl:max-w-80 2xl:max-w-96"
+        alt="Hero left"
       />
       <div className="z-10 flex-1 flex flex-col items-center w-fit px-4 sm:px-8">
         <p
@@ -367,7 +369,8 @@ function HeroSection({
       </div>
       <img
         src={rightImageSrc}
-        className="hidden lg:block max-w-0 lg:max-w-40 xl:max-w-50"
+        className="hidden lg:block object-contain max-w-0 lg:max-w-60 xl:max-w-80 2xl:max-w-96"
+        alt="Hero right"
       />
     </div>
   );
