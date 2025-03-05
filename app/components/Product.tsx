@@ -60,7 +60,9 @@ const Product = ({
     [id: string]: {[key: string]: string};
   }>({[product.id]: {}});
   const [params, setParams] = useState(``);
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(() => {
+    return product.variants.nodes.some(variant => variant.availableForSale);
+  });
   const [cartLine, setCartLine] = useState<CartLineInput>({
     merchandiseId: '',
   });
@@ -100,18 +102,20 @@ const Product = ({
         }
       }
 
+      // Update availability based on selected options
+      const result = handleUpdateSelectedVariant({
+        productId: product.id,
+        productVariants: product.variants.nodes,
+        selectedCardVariant,
+        setCartLine,
+      });
+      setIsAvailable(result);
+
       if (Object.keys(selectedCardVariant[product.id] ?? {}).length === 2) {
         const queryStrings = new URLSearchParams(
           selectedCardVariant[product.id],
         ).toString();
         setParams(queryStrings);
-        const result = handleUpdateSelectedVariant({
-          productId: product.id,
-          productVariants: product.variants.nodes,
-          selectedCardVariant,
-          setCartLine,
-        });
-        setIsAvailable(result);
       }
     }
   }, [selectedCardVariant, product.id]);
@@ -143,24 +147,44 @@ const Product = ({
     [],
   );
 
+  const extractUniqueColors = (product: ProductCardFragment) => {
+    // First try to get colors from options
+    const colorOption = product.options.find(option => option.name === 'Color');
+    if (colorOption && colorOption.values.length > 0) {
+      return colorOption.values;
+    }
+    
+    // If no colors in options, try to extract from variants
+    const colors = new Set<string>();
+    product.variants.nodes.forEach(variant => {
+      const colorOption = variant.selectedOptions.find(option => option.name === 'Color');
+      if (colorOption) {
+        colors.add(colorOption.value);
+      }
+    });
+    
+    return Array.from(colors);
+  };
+
   let uniqueSizeOptions: string[] = [];
-  let uniqueColorOptions: string[] = [];
+  let uniqueColorOptions: string[] = extractUniqueColors(product);
+
   product.options.forEach((option) => {
     if (option.name === 'Size') {
       uniqueSizeOptions = option.values;
-    } else if (option.name === 'Color') {
-      uniqueColorOptions = option.values;
     }
   });
 
   useEffect(() => {
     let details = {};
+    // If there's only one color option, select it but don't treat it as a complete selection
     if (uniqueColorOptions.length === 1) {
       details = {
         ...details,
         Color: uniqueColorOptions[0],
       };
     }
+    // If there's only one size option, select it
     if (uniqueSizeOptions.length === 1) {
       details = {
         ...details,
@@ -168,12 +192,22 @@ const Product = ({
       };
     }
 
+    // Initialize selected variant
     setSelectedCardVariant({
       [product.id]: {
         ...details,
       },
     });
-  }, [uniqueColorOptions, uniqueSizeOptions]);
+
+    // Check initial availability
+    const result = handleUpdateSelectedVariant({
+      productId: product.id,
+      productVariants: product.variants.nodes,
+      selectedCardVariant: {[product.id]: details},
+      setCartLine,
+    });
+    setIsAvailable(result);
+  }, [uniqueColorOptions, uniqueSizeOptions, product.id]);
 
   return (
     <Link
@@ -343,19 +377,31 @@ const Product = ({
                       });
                       event.stopPropagation();
                     }}
+                    title={option}
+                    aria-label={`Color: ${option}`}
                   >
                     <ColorCircleIcon
                       option={option}
                       productId={product.id}
                       selectedVariant={selectedCardVariant}
                     />
-                    {/* <FaCircle
-                      className={`${Object.keys(selectedCardVariant)[0] === product.id && selectedCardVariant[product.id].Color === option ? 'border-secondary-S-90 border-[3px]' : 'border-transparent'} rounded-full w-5 h-5`}
-                      style={{color: `${option}`}}
-                    /> */}
                   </button>
                 ),
             )}
+            {uniqueColorOptions.length > 5 && (
+              <span className="text-xs text-gray-500 self-center">
+                +{uniqueColorOptions.length - 5}
+              </span>
+            )}
+          </div>
+        ) : uniqueColorOptions.length === 1 ? (
+          <div className="flex items-center gap-2">
+            <ColorCircleIcon
+              option={uniqueColorOptions[0]}
+              productId={product.id}
+              selectedVariant={{[product.id]: {Color: uniqueColorOptions[0]}}}
+            />
+            <span className="text-xs text-gray-600">{uniqueColorOptions[0]}</span>
           </div>
         ) : (
           <FaCircle className="w-5 h-5 text-transparent" />
