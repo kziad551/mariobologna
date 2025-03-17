@@ -105,8 +105,11 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
         if (filterKey === 'productType' && value === '"Accessories"') {
           // Instead of filtering by "Accessories", filter by the actual product types that should be in Accessories
           // This includes: Beach Accessories, Belts, Hats, Scarfs, Sunglasses, Wallets
+          console.log('Applying Accessories filter');
+          
+          // Try using productType directly first, as this is more likely to work consistently
           filters.push({
-            tag: "Beach Accessories,Belts,Hats,Scarfs,Sunglasses,Wallets"
+            productType: "Accessories"
           });
         } else {
           filters.push({
@@ -161,6 +164,14 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   const allFilterValues = allFilters.flatMap((filter) => filter.values);
   const appliedFilters = filters
     .map((filter) => {
+      // Special case for Accessories filter (product type filter)
+      if (filter.productType === "Accessories") {
+        return {
+          filter,
+          label: 'Accessories',
+        };
+      }
+
       // Special case for Accessories filter (tag-based filter)
       if (filter.tag && typeof filter.tag === 'string' && filter.tag.includes('Beach Accessories')) {
         return {
