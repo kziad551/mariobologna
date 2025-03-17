@@ -105,7 +105,6 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
         if (filterKey === 'productType' && value === '"Accessories"') {
           // Instead of filtering by "Accessories", filter by the actual product types that should be in Accessories
           // This includes: Beach Accessories, Belts, Hats, Scarfs, Sunglasses, Wallets
-          console.log('Applying Accessories filter');
           
           // Try using productType directly first, as this is more likely to work consistently
           filters.push({
@@ -195,8 +194,7 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
         );
       });
       if (!foundValue) {
-        // eslint-disable-next-line no-console
-        console.error('Could not find filter value for filter', filter);
+        // Instead of logging to console, just return null
         return null;
       }
 
