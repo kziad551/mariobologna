@@ -59,7 +59,6 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   }
   return defer({});
 }
-
 export default function Login() {
   const {t} = useTranslation();
   const navigate = useNavigate();
