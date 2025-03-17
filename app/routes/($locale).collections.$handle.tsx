@@ -5,6 +5,7 @@ import {
   type MetaFunction,
   NavLink,
   useNavigate,
+  useLocation,
 } from '@remix-run/react';
 import {useInView} from 'react-intersection-observer';
 import {Pagination, getPaginationVariables, Money} from '@shopify/hydrogen';
@@ -99,9 +100,19 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
     (filters, [key, value]) => {
       if (key.startsWith(FILTER_URL_PREFIX)) {
         const filterKey = key.substring(FILTER_URL_PREFIX.length);
-        filters.push({
-          [filterKey]: JSON.parse(value),
-        });
+        
+        // Special case for Accessories filter
+        if (filterKey === 'productType' && value === '"Accessories"') {
+          // Instead of filtering by "Accessories", filter by the actual product types that should be in Accessories
+          // This includes: Beach Accessories, Belts, Hats, Scarfs, Sunglasses, Wallets
+          filters.push({
+            tag: "Beach Accessories,Belts,Hats,Scarfs,Sunglasses,Wallets"
+          });
+        } else {
+          filters.push({
+            [filterKey]: JSON.parse(value),
+          });
+        }
       }
       return filters;
     },
@@ -150,6 +161,14 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   const allFilterValues = allFilters.flatMap((filter) => filter.values);
   const appliedFilters = filters
     .map((filter) => {
+      // Special case for Accessories filter (tag-based filter)
+      if (filter.tag && typeof filter.tag === 'string' && filter.tag.includes('Beach Accessories')) {
+        return {
+          filter,
+          label: 'Accessories',
+        };
+      }
+
       const foundValue = allFilterValues.find((value) => {
         const valueInput = JSON.parse(value.input as string) as ProductFilter;
         // special case for price, the user can enter something freeform (still a number, though)
@@ -630,6 +649,7 @@ function ProductsGrid({
   lookProducts?: ProductCardFragment[];
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -662,6 +682,12 @@ function ProductsGrid({
   useEffect(() => {
     setModulo(openFilter ? 6 : 8);
   }, [openFilter]);
+
+  // Reset metafieldsMap when search params change (filter change)
+  useEffect(() => {
+    // Reset metafields when the URL search params change (filter change)
+    setMetafieldsMap({});
+  }, [location.search]);
 
   useEffect(() => {
     const fetchMetafields = async () => {
@@ -721,20 +747,18 @@ function ProductsGrid({
         <Product
           t={t}
           direction={direction}
-          key={index}
+          key={`desktop-${product.id}`}
           product={product}
           metafields={metafieldsMap[product.id.split('/').pop() ?? '']}
           loading={index < 8 ? 'eager' : undefined}
-          handle={guide}
         />
       ) : (
         <MobileProduct
           t={t}
           direction={direction}
-          key={index}
+          key={`mobile-${product.id}`}
           product={product}
           metafields={metafieldsMap[product.id.split('/').pop() ?? '']}
-          handle={guide}
         />
       ),
     );
@@ -856,7 +880,7 @@ function LookSection({
                 <Product
                   t={t}
                   direction={direction}
-                  key={product.id}
+                  key={`desktop-look-${product.id}`}
                   product={product}
                   metafields={metafieldsMap[product.id.split('/').pop() ?? '']}
                   loading={index < 8 ? 'eager' : undefined}
@@ -865,7 +889,7 @@ function LookSection({
                 <MobileProduct
                   t={t}
                   direction={direction}
-                  key={product.id}
+                  key={`mobile-look-${product.id}`}
                   product={product}
                   metafields={metafieldsMap[product.id.split('/').pop() ?? '']}
                 />
@@ -882,22 +906,18 @@ function LookSection({
                   <Product
                     t={t}
                     direction={direction}
-                    key={product.id}
+                    key={`desktop-look-more-${product.id}`}
                     product={product}
-                    metafields={
-                      metafieldsMap[product.id.split('/').pop() ?? '']
-                    }
+                    metafields={metafieldsMap[product.id.split('/').pop() ?? '']}
                     loading={index < 8 ? 'eager' : undefined}
                   />
                 ) : (
                   <MobileProduct
                     t={t}
                     direction={direction}
-                    key={product.id}
+                    key={`mobile-look-more-${product.id}`}
                     product={product}
-                    metafields={
-                      metafieldsMap[product.id.split('/').pop() ?? '']
-                    }
+                    metafields={metafieldsMap[product.id.split('/').pop() ?? '']}
                   />
                 ))
               );
