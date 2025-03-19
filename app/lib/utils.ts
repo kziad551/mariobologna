@@ -89,7 +89,16 @@ export const handleCreateCheckout = async ({
   navigate: NavigateFunction;
 }) => {
   try {
+    console.log('Starting Buy Now process with lines:', lines);
+    
+    // Check if lines are valid
+    if (!lines || !lines.length || !lines[0].merchandiseId) {
+      console.error('Invalid lines for checkout:', lines);
+      return;
+    }
+    
     // First check if user is authenticated
+    console.log('Checking authentication status...');
     const checkAuthResponse = await fetch('/api/account/check-auth', {
       method: 'GET',
       headers: {
@@ -99,15 +108,18 @@ export const handleCreateCheckout = async ({
     });
     
     const authResult = await checkAuthResponse.json() as { authenticated: boolean };
+    console.log('Authentication result:', authResult);
     
     if (!authResult.authenticated) {
       // Save current page URL for redirect back after login
       const returnTo = window.location.pathname + window.location.search;
+      console.log('User not authenticated, redirecting to login with returnTo:', returnTo);
       navigate(`/account/login?returnTo=${encodeURIComponent(returnTo)}`);
       return;
     }
     
     // User is authenticated, proceed with checkout
+    console.log('User authenticated, creating cart for checkout...');
     const response = await fetch('/api/bag/checkout/create_cart', {
       method: 'POST',
       body: JSON.stringify({lines}),
@@ -116,17 +128,39 @@ export const handleCreateCheckout = async ({
         Accept: 'Application/json',
       },
     });
-    const result = (await response.json()) as any;
+    
+    console.log('Cart creation response status:', response.status);
+    const result = await response.json();
+    console.log('Cart creation result:', result);
+    
     if (typeof result === 'string') {
+      console.log('Received string result, navigating to:', result);
       navigate(result, {replace: true});
+      return;
     }
 
-    if (result.success) {
-      const checkoutUrl = result.data.checkoutUrl;
-      window.location.href = checkoutUrl;
+    if (result && typeof result === 'object' && 'success' in result && result.success) {
+      const resultObj = result as { success: boolean; data?: { checkoutUrl?: string } };
+      const checkoutUrl = resultObj.data?.checkoutUrl;
+      console.log('Redirecting to checkout URL:', checkoutUrl);
+      if (checkoutUrl && typeof checkoutUrl === 'string') {
+        window.location.href = checkoutUrl;
+      } else {
+        console.error('Invalid checkout URL:', checkoutUrl);
+      }
+      return;
     }
+    
+    if (result && typeof result === 'object' && 'formError' in result) {
+      console.error('Error creating cart:', result.formError);
+      alert('There was a problem processing your order: ' + result.formError);
+      return;
+    }
+    
+    console.error('Unknown response format:', result);
   } catch (error: any) {
-    console.log(error.message);
+    console.error('Error in handleCreateCheckout:', error);
+    alert('There was a problem processing your order. Please try again.');
   }
 };
 

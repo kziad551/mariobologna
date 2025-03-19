@@ -965,12 +965,19 @@ function AddToCartButton({
               {isAvailable ? (
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
+                    console.log('Buy Now clicked with lines:', lines);
+                    if (!lines || !lines.length || !lines[0].merchandiseId) {
+                      console.error('Invalid lines for checkout:', lines);
+                      alert('Please select a valid product variant first');
+                      return;
+                    }
+                    
                     handleCreateCheckout({
                       lines,
                       navigate,
-                    })
-                  }
+                    });
+                  }}
                   className="min-w-full sm:min-w-49 rounded-md px-6 py-2.5 bg-primary-P-40 text-white border border-transparent font-medium"
                 >
                   {t('Buy Now')}
