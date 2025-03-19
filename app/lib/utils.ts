@@ -89,6 +89,25 @@ export const handleCreateCheckout = async ({
   navigate: NavigateFunction;
 }) => {
   try {
+    // First check if user is authenticated
+    const checkAuthResponse = await fetch('/api/account/check-auth', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'Application/json',
+      },
+    });
+    
+    const authResult = await checkAuthResponse.json() as { authenticated: boolean };
+    
+    if (!authResult.authenticated) {
+      // Save current page URL for redirect back after login
+      const returnTo = window.location.pathname + window.location.search;
+      navigate(`/account/login?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    
+    // User is authenticated, proceed with checkout
     const response = await fetch('/api/bag/checkout/create_cart', {
       method: 'POST',
       body: JSON.stringify({lines}),
