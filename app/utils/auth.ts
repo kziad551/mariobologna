@@ -220,6 +220,7 @@ export async function createSeparateCartCheckout(
   ` as const;
 
   try {
+    console.log('Creating cart with mutation, lines:', lines);
     const response = await storefront.mutate(CREATE_CART_MUTATION, {
       variables: {
         input: {
@@ -227,13 +228,16 @@ export async function createSeparateCartCheckout(
         },
       },
     });
+    console.log('Cart mutation response:', response);
 
     if (response?.cartCreate?.userErrors?.length) {
       return response.cartCreate.userErrors[0].message;
     }
 
+    // Return the cart data directly for easier access
     return response.cartCreate.cart;
   } catch (error) {
+    console.error('Error in createSeparateCartCheckout:', error);
     if (error instanceof Error) {
       return error.message;
     }
