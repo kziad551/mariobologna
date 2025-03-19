@@ -42,14 +42,16 @@ export const meta: MetaFunction = () => {
 export async function loader({context, request}: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get('Cookie');
   const token = await tokenCookie.parse(cookieHeader);
+  const url = new URL(request.url);
+  const returnTo = url.searchParams.get('returnTo') || '/account';
 
   if (token) {
     const customer = await verifyToken(token, context.storefront);
     if (customer) {
-      return redirect('/account');
+      return redirect(returnTo);
     }
     return defer(
-      {},
+      { returnTo },
       {
         headers: {
           'Set-Cookie': await tokenCookie.serialize('', {maxAge: 0}),
@@ -57,7 +59,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       },
     );
   }
-  return defer({});
+  return defer({ returnTo });
 }
 export default function Login() {
   const {t} = useTranslation();
@@ -307,6 +309,9 @@ function LoginSection({
   loading,
   setLoading,
 }: LoginSectionType) {
+  const data = useLoaderData<typeof loader>();
+  const returnTo = data.returnTo || '/account';
+  
   useEffect(() => {
     setErrorMessage('');
   }, [email, password]);
@@ -329,7 +334,7 @@ function LoginSection({
     if (data.error) {
       setErrorMessage(data.error);
     } else {
-      navigate('/account');
+      navigate(returnTo);
     }
     setLoading(false);
   };
