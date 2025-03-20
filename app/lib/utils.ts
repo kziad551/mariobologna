@@ -118,11 +118,55 @@ export const handleCreateCheckout = async ({
       return;
     }
     
+    // Get current cart items
+    console.log('Fetching current cart items...');
+    const cartResponse = await fetch('/api/bag/get_cart', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'Application/json',
+      },
+    });
+    
+    let mergedLines = [...lines];
+    
+    try {
+      const cartResult = await cartResponse.json() as { 
+        success?: boolean; 
+        data?: { 
+          lines?: { 
+            nodes?: Array<{
+              merchandise: {
+                id: string;
+              };
+              quantity: number;
+            }>
+          } 
+        } 
+      };
+      console.log('Current cart:', cartResult);
+      
+      if (cartResult.success && cartResult.data?.lines?.nodes?.length) {
+        // Merge the current cart items with the Buy Now item
+        const cartLines = cartResult.data.lines.nodes.map((line) => ({
+          merchandiseId: line.merchandise.id,
+          quantity: line.quantity,
+        }));
+        
+        console.log('Existing cart lines:', cartLines);
+        mergedLines = [...lines, ...cartLines];
+        console.log('Merged lines for checkout:', mergedLines);
+      }
+    } catch (error) {
+      console.error('Error getting current cart:', error);
+      // Continue with just the Buy Now item if there's an error
+    }
+    
     // User is authenticated, proceed with checkout
     console.log('User authenticated, creating cart for checkout...');
     const response = await fetch('/api/bag/checkout/create_cart', {
       method: 'POST',
-      body: JSON.stringify({lines}),
+      body: JSON.stringify({lines: mergedLines}),
       headers: {
         'Content-Type': 'application/json',
         Accept: 'Application/json',
