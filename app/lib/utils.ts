@@ -94,6 +94,7 @@ export const handleCreateCheckout = async ({
     // Check if lines are valid
     if (!lines || !lines.length || !lines[0].merchandiseId) {
       console.error('Invalid lines for checkout:', lines);
+      alert('Please select a valid product variant');
       return;
     }
     
@@ -128,42 +129,94 @@ export const handleCreateCheckout = async ({
       },
     });
     
+    // Start with the Buy Now item
     let mergedLines = [...lines];
     
-    try {
-      const cartResult = await cartResponse.json() as { 
-        success?: boolean; 
-        data?: { 
-          lines?: { 
-            nodes?: Array<{
-              merchandise: {
-                id: string;
-              };
-              quantity: number;
-            }>
-          } 
-        } 
-      };
-      console.log('Current cart:', cartResult);
-      
-      if (cartResult.success && cartResult.data?.lines?.nodes?.length) {
-        // Merge the current cart items with the Buy Now item
-        const cartLines = cartResult.data.lines.nodes.map((line) => ({
-          merchandiseId: line.merchandise.id,
-          quantity: line.quantity,
-        }));
+    if (cartResponse.ok) {
+      try {
+        // Define the cart result type
+        type CartResult = {
+          success: boolean;
+          data?: {
+            id?: string;
+            lines?: {
+              nodes?: Array<{
+                id?: string;
+                merchandise: {
+                  id: string;
+                };
+                quantity: number;
+              }>;
+            };
+          };
+          message?: string;
+        };
         
-        console.log('Existing cart lines:', cartLines);
-        mergedLines = [...lines, ...cartLines];
-        console.log('Merged lines for checkout:', mergedLines);
+        const cartResult = await cartResponse.json() as CartResult;
+        console.log('Current cart response:', cartResult);
+        
+        // Check if cart has items
+        if (cartResult && 
+            cartResult.success && 
+            cartResult.data && 
+            cartResult.data.lines && 
+            cartResult.data.lines.nodes && 
+            Array.isArray(cartResult.data.lines.nodes) && 
+            cartResult.data.lines.nodes.length > 0) {
+          
+          // Extract cart lines ensuring they have merchandiseId
+          const cartLines = cartResult.data.lines.nodes
+            .filter(line => line && line.merchandise && line.merchandise.id)
+            .map(line => ({
+              merchandiseId: line.merchandise.id,
+              quantity: line.quantity || 1,
+            }));
+          
+          if (cartLines.length > 0) {
+            console.log('Found existing cart lines:', cartLines);
+            
+            // Check for duplicates and merge quantities instead of adding duplicate items
+            const lineMap = new Map<string, CartLineInput>();
+            
+            // First add the Buy Now item
+            for (const line of lines) {
+              lineMap.set(line.merchandiseId, {
+                merchandiseId: line.merchandiseId,
+                quantity: line.quantity || 1
+              });
+            }
+            
+            // Then add or merge cart items
+            for (const line of cartLines) {
+              if (lineMap.has(line.merchandiseId)) {
+                // If item already exists, increase quantity
+                const existing = lineMap.get(line.merchandiseId);
+                if (existing) {
+                  existing.quantity = (existing.quantity || 1) + (line.quantity || 1);
+                  lineMap.set(line.merchandiseId, existing);
+                }
+              } else {
+                lineMap.set(line.merchandiseId, line);
+              }
+            }
+            
+            // Convert back to array
+            mergedLines = Array.from(lineMap.values());
+            console.log('Merged lines for checkout (with duplicates handled):', mergedLines);
+          }
+        } else {
+          console.log('Cart is empty or has no items');
+        }
+      } catch (error) {
+        console.error('Error parsing cart response:', error);
+        // Continue with just the Buy Now item if there's an error
       }
-    } catch (error) {
-      console.error('Error getting current cart:', error);
-      // Continue with just the Buy Now item if there's an error
+    } else {
+      console.error('Error fetching cart, status:', cartResponse.status);
     }
     
     // User is authenticated, proceed with checkout
-    console.log('User authenticated, creating cart for checkout...');
+    console.log('Creating checkout cart with merged lines:', mergedLines);
     const response = await fetch('/api/bag/checkout/create_cart', {
       method: 'POST',
       body: JSON.stringify({lines: mergedLines}),
@@ -173,7 +226,12 @@ export const handleCreateCheckout = async ({
       },
     });
     
-    console.log('Cart creation response status:', response.status);
+    if (!response.ok) {
+      console.error('Cart creation failed, status:', response.status);
+      alert('There was a problem creating your cart. Please try again.');
+      return;
+    }
+    
     const result = await response.json();
     console.log('Cart creation result:', result);
     
@@ -183,14 +241,24 @@ export const handleCreateCheckout = async ({
       return;
     }
 
+    // Define the expected result type
+    type CheckoutResult = {
+      success: boolean;
+      data?: { 
+        checkoutUrl?: string;
+      };
+      formError?: string;
+    };
+
     if (result && typeof result === 'object' && 'success' in result && result.success) {
-      const resultObj = result as { success: boolean; data?: { checkoutUrl?: string } };
-      const checkoutUrl = resultObj.data?.checkoutUrl;
+      const checkoutResult = result as CheckoutResult;
+      const checkoutUrl = checkoutResult.data?.checkoutUrl;
       console.log('Redirecting to checkout URL:', checkoutUrl);
       if (checkoutUrl && typeof checkoutUrl === 'string') {
         window.location.href = checkoutUrl;
       } else {
         console.error('Invalid checkout URL:', checkoutUrl);
+        alert('There was a problem with the checkout URL. Please try again.');
       }
       return;
     }
@@ -202,6 +270,7 @@ export const handleCreateCheckout = async ({
     }
     
     console.error('Unknown response format:', result);
+    alert('There was an unexpected error. Please try again.');
   } catch (error: any) {
     console.error('Error in handleCreateCheckout:', error);
     alert('There was a problem processing your order. Please try again.');
