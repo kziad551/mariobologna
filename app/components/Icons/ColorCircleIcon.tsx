@@ -94,92 +94,108 @@ const ColorCircleIcon = ({
   const metallicId = `metallicGradient-${productId}-${normalizedOption.replace(/\s+/g, '')}`;
   const metallicStrokeId = `metallicStroke-${productId}-${normalizedOption.replace(/\s+/g, '')}`;
   
-  // Adjust border width based on size
-  const borderWidth = size === 'small' ? 2 : 3;
+  // Scale up the selected color for better visibility
+  const scaleFactor = isSelected ? 1.1 : 1;
+  const selectedDimensions = dimensions * scaleFactor;
   
   return (
-    <svg
-      width={dimensions}
-      height={dimensions}
-      viewBox="0 0 20 20"
-      xmlns="http://www.w3.org/2000/svg"
-      className={`rounded-full ${
-        isSelected
-          ? `border-secondary-S-90 border-[${borderWidth}px]`
-          : isMetallic 
-            ? 'border border-[#E0E0E0]' 
-            : 'border-transparent'
+    <div 
+      className={`relative inline-flex items-center justify-center rounded-full ${
+        isSelected ? 'scale-110 transition-transform duration-200' : ''
       }`}
+      style={{
+        width: dimensions,
+        height: dimensions
+      }}
     >
-      <defs>
-        {/* Multi-color gradient */}
-        {isMultiColor && (
-          <linearGradient id={multiColorId}>
-            <stop offset="0%" stopColor="#ff6e6e" />
-            <stop offset="25%" stopColor="#6eff6e" />
-            <stop offset="50%" stopColor="#6e6eff" />
-            <stop offset="75%" stopColor="#ffff6e" />
-            <stop offset="100%" stopColor="#ff6eff" />
-          </linearGradient>
-        )}
+      <svg
+        width={isSelected ? selectedDimensions : dimensions}
+        height={isSelected ? selectedDimensions : dimensions}
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`rounded-full ${
+          !isSelected && isMetallic ? 'border border-[#E0E0E0]' : 'border-transparent'
+        }`}
+      >
+        <defs>
+          {/* Multi-color gradient */}
+          {isMultiColor && (
+            <linearGradient id={multiColorId}>
+              <stop offset="0%" stopColor="#ff6e6e" />
+              <stop offset="25%" stopColor="#6eff6e" />
+              <stop offset="50%" stopColor="#6e6eff" />
+              <stop offset="75%" stopColor="#ffff6e" />
+              <stop offset="100%" stopColor="#ff6eff" />
+            </linearGradient>
+          )}
+          
+          {/* Metallic effect gradients */}
+          {isMetallic && (
+            <>
+              <linearGradient id={metallicId} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={colorValue} />
+                <stop offset="50%" stopColor="white" stopOpacity="0.5" />
+                <stop offset="100%" stopColor={colorValue} />
+              </linearGradient>
+              <linearGradient id={metallicStrokeId} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={colorValue} stopOpacity="1" />
+                <stop offset="50%" stopColor="white" stopOpacity="0.8" />
+                <stop offset="100%" stopColor={colorValue} stopOpacity="1" />
+              </linearGradient>
+            </>
+          )}
+        </defs>
         
-        {/* Metallic effect gradients */}
-        {isMetallic && (
-          <>
-            <linearGradient id={metallicId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={colorValue} />
-              <stop offset="50%" stopColor="white" stopOpacity="0.5" />
-              <stop offset="100%" stopColor={colorValue} />
-            </linearGradient>
-            <linearGradient id={metallicStrokeId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={colorValue} stopOpacity="1" />
-              <stop offset="50%" stopColor="white" stopOpacity="0.8" />
-              <stop offset="100%" stopColor={colorValue} stopOpacity="1" />
-            </linearGradient>
-          </>
-        )}
-      </defs>
-      
-      {/* Base circle */}
-      <circle
-        cx="10"
-        cy="10"
-        r="9"
-        fill={isMultiColor 
-          ? `url(#${multiColorId})` 
-          : isMetallic 
-            ? `url(#${metallicId})`
-            : colorValue
-        }
-      />
-      
-      {/* Border for light colors and metallics */}
-      {(normalizedOption === 'White' || 
-        normalizedOption === 'Cream' || 
-        normalizedOption === 'Ivory' ||
-        isMetallic) && (
+        {/* Base circle */}
         <circle
           cx="10"
           cy="10"
           r="9"
-          fill="none"
-          stroke={isMetallic ? `url(#${metallicStrokeId})` : "#E0E0E0"}
-          strokeWidth="1"
+          fill={isMultiColor 
+            ? `url(#${multiColorId})` 
+            : isMetallic 
+              ? `url(#${metallicId})`
+              : colorValue
+          }
         />
-      )}
+        
+        {/* Border for light colors and metallics (only when not selected) */}
+        {(normalizedOption === 'White' || 
+          normalizedOption === 'Cream' || 
+          normalizedOption === 'Ivory' ||
+          isMetallic) && !isSelected && (
+          <circle
+            cx="10"
+            cy="10"
+            r="9"
+            fill="none"
+            stroke={isMetallic ? `url(#${metallicStrokeId})` : "#E0E0E0"}
+            strokeWidth="1"
+          />
+        )}
+        
+        {/* Metallic shine effect */}
+        {isMetallic && (
+          <ellipse
+            cx="7"
+            cy="7"
+            rx="4"
+            ry="4"
+            fill="white"
+            opacity="0.3"
+          />
+        )}
+      </svg>
       
-      {/* Metallic shine effect */}
-      {isMetallic && (
-        <ellipse
-          cx="7"
-          cy="7"
-          rx="4"
-          ry="4"
-          fill="white"
-          opacity="0.3"
-        />
+      {/* Selection checkmark for better visibility */}
+      {isSelected && (
+        <div className="absolute bottom-0 right-0 w-3 h-3 bg-secondary-S-90 rounded-full flex items-center justify-center text-white text-xs">
+          <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
       )}
-    </svg>
+    </div>
   );
 };
 
