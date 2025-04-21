@@ -106,7 +106,7 @@ const MobileProduct = ({
   return (
     <div
       key={product.id}
-      className={`${!showCompare ? 'h-73.75' : ''} relative hover:no-underline flex flex-col items-stretch cursor-pointer rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-37.5 flex-grow ss:w-43.75`}
+      className={`${!showCompare ? 'h-auto min-h-[18.5rem]' : ''} relative hover:no-underline flex flex-col items-stretch cursor-pointer rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-37.5 flex-grow ss:w-43.75`}
       onClick={() => productRef.current.openTrigger()}
     >
       <div
@@ -157,9 +157,9 @@ const MobileProduct = ({
           />
         )}
       </div>
-      <div className="p-2 w-full flex-grow flex flex-col items-start justify-between gap-2 bg-[#F5F5F5] group-hover:bg-neutral-N-92 transition-all duration-300">
-        <div className="max-w-full">
-          <h4 className="overflow-x-auto scrollbar-none text-nowrap text-neutral-N-10 text-sm">
+      <div className="p-2.5 w-full flex-grow flex flex-col items-start justify-between gap-2 bg-[#F5F5F5] transition-all duration-300">
+        <div className="max-w-full w-full">
+          <h4 className="overflow-x-auto scrollbar-none text-nowrap text-neutral-N-10 text-sm mb-1">
             {productTitle[product.id] ? (
               `${productTitle[product.id]} - ${t(product.vendor)}`
             ) : (
@@ -206,6 +206,62 @@ const MobileProduct = ({
               <></>
             )}
           </div>
+          
+          {/* Size options always visible */}
+          {uniqueSizeOptions.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {uniqueSizeOptions.length > 3 ? (
+                <>
+                  {uniqueSizeOptions.slice(0, 3).map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedCardVariant({
+                          [product.id]: {
+                            ...selectedCardVariant[product.id],
+                            Size: option,
+                          },
+                        });
+                      }}
+                      className={`${
+                        Object.keys(selectedCardVariant)[0] === product.id && 
+                        selectedCardVariant[product.id].Size === option 
+                          ? 'bg-neutral-N-90 font-medium' 
+                          : 'bg-transparent'
+                      } px-1 py-0.5 border border-neutral-N-50 rounded text-[10px] hover:bg-neutral-N-92 active:bg-neutral-N-90 transition-colors min-w-[20px] text-center`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                  <span className="text-[10px] text-gray-500 self-center">+{uniqueSizeOptions.length - 3}</span>
+                </>
+              ) : (
+                uniqueSizeOptions.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedCardVariant({
+                        [product.id]: {
+                          ...selectedCardVariant[product.id],
+                          Size: option,
+                        },
+                      });
+                    }}
+                    className={`${
+                      Object.keys(selectedCardVariant)[0] === product.id && 
+                      selectedCardVariant[product.id].Size === option 
+                        ? 'bg-neutral-N-90 font-medium' 
+                        : 'bg-transparent'
+                    } px-1 py-0.5 border border-neutral-N-50 rounded text-[10px] hover:bg-neutral-N-92 active:bg-neutral-N-90 transition-colors min-w-[20px] text-center`}
+                  >
+                    {option}
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
         {uniqueColorOptions.length > 1 ? (
           <div className="flex flex-wrap gap-2">
@@ -234,16 +290,26 @@ const MobileProduct = ({
                 ),
             )}
           </div>
+        ) : uniqueColorOptions.length === 1 ? (
+          <div className="flex items-center gap-2">
+            <ColorCircleIcon
+              option={uniqueColorOptions[0]}
+              productId={product.id}
+              selectedVariant={{[product.id]: {Color: uniqueColorOptions[0]}}}
+              size="small"
+            />
+            <span className="text-xs text-gray-600">{uniqueColorOptions[0]}</span>
+          </div>
         ) : (
           <FaCircle className="w-5 h-5 text-transparent" />
         )}
-        <div className="flex justify-between items-center w-full gap-2">
+        <div className="flex justify-between items-center w-full gap-2 mt-1">
           <button
             onClick={(event) => {
               event.stopPropagation();
               productRef.current.openTrigger();
             }}
-            className="flex-1 bg-primary-P-40 text-white border text-[10px] py-0.75 px-0.25 border-transparent rounded-md transition-all hover:shadow-md hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90"
+            className="flex-1 bg-primary-P-40 text-white border text-[10px] py-1.5 px-2 border-transparent rounded-md transition-all hover:shadow-md hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90"
           >
             {t('View Product')}
           </button>
@@ -252,7 +318,7 @@ const MobileProduct = ({
           <label
             key={product.id}
             onClick={(e) => e.stopPropagation()}
-            className="flex align-items-center gap-1"
+            className="flex align-items-center gap-1 mt-1"
           >
             <input
               type="checkbox"

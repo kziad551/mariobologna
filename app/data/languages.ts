@@ -51,4 +51,8 @@ export const allDesigners: {[key: string]: string}[] = [
     en: 'Ceasare',
     ar: 'سيزار',
   },
+  {
+    en: 'Ermanno Scervino',
+    ar: 'إرمانو شيرفينو',
+  },
 ];

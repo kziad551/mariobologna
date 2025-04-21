@@ -20,10 +20,24 @@ import {Dropdown, DropdownProps} from 'primereact/dropdown';
 
 type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'submenus'>;
 
+function activeLinkStyle({
+  isActive,
+  isPending,
+}: {
+  isActive: boolean;
+  isPending: boolean;
+}) {
+  return {
+    fontWeight: isActive ? 'bold' : undefined,
+    color: isPending ? 'grey' : 'black',
+  };
+}
+
 export function Header({header, cart, submenus}: HeaderProps) {
   const {currentPage, language, setLanguage, direction} = useCustomContext();
   const {t} = useTranslation();
-  const {shop, menu} = header;
+  const shop = header?.shop;
+  const menu = header?.menu;
   const {width, height} = useWindowDimensions(50);
   const navigate = useNavigate();
   const {wishlist} = useWishlist();
@@ -126,7 +140,9 @@ export function Header({header, cart, submenus}: HeaderProps) {
         </div>
         <div className="relative flex-1 items-center justify-center">
           <NavLink className="w-fit mx-auto block" prefetch="intent" to="/" end>
-            <img src={shop.brand?.logo?.image?.url} className="w-90" />
+            {shop?.brand?.logo?.image?.url && (
+              <img src={shop.brand.logo.image.url} className="w-90" />
+            )}
           </NavLink>
         </div>
         <div className="flex-1 gap-4 flex text-neutral-N-30 items-center justify-end">
@@ -168,11 +184,13 @@ export function Header({header, cart, submenus}: HeaderProps) {
               end
               className="absolute left-1/2 -translate-x-1/2"
             >
-              <Image
-                data={{url: shop.brand?.logo?.image?.url}}
-                sizes="100vw"
-                className="min-w-30 xs:min-w-36"
-              />
+              {shop?.brand?.logo?.image?.url && (
+                <Image
+                  data={{url: shop.brand.logo.image.url}}
+                  sizes="100vw"
+                  className="min-w-30 xs:min-w-36"
+                />
+              )}
             </NavLink>
             <div className="flex flex-wrap gap-0.5">
               <CurrencyDropdown showLabel={false} />
@@ -217,8 +235,7 @@ export function Header({header, cart, submenus}: HeaderProps) {
             direction={direction}
             menu={menu}
             submenus={submenus}
-            primaryDomainUrl={header.shop.primaryDomain.url}
-            language={language}
+            primaryDomainUrl={shop?.primaryDomain.url || ''}
           />
         ) : (
           <></>
@@ -229,8 +246,7 @@ export function Header({header, cart, submenus}: HeaderProps) {
           direction={direction}
           menu={menu}
           submenus={submenus}
-          primaryDomainUrl={header.shop.primaryDomain.url}
-          language={language}
+          primaryDomainUrl={shop?.primaryDomain.url || ''}
         />
       )}
     </header>
@@ -243,14 +259,12 @@ export function HeaderMenu({
   menu,
   submenus,
   primaryDomainUrl,
-  language,
 }: {
   t: TFunction<'translation', undefined>;
   direction: 'rtl' | 'ltr';
-  menu: HeaderProps['header']['menu'];
-  submenus: HeaderProps['submenus'];
-  primaryDomainUrl: HeaderQuery['shop']['primaryDomain']['url'];
-  language: string;
+  menu: HeaderProps['header']['menu'] | null;
+  submenus: LayoutProps['submenus'];
+  primaryDomainUrl: string;
 }) {
   const {publicStoreDomain} = useRootLoaderData();
   const [customURL, setCustomURL] = useState('');
@@ -269,11 +283,13 @@ export function HeaderMenu({
       item.items.length > 0
     ) {
       if (item.title === 'Designers') {
-        setSubMenuItems(item.items);
+        const designersSubMenu = (submenus as any).designers || item.items;
+        setSubMenuItems(designersSubMenu);
       } else {
-        setSubMenuItems(
-          submenus[item.title.toLowerCase() as 'men' | 'women' | 'kids'],
-        );
+        const key = item.title.toLowerCase() as keyof LayoutProps['submenus'];
+        if (key in submenus) {
+          setSubMenuItems(submenus[key]);
+        }
       }
       setSelectedMegaMenu(item.title);
       setCustomURL(url);
@@ -302,7 +318,7 @@ export function HeaderMenu({
     Designers: {
       imgSrc: 'designers.jpg',
       label: t('Explore our Designers'),
-      linkShop: '/designers',
+      linkShop: '/collections',
     },
   };
 
@@ -316,7 +332,6 @@ export function HeaderMenu({
           menu.items.map((item) => {
             if (!item.url) return null;
 
-            // if the url is internal, we strip the domain
             const url =
               item.url.includes('myshopify.com') ||
               item.url.includes(publicStoreDomain) ||
@@ -335,12 +350,11 @@ export function HeaderMenu({
                   handleOpenSubMenu(
                     e,
                     item,
-                    item.title !== 'Designers' ? url : '/products',
+                    item.title !== 'Designers' ? url : '/collections'
                   )
                 }
                 onMouseLeave={() => setOpenMegaMenu({})}
-                prefetch="intent"
-                to={item.title !== 'Designers' ? url : '/designers'}
+                to={item.title !== 'Designers' ? url : '/collections'}
               >
                 {t(`${item.title}`)}
               </NavLink>
@@ -350,19 +364,9 @@ export function HeaderMenu({
       <AnimatePresence>
         {openMegaMenu[selectedMegaMenu] && (
           <motion.div
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            exit={{
-              opacity: 0,
-              transition: {
-                delay: 0.25,
-                ease: 'easeInOut',
-              },
-            }}
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            exit={{opacity: 0, transition: {delay: 0.25, ease: 'easeInOut'}}}
             onMouseEnter={() => setOpenMegaMenu({[selectedMegaMenu]: true})}
             onMouseLeave={() => setOpenMegaMenu({})}
             className="z-50 absolute top-full left-0 right-0 pt-8 pb-2 px-16 bg-[#F5F5F5] hidden lg:flex items-start justify-between gap-16 shadow-xl shadow-black/30"
@@ -370,8 +374,11 @@ export function HeaderMenu({
             <div className="flex gap-8 w-full items-stretch justify-start">
               {subMenuItems.length > 0 &&
                 subMenuItems.map((item, index) => {
-                  const URL = item.url?.split('?')[1];
-                  const fullURL = customURL + '/?' + URL + '#filtering_section';
+                  const URL = (item.url || '').split('?')[1]; 
+                  const fullURL = (customURL || '') + '?' + (URL || '') + '#filtering_section';
+                  const designerHandle = (item as any).handle;
+                  const designerLink = designerHandle ? '/collections/' + designerHandle : '/collections';
+
                   return (
                     <div
                       key={index}
@@ -379,11 +386,13 @@ export function HeaderMenu({
                     >
                       <NavLink
                         to={
-                          item.title !== 'All Designers'
-                            ? fullURL
-                            : '/designers'
+                          selectedMegaMenu === 'Designers'
+                            ? item.title === 'All Designers'
+                              ? '/collections'
+                              : designerLink
+                            : fullURL
                         }
-                        className={`${item.title === 'All Designers' ? 'self-center' : ''} text-xs hover:underline`}
+                        className={`${item.title === 'All Designers' ? 'self-center font-semibold' : 'font-semibold'} text-xs hover:underline`}
                         onClick={() => setOpenMegaMenu({})}
                       >
                         {t(item.title)}
@@ -391,16 +400,16 @@ export function HeaderMenu({
                       <div
                         className={`${selectedMegaMenu === 'Designers' ? 'w-full' : 'w-max'} flex flex-col flex-wrap max-h-67.5 items-start gap-y-4 gap-x-8`}
                       >
-                        {item.items.map((sub_item, index) => {
-                          const URL = sub_item.url?.split('?')[1];
-                          let fullURL = customURL + '/?' + URL;
+                        {item.items && item.items.map((sub_item, index) => {
+                          const subItemURL = (sub_item.url || '').split('?')[1];
+                          let subItemFullURL = (customURL || '') + '?' + (subItemURL || '');
                           if (selectedMegaMenu !== 'Designers') {
-                            fullURL += '#filtering_section';
+                            subItemFullURL += '#filtering_section';
                           }
                           return (
                             <NavLink
                               key={index}
-                              to={fullURL}
+                              to={subItemFullURL}
                               className="text-sm hover:underline"
                               onClick={() => setOpenMegaMenu({})}
                             >
@@ -413,21 +422,23 @@ export function HeaderMenu({
                   );
                 })}
             </div>
-            <div className="flex flex-col gap-2 items-start">
-              <img
-                src={`/images/mega menus/${rightSections[selectedMegaMenu].imgSrc}`}
-                alt="collection image"
-                className="w-70 h-60 rounded object-cover object-center"
-              />
-              <h2 className='text-sm'>{rightSections[selectedMegaMenu].label}</h2>
-              <NavLink
-                to={rightSections[selectedMegaMenu].linkShop}
-                onClick={() => setOpenMegaMenu({})}
-                className="bg-primary-P-40 text-white border text-sm py-2.5 px-6 border-primary-P-40 rounded-md"
-              >
-                {t('Shop Now')}
-              </NavLink>
-            </div>
+            {selectedMegaMenu && rightSections[selectedMegaMenu] && (
+              <div className="flex flex-col gap-2 items-start">
+                <img
+                  src={`/images/mega menus/${rightSections[selectedMegaMenu].imgSrc}`}
+                  alt="collection image"
+                  className="w-70 h-60 rounded object-cover object-center"
+                />
+                <h2 className='text-sm'>{rightSections[selectedMegaMenu].label}</h2>
+                <NavLink
+                  to={rightSections[selectedMegaMenu].linkShop}
+                  onClick={() => setOpenMegaMenu({})}
+                  className="bg-primary-P-40 text-white border text-sm py-2.5 px-6 border-primary-P-40 rounded-md"
+                >
+                  {t('Shop Now')}
+                </NavLink>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -546,8 +557,9 @@ function CartToggle({
   t: TFunction<'translation', undefined>;
   direction: 'rtl' | 'ltr';
 }) {
+  const uniqueItemsCount = cart?.lines?.nodes?.length || 0;
   return (
-    <CartBadge t={t} direction={direction} count={cart?.totalQuantity || 0} />
+    <CartBadge t={t} direction={direction} count={uniqueItemsCount} />
   );
 }
 
@@ -584,16 +596,4 @@ function LanguageToggle({
       </button>
     </div>
   );
-}
-
-function activeLinkStyle({
-  isActive,
-  isPending,
-}: {
-  isActive: boolean;
-  isPending: boolean;
-}) {
-  return {
-    border: isActive ? '1px 2px solid #5D3361' : undefined,
-  };
 }
