@@ -14,6 +14,9 @@ const FooterMobile = ({cart}: FooterMobileProps) => {
   const location = useLocation();
   const {t} = useTranslation();
 
+  // Display number of unique items (lines) instead of total quantity
+  const uniqueItemsCount = cart?.lines?.nodes?.length || 0;
+
   return (
     <div className="z-40 fixed w-full lg:hidden bottom-0 border-t border-t-black/15 bg-[#F5F5F5] flex items-stretch justify-between gap-2 px-3.5 mt-auto">
       <NavLink
@@ -41,7 +44,7 @@ const FooterMobile = ({cart}: FooterMobileProps) => {
         <p className="text-xs font-semibold text-neutral-N-30">{t('Search')}</p>
       </NavLink>
       <MobileCartBadge
-        count={cart?.totalQuantity || 0}
+        count={uniqueItemsCount}
         location={location}
         t={t}
       />

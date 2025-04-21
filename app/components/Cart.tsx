@@ -33,7 +33,8 @@ export function CartLineQuantity({
           disabled={quantity <= 1}
           name="decrease-quantity"
           value={prevQuantity}
-          className="overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:w-8 ss:h-8 p-2.5 bg-secondary-S-90 text-white"
+          type="submit"
+          className="overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:w-8 ss:h-8 p-2.5 bg-secondary-S-90 text-white disabled:opacity-50 focus:outline-none active:bg-secondary-S-80"
         >
           <span className="text-2xl ss:text-3xl">&#8722;</span>
         </button>
@@ -46,7 +47,8 @@ export function CartLineQuantity({
           aria-label="Increase quantity"
           name="increase-quantity"
           value={nextQuantity}
-          className="overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:w-8 ss:h-8 p-2.5 bg-secondary-S-90 text-white"
+          type="submit"
+          className="overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:w-8 ss:h-8 p-2.5 bg-secondary-S-90 text-white focus:outline-none active:bg-secondary-S-80"
         >
           <span className="text-2xl ss:text-3xl">&#43;</span>
         </button>

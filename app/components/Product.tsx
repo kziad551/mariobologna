@@ -212,42 +212,10 @@ const Product = ({
   return (
     <Link
       key={product.id}
-      className={`${!showCompare ? 'h-120' : ''} flex-grow relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-87.5 hover:shadow-md hover:shadow-black/30 active:shadow-none`}
+      className={`${!showCompare ? 'h-auto' : ''} flex flex-col flex-grow relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-87.5 hover:shadow-md hover:shadow-black/30 active:shadow-none`}
       to={`/products/${product.handle}?${params}`}
       onClick={(event) => event.defaultPrevented && event.stopPropagation()}
     >
-      <div
-        className={`${direction === 'ltr' ? 'left-2' : 'right-2'} absolute z-10 top-4 flex flex-wrap gap-2 items-center justify-center`}
-      >
-        {product.collections.nodes.findIndex(
-          (collection) => collection.handle === 'new-arrivals',
-        ) !== -1 ? (
-          <span className="bg-neutral-N-96 text-primary-P-40 font-semibold rounded px-3 py-1 text-xs">
-            {t('New Season')}
-          </span>
-        ) : (
-          <></>
-        )}
-        {product.collections.nodes.findIndex(
-          (collection) => collection.handle === 'sale',
-        ) !== -1 ? (
-          <span className="bg-red-500 text-white font-semibold rounded px-3 py-1 text-xs">
-            {t('Sale')}
-          </span>
-        ) : (
-          <></>
-        )}
-      </div>
-      <button
-        onClick={(event) => handleHeartClick(event, product)}
-        className={`${direction === 'ltr' ? 'right-0' : 'left-0'} absolute z-10 w-fit p-2 mx-2 my-4 block transition-all group-hover:bg-neutral-N-92 hover:bg-neutral-N-92 active:bg-neutral-N-90 rounded-full`}
-      >
-        {wishlist.findIndex((item) => item.id === product.id) != -1 ? (
-          <BsSuitHeartFill className="w-6 h-6" />
-        ) : (
-          <BsSuitHeart className="w-6 h-6" />
-        )}
-      </button>
       <div className="relative">
         {currentImage ? (
           <Image
@@ -260,29 +228,90 @@ const Product = ({
         ) : (
           <img src="/no_image.png" className="w-full h-75 object-contain mx-auto" />
         )}
-        <div className="w-full bg-white p-2 border-t border-t-neutral-N-92 absolute bottom-0 invisible group-hover:visible">
-          <div className="flex items-center justify-start mb-2">
-            {uniqueSizeOptions.length > 1 ? <p>{t('Select size')}</p> : <></>}
-            <button
-              onClick={(e) =>
-                navigateTo(
-                  e,
-                  guide
-                    ? `/sizes?guide=${guide}&section=${product.productType}#size_details`
-                    : '/sizes',
-                  navigate,
-                )
-              }
-              className="rounded hover:transition-all text-sm bg-transparent p-2 text-primary-P-40 hover:bg-neutral-N-92 active:bg-neutral-N-90"
-            >
-              {t('Size Guide')}
-            </button>
-          </div>
-          {uniqueSizeOptions.length > 1 ? (
-            <div className="flex gap-2 flex-wrap">
-              {uniqueSizeOptions.map(
-                (option, index) =>
-                  index < 5 && (
+      </div>
+      
+      <div className="lower-card-container p-3 sm:p-4 w-full flex flex-col flex-grow items-start justify-between gap-3 bg-[#F5F5F5] group-hover:bg-neutral-N-92 transition-all duration-300">
+        <div className="flex-grow w-full">
+          <div className="max-w-full">
+            <h4 className="overflow-x-auto scrollbar-none text-nowrap text-neutral-N-10 text-base mb-1">
+              {productTitle[product.id] ? (
+                `${productTitle[product.id]} - ${t(product.vendor)}`
+              ) : (
+                <div className="h-6"></div>
+              )}
+            </h4>
+            <div className="flex gap-2">
+              {product.compareAtPriceRange.minVariantPrice.amount !== '0.0' ? (
+                <s>
+                  <Money
+                    data={{
+                      amount: (
+                        parseFloat(
+                          product.compareAtPriceRange.minVariantPrice.amount,
+                        ) * currency.exchange_rate
+                      ).toString(),
+                      currencyCode: currency.currency['en'] as CurrencyCode,
+                    }}
+                    className="opacity-30 text-sm"
+                  />
+                </s>
+              ) : (
+                <></>
+              )}
+              <Money
+                className="text-neutral-N-30 text-sm"
+                data={{
+                  amount: (
+                    parseFloat(product.priceRange.minVariantPrice.amount) *
+                    currency.exchange_rate
+                  ).toString(),
+                  currencyCode: currency.currency['en'] as CurrencyCode,
+                }}
+              />
+              {product.compareAtPriceRange.minVariantPrice.amount !== '0.0' ? (
+                <span className="block text-sm text-red-700 text-bold">
+                  {calculateSalePercentage(
+                    product.compareAtPriceRange.minVariantPrice.amount,
+                    product.priceRange.minVariantPrice.amount,
+                  )}
+                  % {t('OFF')}
+                </span>
+              ) : (
+                <></>
+              )}
+            </div>
+            
+            {uniqueSizeOptions.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {uniqueSizeOptions.length > 5 ? (
+                  <>
+                    {uniqueSizeOptions.slice(0, 4).map((option, index) => (
+                      <button
+                        key={index}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setSelectedCardVariant({
+                            [product.id]: {
+                              ...selectedCardVariant[product.id],
+                              Size: option,
+                            },
+                          });
+                          event.stopPropagation();
+                        }}
+                        className={`${
+                          Object.keys(selectedCardVariant)[0] === product.id && 
+                          selectedCardVariant[product.id].Size === option 
+                            ? 'bg-neutral-N-90 font-medium' 
+                            : 'bg-transparent'
+                        } px-1.5 py-0.5 border border-neutral-N-50 rounded text-xs hover:bg-neutral-N-92 active:bg-neutral-N-90 transition-colors min-w-[24px] text-center`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                    <span className="text-xs text-gray-500 self-center">+{uniqueSizeOptions.length - 4}</span>
+                  </>
+                ) : (
+                  uniqueSizeOptions.map((option, index) => (
                     <button
                       key={index}
                       onClick={(event) => {
@@ -295,142 +324,130 @@ const Product = ({
                         });
                         event.stopPropagation();
                       }}
-                      className={`${Object.keys(selectedCardVariant)[0] === product.id && selectedCardVariant[product.id].Size === option ? 'bg-neutral-N-90' : 'bg-transparent'} px-1 border border-black rounded text-sm hover:bg-neutral-N-92 active:bg-neutral-N-90 transition-colors`}
+                      className={`${
+                        Object.keys(selectedCardVariant)[0] === product.id && 
+                        selectedCardVariant[product.id].Size === option 
+                          ? 'bg-neutral-N-90 font-medium' 
+                          : 'bg-transparent'
+                      } px-1.5 py-0.5 border border-neutral-N-50 rounded text-xs hover:bg-neutral-N-92 active:bg-neutral-N-90 transition-colors min-w-[24px] text-center`}
                     >
                       {option}
                     </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+          
+          {uniqueColorOptions.length > 1 ? (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {uniqueColorOptions.map(
+                (option, index) =>
+                  index < 5 && (
+                    <button
+                      key={index}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setSelectedCardVariant({
+                          [product.id]: {
+                            ...selectedCardVariant[product.id],
+                            Color: option,
+                          },
+                        });
+                        event.stopPropagation();
+                      }}
+                      title={option}
+                      aria-label={`Color: ${option}`}
+                    >
+                      <ColorCircleIcon
+                        option={option}
+                        productId={product.id}
+                        selectedVariant={selectedCardVariant}
+                        size="small"
+                      />
+                    </button>
                   ),
               )}
-              <button className="px-1 rounded text-sm hover:bg-neutral-N-92 active:bg-neutral-N-90 transition-colors">
-                +
-              </button>
+              {uniqueColorOptions.length > 5 && (
+                <span className="text-xs text-gray-500 self-center">
+                  +{uniqueColorOptions.length - 5}
+                </span>
+              )}
+            </div>
+          ) : uniqueColorOptions.length === 1 ? (
+            <div className="flex items-center gap-2 mt-3">
+              <ColorCircleIcon
+                option={uniqueColorOptions[0]}
+                productId={product.id}
+                selectedVariant={{[product.id]: {Color: uniqueColorOptions[0]}}}
+                size="small"
+              />
+              <span className="text-xs text-gray-600">{uniqueColorOptions[0]}</span>
             </div>
           ) : (
-            <></>
+            <div className="h-8 mt-3"></div>
           )}
         </div>
-      </div>
-      <div className="lower-card-container p-2 sm:p-4 w-full flex flex-col items-start justify-start gap-5 bg-[#F5F5F5] group-hover:bg-neutral-N-92 transition-all duration-300">
-        <div className="max-w-full">
-          <h4 className="overflow-x-auto scrollbar-none text-nowrap text-neutral-N-10 text-base">
-            {productTitle[product.id] ? (
-              `${productTitle[product.id]} - ${t(product.vendor)}`
-            ) : (
-              <div className="h-6"></div>
-            )}
-          </h4>
-          <div className="flex gap-2">
-            {product.compareAtPriceRange.minVariantPrice.amount !== '0.0' ? (
-              <s>
-                <Money
-                  data={{
-                    amount: (
-                      parseFloat(
-                        product.compareAtPriceRange.minVariantPrice.amount,
-                      ) * currency.exchange_rate
-                    ).toString(),
-                    currencyCode: currency.currency['en'] as CurrencyCode,
-                  }}
-                  className="opacity-30 text-sm"
-                />
-              </s>
-            ) : (
-              <></>
-            )}
-            <Money
-              className="text-neutral-N-30 text-sm"
-              data={{
-                amount: (
-                  parseFloat(product.priceRange.minVariantPrice.amount) *
-                  currency.exchange_rate
-                ).toString(),
-                currencyCode: currency.currency['en'] as CurrencyCode,
-              }}
-            />
-            {product.compareAtPriceRange.minVariantPrice.amount !== '0.0' ? (
-              <span className="block text-sm text-red-700 text-bold">
-                {calculateSalePercentage(
-                  product.compareAtPriceRange.minVariantPrice.amount,
-                  product.priceRange.minVariantPrice.amount,
-                )}
-                % {t('OFF')}
-              </span>
-            ) : (
-              <></>
-            )}
-          </div>
-        </div>
-        {uniqueColorOptions.length > 1 ? (
-          <div className="flex flex-wrap gap-2">
-            {uniqueColorOptions.map(
-              (option, index) =>
-                index < 5 && (
-                  <button
-                    key={index}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setSelectedCardVariant({
-                        [product.id]: {
-                          ...selectedCardVariant[product.id],
-                          Color: option,
-                        },
-                      });
-                      event.stopPropagation();
-                    }}
-                    title={option}
-                    aria-label={`Color: ${option}`}
-                  >
-                    <ColorCircleIcon
-                      option={option}
-                      productId={product.id}
-                      selectedVariant={selectedCardVariant}
-                      size="small"
-                    />
-                  </button>
-                ),
-            )}
-            {uniqueColorOptions.length > 5 && (
-              <span className="text-xs text-gray-500 self-center">
-                +{uniqueColorOptions.length - 5}
-              </span>
-            )}
-          </div>
-        ) : uniqueColorOptions.length === 1 ? (
-          <div className="flex items-center gap-2">
-            <ColorCircleIcon
-              option={uniqueColorOptions[0]}
-              productId={product.id}
-              selectedVariant={{[product.id]: {Color: uniqueColorOptions[0]}}}
-              size="small"
-            />
-            <span className="text-xs text-gray-600">{uniqueColorOptions[0]}</span>
-          </div>
-        ) : (
-          <FaCircle className="w-5 h-5 text-transparent" />
-        )}
-        <CartForm
-          route="/cart"
-          inputs={{
-            lines: [cartLine],
-          }}
-          action={CartForm.ACTIONS.LinesAdd}
-        >
-          {(fetcher: FetcherWithComponents<any>) => {
-            useEffect(() => {
-              if (
-                fetcher.state === 'submitting' ||
-                fetcher.state === 'loading'
-              ) {
-                setIsLoading(true);
-              } else {
-                setIsLoading(false);
-              }
-            }, [fetcher.state]);
+        
+        <div className="w-full mt-auto">
+          <CartForm
+            route="/cart"
+            inputs={{ lines: [cartLine] }}
+            action={CartForm.ACTIONS.LinesAdd}
+          >
+            {(fetcher: FetcherWithComponents<any>) => {
+              useEffect(() => {
+                if (
+                  fetcher.state === 'submitting' ||
+                  fetcher.state === 'loading'
+                ) {
+                  setIsLoading(true);
+                } else {
+                  setIsLoading(false);
+                }
+              }, [fetcher.state]);
 
-            return (
-              <>
-                <div className="flex justify-between items-center w-full gap-2">
-                  {isAvailable ? (
+              return (
+                <>
+                  <div className="flex justify-between items-center w-full gap-2 mt-1">
+                    {isAvailable ? (
+                      <button
+                        type={
+                          Object.keys(selectedCardVariant[product.id] ?? {})
+                            .length !== 2
+                            ? 'button'
+                            : 'submit'
+                        }
+                        onClick={(event) => {
+                          event.preventDefault();
+                          Object.keys(selectedCardVariant[product.id] ?? {})
+                            .length !== 2
+                            ? handleColorSizeValidation({
+                                event,
+                                ref: infoRef,
+                                setMessage,
+                                productId: product.id,
+                                selectedCardVariant,
+                              })
+                            : handleCreateCheckout({
+                                lines: [cartLine],
+                                navigate,
+                              });
+                          event.stopPropagation();
+                        }}
+                        disabled={isLoading}
+                        className={`${
+                          Object.keys(selectedCardVariant[product.id] ?? {})
+                            .length !== 2
+                            ? ''
+                            : 'hover:shadow-md hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90'
+                        } w-full bg-primary-P-40 text-white border text-sm py-2.5 px-4 border-transparent rounded-md transition-all`}
+                      >
+                        {t('Buy Now')}
+                      </button>
+                    ) : (
+                      <></>
+                    )}
                     <button
                       type={
                         Object.keys(selectedCardVariant[product.id] ?? {})
@@ -439,92 +456,57 @@ const Product = ({
                           : 'submit'
                       }
                       onClick={(event) => {
-                        event.preventDefault();
-                        Object.keys(selectedCardVariant[product.id] ?? {})
-                          .length !== 2
-                          ? handleColorSizeValidation({
-                              event,
-                              ref: infoRef,
-                              setMessage,
-                              productId: product.id,
-                              selectedCardVariant,
-                            })
-                          : handleCreateCheckout({
-                              lines: [cartLine],
-                              navigate,
-                            });
+                        handleColorSizeValidation({
+                          event,
+                          ref: infoRef,
+                          setMessage,
+                          productId: product.id,
+                          selectedCardVariant,
+                        });
                         event.stopPropagation();
                       }}
-                      disabled={isLoading}
+                      disabled={!isAvailable || isLoading}
                       className={`${
                         Object.keys(selectedCardVariant[product.id] ?? {})
                           .length !== 2
                           ? ''
-                          : 'hover:shadow-md hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90'
-                      } w-full bg-primary-P-40 text-white border text-sm py-2.5 px-4 border-transparent rounded-md transition-all`}
+                          : 'hover:bg-neutral-N-92 active:bg-neutral-N-87'
+                      } w-full text-primary-P-40 bg-transparent border text-sm py-2.5 px-4 border-primary-P-40 rounded-md transition-all`}
                     >
-                      {t('Buy Now')}
+                      {isAvailable
+                        ? isLoading
+                          ? t('Processing...')
+                          : t('Add to Bag')
+                        : t('Sold Out')}
                     </button>
-                  ) : (
-                    <></>
-                  )}
-                  <button
-                    type={
-                      Object.keys(selectedCardVariant[product.id] ?? {})
-                        .length !== 2
-                        ? 'button'
-                        : 'submit'
-                    }
-                    onClick={(event) => {
-                      handleColorSizeValidation({
-                        event,
-                        ref: infoRef,
-                        setMessage,
-                        productId: product.id,
-                        selectedCardVariant,
-                      });
-                      event.stopPropagation();
-                    }}
-                    disabled={!isAvailable || isLoading}
-                    className={`${
-                      Object.keys(selectedCardVariant[product.id] ?? {})
-                        .length !== 2
-                        ? ''
-                        : 'hover:bg-neutral-N-92 active:bg-neutral-N-87'
-                    } w-full text-primary-P-40 bg-transparent border text-sm py-2.5 px-4 border-primary-P-40 rounded-md transition-all`}
-                  >
-                    {isAvailable
-                      ? isLoading
-                        ? t('Processing...')
-                        : t('Add to Bag')
-                      : t('Sold Out')}
-                  </button>
-                </div>
-              </>
-            );
-          }}
-        </CartForm>
+                  </div>
+                </>
+              );
+            }}
+          </CartForm>
 
-        {showCompare ? (
-          <label
-            key={product.id}
-            onClick={(e) => e.stopPropagation()}
-            className="flex align-items-center gap-2"
-          >
-            <input
-              type="checkbox"
-              checked={selectedProducts.some(
-                (selectedProduct) => selectedProduct.id === product.id,
-              )}
-              onChange={() => handleCompareCheckbox(product)}
-              className="w-5 h-5"
-            />
-            <span>{t('Compare & Combine')}</span>
-          </label>
-        ) : (
-          <></>
-        )}
+          {showCompare ? (
+            <label
+              key={product.id}
+              onClick={(e) => e.stopPropagation()}
+              className="flex align-items-center gap-2 mt-2"
+            >
+              <input
+                type="checkbox"
+                checked={selectedProducts.some(
+                  (selectedProduct) => selectedProduct.id === product.id,
+                )}
+                onChange={() => handleCompareCheckbox(product)}
+                className="w-5 h-5"
+              />
+              <span>{t('Compare & Combine')}</span>
+            </label>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
+      
       <InformationPopup
         t={t}
         direction={direction}
