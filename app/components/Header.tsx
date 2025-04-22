@@ -318,7 +318,7 @@ export function HeaderMenu({
     Designers: {
       imgSrc: 'designers.jpg',
       label: t('Explore our Designers'),
-      linkShop: '/collections',
+      linkShop: '/designers',
     },
   };
 
@@ -350,11 +350,11 @@ export function HeaderMenu({
                   handleOpenSubMenu(
                     e,
                     item,
-                    item.title !== 'Designers' ? url : '/collections'
+                    item.title !== 'Designers' ? url : '/designers'
                   )
                 }
                 onMouseLeave={() => setOpenMegaMenu({})}
-                to={item.title !== 'Designers' ? url : '/collections'}
+                to={item.title !== 'Designers' ? url : '/designers'}
               >
                 {t(`${item.title}`)}
               </NavLink>
@@ -377,7 +377,7 @@ export function HeaderMenu({
                   const URL = (item.url || '').split('?')[1]; 
                   const fullURL = (customURL || '') + '?' + (URL || '') + '#filtering_section';
                   const designerHandle = (item as any).handle;
-                  const designerLink = designerHandle ? '/collections/' + designerHandle : '/collections';
+                  const designerLink = designerHandle ? `/products?designer=${designerHandle}` : '/designers';
 
                   return (
                     <div
@@ -388,7 +388,7 @@ export function HeaderMenu({
                         to={
                           selectedMegaMenu === 'Designers'
                             ? item.title === 'All Designers'
-                              ? '/collections'
+                              ? '/designers'
                               : designerLink
                             : fullURL
                         }
@@ -402,15 +402,22 @@ export function HeaderMenu({
                       >
                         {item.items && item.items.map((sub_item, index) => {
                           const subItemURL = (sub_item.url || '').split('?')[1];
-                          let subItemFullURL = (customURL || '') + '?' + (subItemURL || '');
-                          if (selectedMegaMenu !== 'Designers') {
+                          let subItemFullURL = '';
+                          
+                          if (selectedMegaMenu === 'Designers') {
+                            const designerName = sub_item.title.toLowerCase().replace(/ /g, '+');
+                            subItemFullURL = `/products?designer=${designerName}`;
+                          } else {
+                            subItemFullURL = (customURL || '') + '?' + (subItemURL || '');
                             subItemFullURL += '#filtering_section';
                           }
+
                           return (
                             <NavLink
                               key={index}
                               to={subItemFullURL}
                               className="text-sm hover:underline"
+                              data-discover="true"
                               onClick={() => setOpenMegaMenu({})}
                             >
                               {t(sub_item.title)}

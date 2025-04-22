@@ -169,8 +169,20 @@ const ColorCircleIcon = ({
             cy="10"
             r="9"
             fill="none"
-            stroke={isMetallic ? `url(#${metallicStrokeId})` : "#E0E0E0"}
-            strokeWidth="1"
+            stroke={isMetallic ? `url(#${metallicStrokeId})` : normalizedOption === 'White' ? "rgba(140, 114, 35, 1)" : "#E0E0E0"}
+            strokeWidth={normalizedOption === 'White' ? "1.5" : "1"}
+          />
+        )}
+        
+        {/* Additional border for white color when selected */}
+        {normalizedOption === 'White' && isSelected && (
+          <circle
+            cx="10"
+            cy="10"
+            r="9"
+            fill="none"
+            stroke="rgba(140, 114, 35, 1)"
+            strokeWidth="2"
           />
         )}
         

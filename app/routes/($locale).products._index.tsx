@@ -45,16 +45,33 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     }
   }
 
-  const {products} = await context.storefront.query(PRODUCT_QUERY, {
-    variables: {
-      ...paginationVariables,
-      query: designer,
-      sortKey: 'ID',
-      reverse: false,
-      country,
-    },
-  });
-  return json({products, designer});
+  try {
+    const {products} = await context.storefront.query(PRODUCT_QUERY, {
+      variables: {
+        ...paginationVariables,
+        query: designer,
+        sortKey: 'ID',
+        reverse: false,
+        country,
+      },
+    });
+    return json({products, designer});
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    // Return empty products array in case of error
+    return json({
+      products: {
+        nodes: [],
+        pageInfo: {
+          hasPreviousPage: false,
+          hasNextPage: false,
+          startCursor: null,
+          endCursor: null
+        }
+      }, 
+      designer
+    });
+  }
 }
 
 export default function Collection() {
@@ -133,7 +150,7 @@ export default function Collection() {
               <ProductsGrid
                 t={t}
                 direction={direction}
-                products={nodes}
+                products={nodes as ProductCardFragment[]}
                 width={width}
                 inView={inView}
                 hasNextPage={hasNextPage}
@@ -276,7 +293,7 @@ function ProductsGrid({
 
 const PRODUCT_QUERY = `#graphql
   ${PRODUCT_CARD_FRAGMENT}
-  query Products($country: CountryCode, $language: LanguageCode, $sortKey: ProductSortKeys!, $reverse: Boolean, $query: String,, $first: Int, $last: Int, $startCursor: String, $endCursor: String) @inContext(country: $country, language: $language) {
+  query Products($country: CountryCode, $language: LanguageCode, $sortKey: ProductSortKeys!, $reverse: Boolean, $query: String, $first: Int, $last: Int, $startCursor: String, $endCursor: String) @inContext(country: $country, language: $language) {
     products(
       first: $first
       last: $last
