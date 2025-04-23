@@ -163,19 +163,22 @@ const ColorCircleIcon = ({
         {(normalizedOption === 'White' || 
           normalizedOption === 'Cream' || 
           normalizedOption === 'Ivory' ||
+          normalizedOption === 'Beige' ||
           isMetallic) && !isSelected && (
           <circle
             cx="10"
             cy="10"
             r="9"
             fill="none"
-            stroke={isMetallic ? `url(#${metallicStrokeId})` : normalizedOption === 'White' ? "rgba(140, 114, 35, 1)" : "#E0E0E0"}
-            strokeWidth={normalizedOption === 'White' ? "1.5" : "1"}
+            stroke={isMetallic ? `url(#${metallicStrokeId})` : 
+              (normalizedOption === 'White' || normalizedOption === 'Beige') ? 
+              "rgba(140, 114, 35, 1)" : "#E0E0E0"}
+            strokeWidth={(normalizedOption === 'White' || normalizedOption === 'Beige') ? "1.5" : "1"}
           />
         )}
         
-        {/* Additional border for white color when selected */}
-        {normalizedOption === 'White' && isSelected && (
+        {/* Additional border for white/beige color when selected */}
+        {(normalizedOption === 'White' || normalizedOption === 'Beige') && isSelected && (
           <circle
             cx="10"
             cy="10"
