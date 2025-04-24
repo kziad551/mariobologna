@@ -288,10 +288,10 @@ const Privacy = () => {
                   {t('contact_desc_one')}{' '}
                   <Link
                     className="hover:underline"
-                    to="mailto:info@mariobologna.net"
+                    to="mailto:customercare@mariobologna.net"
                     target="_blank"
                   >
-                    info@mariobologna.net
+                    customercare@mariobologna.net
                   </Link>
                   .
                 </p>
