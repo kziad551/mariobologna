@@ -1822,7 +1822,7 @@ i18n.use(initReactI18next).init({
         Jijil: 'جيجيل',
         Say: 'ساي',
         'Cesare Casadei': 'سيزار كاسادي',
-        Pollini: 'بولينز',
+        Pollini: 'بوليني',
         Peserico: 'بيسيريكو',
         '120% Lino': '120% لينو',
         'Size Charts': 'مخططات الحجم',
