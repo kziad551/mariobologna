@@ -1823,6 +1823,7 @@ i18n.use(initReactI18next).init({
         Say: 'ساي',
         'Cesare Casadei': 'سيزار كاسادي',
         Pollini: 'بوليني',
+        Hinnominate: 'هينومينيت',
         Peserico: 'بيسيريكو',
         '120% Lino': '120% لينو',
         'Size Charts': 'مخططات الحجم',
