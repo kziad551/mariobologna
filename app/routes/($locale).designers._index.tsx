@@ -163,6 +163,14 @@ const designerList: DesignerType[] = [
     bgColor: 'bg-black/10',
     // isFull: true,
   },
+  {
+    imgSrc: 'Hinnominate.webp',
+    imgLogo: 'HINNOMINATE.png',
+    link: '#',
+    title: 'Hinnominate',
+    bgColor: 'bg-white/10',
+    // isFull: true,
+  },
 ];
 
 export default function Designers() {
