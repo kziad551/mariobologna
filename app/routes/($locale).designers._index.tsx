@@ -32,7 +32,7 @@ const designerList: DesignerType[] = [
     imgLogo: 'mario_cerutti-2.png',
     link: '/products?designer=mario+cerutti',
     title: 'Mario Cerutti',
-    bgColor: 'bg-black/10',
+    bgColor: 'bg-white/30',
     isFull: true,
   },
   {
@@ -164,7 +164,7 @@ const designerList: DesignerType[] = [
     // isFull: true,
   },
   {
-    imgSrc: 'Hinnominate.webp',
+    imgSrc: 'Hinnominate1.webp',
     imgLogo: 'HINNOMINATE.png',
     link: '#',
     title: 'Hinnominate',
@@ -256,14 +256,16 @@ function DesignerSection({
   bgColor,
   isFull = false,
 }: DesignerSectionType) {
+  const isFirstSection = designerTitle === 'Mario Cerutti';
+  
   return (
     <div
-      className={`${isFull ? 'w-full' : 'w-full xs:w-1/2 lg:w-1/4'} relative overflow-hidden min-h-80 sm:min-h-170 flex items-center justify-center`}
+      className={`${isFull ? 'w-full' : 'w-full xs:w-1/2 lg:w-1/4'} relative overflow-hidden ${isFirstSection ? 'min-h-50 sm:min-h-100' : 'min-h-80 sm:min-h-170'} flex items-center justify-center`}
     >
       <img
         src={`/images/designers/${imgSrc}`}
         alt={designerTitle}
-        className="absolute inset-0 w-full h-80 sm:h-194.5 object-cover object-center"
+        className={`absolute inset-0 w-full ${isFirstSection ? 'h-50 sm:h-100' : 'h-80 sm:h-194.5'} object-cover object-center`}
       />
       <div className={`${bgColor} absolute inset-0`}></div>
 
