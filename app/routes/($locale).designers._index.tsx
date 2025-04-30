@@ -166,7 +166,7 @@ const designerList: DesignerType[] = [
   {
     imgSrc: 'Hinnominate1.webp',
     imgLogo: 'HINNOMINATE.png',
-    link: '#',
+    link: '/products?designer=hinnominate',
     title: 'Hinnominate',
     bgColor: 'bg-white/10',
     // isFull: true,
