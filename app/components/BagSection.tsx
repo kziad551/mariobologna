@@ -159,7 +159,7 @@ const BagSection = ({
                     ))}
                   </ul>
                   {showEditSection ? (
-                    <CartLineQuantity t={t} id={id} quantity={quantity} />
+                    <CartLineQuantity t={t} id={id} quantity={quantity} merchandise={merchandise} />
                   ) : (
                     <></>
                   )}
