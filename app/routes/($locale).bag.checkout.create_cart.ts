@@ -1,4 +1,4 @@
-import {ActionFunctionArgs, json} from '@remix-run/server-runtime';
+import {ActionFunctionArgs, json} from '@shopify/remix-oxygen';
 import {Cart, CartLineInput} from '@shopify/hydrogen/storefront-api-types';
 import invariant from 'tiny-invariant';
 import {
@@ -7,87 +7,59 @@ import {
   verifyToken,
 } from '~/utils/auth';
 
-export async function action({request, context, params}: ActionFunctionArgs) {
+export async function action({request, context}: ActionFunctionArgs) {
   const {storefront} = context;
   const body = (await request.json()) as any;
   const cookieHeader = request.headers.get('Cookie');
-
-  console.log('Create cart API called with body:', body);
+  const url = new URL(request.url);
+  const returnTo = url.searchParams.get('returnTo');
 
   const token: string | null = await tokenCookie.parse(cookieHeader);
-  if (!token) {
-    console.log('No authentication token found, redirecting to login');
-    return json('/account/login');
+
+  // build the optional buyerIdentity
+  let buyerIdentity: any = body.buyerIdentity ?? undefined;
+
+  if (token) {
+    const customerID = await verifyToken(token, storefront);
+    if (!customerID) {
+      return json('/account/login', {
+        headers: {
+          'Set-Cookie': await tokenCookie.serialize('', {maxAge: 0}),
+        },
+      });
+    }
+    // add the access token so a logged-in shopper still gets a customer-linked checkout
+    buyerIdentity = {...buyerIdentity, customerAccessToken: token};
   }
 
-  const customerID = await verifyToken(token, storefront);
-  if (!customerID) {
-    console.log('Invalid token, redirecting to login');
-    return json('/account/login', {
-      headers: {
-        'Set-Cookie': await tokenCookie.serialize('', {maxAge: 0}),
-      },
-    });
-  }
+  const lines = body.lines as CartLineInput[];
 
   try {
-    const lines = body.lines as CartLineInput[];
-    console.log('Creating cart with lines:', lines);
-    
-    if (!lines || !lines.length || !lines[0].merchandiseId) {
-      console.error('Invalid lines:', lines);
-      return json(
-        { formError: 'Invalid product selection' },
-        { status: 400 }
-      );
-    }
-    
-    const response = await createSeparateCartCheckout(storefront, lines);
-    console.log('Checkout creation response:', response);
-    
+    const response = await createSeparateCartCheckout(
+      storefront,
+      lines,
+      buyerIdentity,
+      returnTo || undefined
+    );
+
     if (typeof response === 'string') {
-      console.error('Error creating cart:', response);
-      return json(
-        {formError: response},
-        {
-          status: 400,
-          headers: {
-            'Set-Cookie': await context.session.commit(),
-          },
-        },
-      );
+      return json(response);
     }
 
-    invariant(!response.errors?.length, response.errors?.[0]?.message);
-
-    invariant(
-      !response?.cartCreate?.userErrors?.length,
-      response?.cartCreate?.userErrors?.[0]?.message,
-    );
-
-    console.log('Cart created successfully with checkout URL:', response.checkoutUrl);
-    
-    return json(
-      {
-        success: true,
-        data: response as Pick<Cart, 'id' | 'checkoutUrl'>,
+    // The response is directly a cart object with id and checkoutUrl
+    return json({
+      success: true,
+      data: {
+        checkoutUrl: response.checkoutUrl,
       },
-      {
-        headers: {
-          'Set-Cookie': await context.session.commit(),
-        },
-      },
-    );
+    });
   } catch (error: any) {
-    console.error('Error creating cart:', error);
     return json(
-      {formError: error.message},
       {
-        status: 400,
-        headers: {
-          'Set-Cookie': await context.session.commit(),
-        },
+        success: false,
+        formError: error.message,
       },
+      { status: 400 },
     );
   }
 }

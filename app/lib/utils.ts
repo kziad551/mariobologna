@@ -1,5 +1,5 @@
 import {NavigateFunction} from '@remix-run/react';
-import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
+import type {CartLineInput, CountryCode} from '@shopify/hydrogen/storefront-api-types';
 
 import type {ProductCardFragment} from 'storefrontapi.generated';
 import {useRootLoaderData} from '~/root';
@@ -7,6 +7,24 @@ import {countries} from '~/data/countries';
 
 import type {I18nLocale} from './type';
 import {currencyType} from '~/data/currencies';
+
+// Define the cart result type
+type CartResult = {
+  success: boolean;
+  data?: {
+    id?: string;
+    lines?: {
+      nodes?: Array<{
+        id?: string;
+        merchandise: {
+          id: string;
+        };
+        quantity: number;
+      }>;
+    };
+  };
+  message?: string;
+};
 
 export function missingClass(string?: string, prefix?: string) {
   if (!string) {
@@ -89,14 +107,25 @@ export const handleCreateCheckout = async ({
   navigate: NavigateFunction;
 }) => {
   try {
-    console.log('Starting Buy Now process with lines:', lines);
+    console.log('Starting Buy Now process with lines:', JSON.stringify(lines, null, 2));
     
-    // Check if lines are valid
-    if (!lines || !lines.length || !lines[0].merchandiseId) {
-      console.error('Invalid lines for checkout:', lines);
+    // Double-check lines are valid
+    if (!lines || !Array.isArray(lines) || lines.length === 0) {
+      console.error('Invalid lines for checkout (empty or not array):', lines);
       alert('Please select a valid product variant');
       return;
     }
+    
+    // Validate each line has merchandiseId
+    const validLines = lines.filter(line => line && line.merchandiseId);
+    if (validLines.length === 0) {
+      console.error('No valid merchandiseId in lines for checkout:', lines);
+      alert('Please select a valid product variant');
+      return;
+    }
+    
+    // Save current page URL for redirects
+    const returnTo = window.location.pathname + window.location.search;
     
     // First check if user is authenticated
     console.log('Checking authentication status...');
@@ -112,8 +141,7 @@ export const handleCreateCheckout = async ({
     console.log('Authentication result:', authResult);
     
     if (!authResult.authenticated) {
-      // Save current page URL for redirect back after login
-      const returnTo = window.location.pathname + window.location.search;
+      // Not authenticated, redirect to login
       console.log('User not authenticated, redirecting to login with returnTo:', returnTo);
       navigate(`/account/login?returnTo=${encodeURIComponent(returnTo)}`);
       return;
@@ -129,29 +157,11 @@ export const handleCreateCheckout = async ({
       },
     });
     
-    // Start with the Buy Now item
-    let mergedLines = [...lines];
+    // Start with the validated Buy Now items
+    let mergedLines = [...validLines];
     
     if (cartResponse.ok) {
       try {
-        // Define the cart result type
-        type CartResult = {
-          success: boolean;
-          data?: {
-            id?: string;
-            lines?: {
-              nodes?: Array<{
-                id?: string;
-                merchandise: {
-                  id: string;
-                };
-                quantity: number;
-              }>;
-            };
-          };
-          message?: string;
-        };
-        
         const cartResult = await cartResponse.json() as CartResult;
         console.log('Current cart response:', cartResult);
         
@@ -215,9 +225,14 @@ export const handleCreateCheckout = async ({
       console.error('Error fetching cart, status:', cartResponse.status);
     }
     
-    // User is authenticated, proceed with checkout
+    // Create request based on authentication status
     console.log('Creating checkout cart with merged lines:', mergedLines);
-    const response = await fetch('/api/bag/checkout/create_cart', {
+    
+    // Include the returnTo parameter in the URL when creating the cart
+    const createCartUrl = `/api/bag/checkout/create_cart?returnTo=${encodeURIComponent(returnTo)}`;
+    
+    // User is authenticated, proceed with normal checkout
+    const response = await fetch(createCartUrl, {
       method: 'POST',
       body: JSON.stringify({lines: mergedLines}),
       headers: {
@@ -249,31 +264,28 @@ export const handleCreateCheckout = async ({
       };
       formError?: string;
     };
-
-    if (result && typeof result === 'object' && 'success' in result && result.success) {
-      const checkoutResult = result as CheckoutResult;
-      const checkoutUrl = checkoutResult.data?.checkoutUrl;
-      console.log('Redirecting to checkout URL:', checkoutUrl);
-      if (checkoutUrl && typeof checkoutUrl === 'string') {
-        window.location.href = checkoutUrl;
-      } else {
-        console.error('Invalid checkout URL:', checkoutUrl);
-        alert('There was a problem with the checkout URL. Please try again.');
-      }
+    
+    const checkoutResult = result as CheckoutResult;
+    
+    if (checkoutResult.success && checkoutResult.data?.checkoutUrl) {
+      console.log('Redirecting to checkout URL:', checkoutResult.data.checkoutUrl);
+      window.location.href = checkoutResult.data.checkoutUrl;
+      return;
+    } else if (checkoutResult.formError) {
+      console.error('Form error:', checkoutResult.formError);
+      alert(checkoutResult.formError);
       return;
     }
     
-    if (result && typeof result === 'object' && 'formError' in result) {
-      console.error('Error creating cart:', result.formError);
-      alert('There was a problem processing your order: ' + result.formError);
-      return;
-    }
-    
-    console.error('Unknown response format:', result);
-    alert('There was an unexpected error. Please try again.');
-  } catch (error: any) {
+    console.error('Invalid checkout result:', checkoutResult);
+    alert('Failed to create checkout. Please try again later.');
+  } catch (error) {
     console.error('Error in handleCreateCheckout:', error);
-    alert('There was a problem processing your order. Please try again.');
+    if (error instanceof Error) {
+      alert(`Error: ${error.message}`);
+    } else {
+      alert('An unexpected error occurred');
+    }
   }
 };
 

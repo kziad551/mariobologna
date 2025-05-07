@@ -17,6 +17,7 @@ import {useInView} from 'react-intersection-observer';
 import {useWishlist} from '~/contexts/WishList';
 import {MdArrowBack} from 'react-icons/md';
 import {Dropdown, DropdownProps} from 'primereact/dropdown';
+import {BsSuitHeart} from 'react-icons/bs';
 
 type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'submenus'>;
 
@@ -218,13 +219,21 @@ export function Header({header, cart, submenus}: HeaderProps) {
             </h1>
           </>
         )}
-        {showHeaderSearch ? (
-          <NavLink to="/search">
-            <GoSearch className="w-5 h-5" />
+        <div className="flex items-center gap-3">
+          <NavLink to="/wishlist" className="flex items-center">
+            <BsSuitHeart className="w-5 h-5" />
+            {wishlist.length > 0 && (
+              <span className="ml-1 text-xs">{wishlist.length}</span>
+            )}
           </NavLink>
-        ) : (
-          <></>
-        )}
+          {showHeaderSearch ? (
+            <NavLink to="/search">
+              <GoSearch className="w-5 h-5" />
+            </NavLink>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
 
       {/* THE NAV MENU (MEN, WOMEN, ...) */}

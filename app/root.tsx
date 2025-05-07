@@ -28,6 +28,7 @@ import {AuthProvider} from './contexts/AuthContext';
 import {I18nextProvider} from 'react-i18next';
 import i18n from './utils/i18n';
 import {ViewedProductsProvider} from './contexts/ViewedProducts';
+import {BrowsingHistoryProvider} from './contexts/BrowsingHistory';
 import {
   CountryCode,
   MenuItem,
@@ -398,7 +399,9 @@ export default function App() {
                       <I18nextProvider i18n={i18n}>
                         <GoogleMapWrapper googleKey={data.GOOGLE_API_KEY}>
                           <Layout {...data}>
-                            <Outlet />
+                            <BrowsingHistoryProvider>
+                              <Outlet />
+                            </BrowsingHistoryProvider>
                           </Layout>
                         </GoogleMapWrapper>
                       </I18nextProvider>
@@ -406,11 +409,11 @@ export default function App() {
                   </ViewedProductsProvider>
                 </CompareProductProvider>
                 <CookieConsent />
-                <ScrollRestoration nonce={nonce} />
-                <Scripts nonce={nonce} />
               </ContextProvider>
             </AuthProvider>
           </PrimeReactProvider>
+          <ScrollRestoration nonce={nonce} />
+          <Scripts nonce={nonce} />
         </body>
       </html>
     </HelmetProvider>
