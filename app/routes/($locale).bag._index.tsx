@@ -192,12 +192,10 @@ export default function Bag() {
               </div>
               <div className="flex flex-col items-stretch justify-start">
                 <NavLink
-                  to={isLoggedIn ? cart.checkoutUrl : '/account/login'}
-                  // to="/bag/checkout"
-                  // target={!isLoggedIn ? '_self' : '_blank'}
+                  to={isLoggedIn ? cart.checkoutUrl : '/bag/checkout?guest=true'}
                   className="px-6 py-2.5 text-center text-sm font-medium bg-primary-P-40 text-white rounded-lg border border-transparent"
                 >
-                  {isLoggedIn ? t('Buy Now') : t('Login First')}
+                  {isLoggedIn ? t('Buy Now') : t('Checkout')}
                 </NavLink>
                 <div className="flex flex-wrap items-center justify-start gap-6 mt-3 mb-4">
                   <img className="" src="/icons/payments/visa_card.svg" />

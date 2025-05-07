@@ -241,6 +241,22 @@ export default function Product() {
     ImageType,
     'id' | 'url'
   > | null>(null);
+  const [primaryCollection, setPrimaryCollection] = useState<string>('');
+
+  useEffect(() => {
+    if (product.collections && product.collections.nodes.length > 0) {
+      // Try to find a main category (men, women, kids, designers)
+      const mainCategories = ['men', 'women', 'kids', 'designers'];
+      const mainCollection = product.collections.nodes.find((col: {handle: string; title: string}) => 
+        mainCategories.includes(col.handle.toLowerCase())
+      );
+      
+      // If a main category was found, use it; otherwise use the first collection
+      setPrimaryCollection(mainCollection ? t(mainCollection.title) : t(product.collections.nodes[0].title));
+    } else {
+      setPrimaryCollection(t('Products'));
+    }
+  }, [product.collections, language]);
 
   useEffect(() => {
     if (metafields) {
@@ -290,12 +306,12 @@ export default function Product() {
   useEffect(() => {
     setCurrentPage('Products');
     addViewedProducts(product as any);
-    const media = product.media.nodes.find((m) => m.__typename === 'Video');
+    const media = product.media.nodes.find((m: {__typename: string; previewImage?: any}) => m.__typename === 'Video');
     if (media) {
       if (media.previewImage) {
         setProductPreviewVideo(media.previewImage);
       }
-      const source = media.sources.find((source) => source.format === 'mp4');
+      const source = media.sources.find((source: {format: string; url: string}) => source.format === 'mp4');
       if (source) {
         setProductVideo(source.url);
       }
@@ -321,27 +337,31 @@ export default function Product() {
 
   return (
     <div className="product">
-      <div className="hidden lg:flex w-fit items-center justify-center mt-3 mb-4 px-4 ss:px-8">
-        <NavLink to="/" className="text-sm hover:underline">
+      <div className="flex w-full items-center mt-3 mb-4 px-4 ss:px-8 text-neutral-N-30 overflow-x-auto">
+        <NavLink to="/" className="text-sm hover:underline whitespace-nowrap">
           {t('Home')}
         </NavLink>
         <IoIosArrowForward
-          className={`${direction === 'rtl' ? 'rotate-180' : ''} m-3`}
+          className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
-        <p className="text-sm">{t('Products')}</p>
+        <NavLink to="/collections/all" className="text-sm hover:underline whitespace-nowrap">
+          {t('Products')}
+        </NavLink>
         <IoIosArrowForward
-          className={`${direction === 'rtl' ? 'rotate-180' : ''} m-3`}
+          className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
         <button
           onClick={() => navigate(-1)}
-          className="text-sm hover:underline"
+          className="text-sm hover:underline whitespace-nowrap"
         >
-          {t('All')}
+          {primaryCollection}
         </button>
         <IoIosArrowForward
-          className={`${direction === 'rtl' ? 'rotate-180' : ''} m-3`}
+          className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
-        <p className="text-sm">{productTitle}</p>
+        <p className="text-sm font-medium text-primary-P-40 whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] sm:max-w-none">
+          {productTitle}
+        </p>
       </div>
       <div className="flex flex-col xl:flex-row gap-14 px-4 sm:px-8 mb-16 items-start justify-start">
         <ProductImage
@@ -937,22 +957,23 @@ function AddToCartButton({
   navigate: NavigateFunction;
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    if (!isAvailable) {
-      setIsLoading(false); // Reset loading state if not available
-    }
-  }, [isAvailable]);
-
+  
   return (
-    <CartForm route="/cart" inputs={{lines}} action={CartForm.ACTIONS.LinesAdd}>
+    <CartForm
+      route="/cart"
+      action={CartForm.ACTIONS.LinesAdd}
+      inputs={{
+        lines,
+      }}
+    >
       {(fetcher: FetcherWithComponents<any>) => {
         useEffect(() => {
-          if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
+          if (fetcher.state === 'loading') {
             setIsLoading(true);
-          } else {
+          } else if (fetcher.state === 'idle' && isLoading) {
             setIsLoading(false);
           }
-        }, [fetcher.state]);
+        }, [fetcher]);
 
         return (
           <>
@@ -966,15 +987,27 @@ function AddToCartButton({
                 <button
                   type="button"
                   onClick={() => {
-                    console.log('Buy Now clicked with lines:', lines);
-                    if (!lines || !lines.length || !lines[0].merchandiseId) {
-                      console.error('Invalid lines for checkout:', lines);
+                    // First do validation checks
+                    if (!lines || !Array.isArray(lines) || lines.length === 0) {
+                      console.error('Invalid lines array:', lines);
+                      alert('Please select a product variant first');
+                      return;
+                    }
+                    
+                    // Ensure merchandiseId is present
+                    const validLines = lines.filter(line => line && line.merchandiseId);
+                    if (validLines.length === 0) {
+                      console.error('No valid merchandiseId in lines:', lines);
                       alert('Please select a valid product variant first');
                       return;
                     }
                     
+                    // Log what we're sending to handleCreateCheckout
+                    console.log('Buy Now clicked with valid lines:', JSON.stringify(validLines, null, 2));
+                    
+                    // Proceed with checkout
                     handleCreateCheckout({
-                      lines,
+                      lines: validLines,
                       navigate,
                     });
                   }}
@@ -1060,6 +1093,7 @@ const PRODUCT_FRAGMENT = `#graphql
     collections(first: 100) {
       nodes {
         handle
+        title
       }
     }
     priceRange {

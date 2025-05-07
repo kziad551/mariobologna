@@ -301,18 +301,22 @@ export default function Collection() {
 
   return (
     <div className="collection">
-      <div className="hidden lg:flex w-fit items-center justify-center mt-3 mb-4 px-4 ss:px-8">
-        <NavLink to="/" className="text-sm">
+      <div className="flex w-full items-center mt-3 mb-4 px-4 ss:px-8 text-neutral-N-30 overflow-x-auto">
+        <NavLink to="/" className="text-sm hover:underline whitespace-nowrap">
           {t('Home')}
         </NavLink>
         <IoIosArrowForward
-          className={`${direction === 'rtl' ? 'rotate-180' : ''} m-3`}
+          className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
-        <p className="text-sm">{t(collection.title)}</p>
+        <NavLink to="/collections" className="text-sm hover:underline whitespace-nowrap">
+          {t('Collections')}
+        </NavLink>
         <IoIosArrowForward
-          className={`${direction === 'rtl' ? 'rotate-180' : ''} m-3`}
+          className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
-        <p className="text-sm">{t('All')}</p>
+        <p className="text-sm font-medium text-primary-P-40 whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] sm:max-w-none">
+          {t(collection.title)}
+        </p>
       </div>
       {['Men', 'Women', 'Kids'].includes(collection.title) ? (
         <div

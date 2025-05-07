@@ -8,12 +8,11 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {TFunction} from 'i18next';
 import {useCustomContext} from '~/contexts/App';
-import {useEffect, useState} from 'react';
 
 type CartLine = CartApiQueryFragment['lines']['nodes'][0];
 
 /* -------------------------------------------------------------------------- */
-/*  CART-LINE QTY                                                             */
+/*  CART-LINE QUANTITY HANDLING                                               */
 /* -------------------------------------------------------------------------- */
 export function CartLineQuantity({
   t,
@@ -24,86 +23,98 @@ export function CartLineQuantity({
   t: TFunction<'translation', undefined>;
   id: string;
   quantity: number;
-  merchandise?: any;
+  merchandise?: CartLine['merchandise'];
 }) {
   if (typeof quantity === 'undefined') return null;
 
-  /* ---------- LIMIT LOGIC ------------------------------------------------- */
-  // fallback limit in case `quantityAvailable` is not returned by the Storefront API
+  /* ---------- DETERMINE LIMIT -------------------------------------------- */
+  // 1. real stock if Shopify returns it
+  // 2. fallback hard limit (prevents infinite adding during dev if
+  //    quantityAvailable is null for some reason)
   const HARD_LIMIT = 5;
-
-  // quantity reported by Shopify (if present) otherwise fallback to HARD_LIMIT
   const availableQty =
-    merchandise?.quantityAvailable != null
-      ? merchandise.quantityAvailable
+    typeof (merchandise as any)?.quantityAvailable === 'number'
+      ? (merchandise as any).quantityAvailable
       : HARD_LIMIT;
 
-  const outOfStock = merchandise && !merchandise.availableForSale;
+  const outOfStock = merchandise && !(merchandise as any).availableForSale;
   const reachedMax = quantity >= availableQty || outOfStock;
 
-  /* ---------- BUTTON STATE & HANDLERS ------------------------------------- */
+  /* ---------- DEBUG (remove if you like) --------------------------------- */
+  console.debug('[Cart-debug]', {
+    variantId: merchandise?.id,
+    availableQty,
+    currentQty: quantity,
+    outOfStock,
+    reachedMax,
+  });
+
+  /* ---------- VALUES FOR UPDATE FORMS ------------------------------------ */
   const prevQuantity = Math.max(0, quantity - 1);
   const nextQuantity = quantity + 1;
 
-  const handleIncrement = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (reachedMax) {
-      e.preventDefault();
-      e.stopPropagation();
-      alert(t('No more items in stock'));
-    }
-  };
-
-  const commonBtnClasses =
+  const btnBase =
     'overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:w-8 ss:h-8 p-2.5 text-white focus:outline-none';
 
-  /* ------------------------------------------------------------------------ */
+  /* ---------------------------------------------------------------------- */
   return (
     <div className="flex items-center xs:justify-center gap-0.5">
-      {/* ––––– DECREMENT ––––– */}
+      {/* ––– DECREMENT ––– */}
       <CartLineUpdateButton lines={[{id, quantity: prevQuantity}]}>
         <button
           aria-label={t('Decrease quantity')}
           disabled={quantity <= 1}
-          value={prevQuantity}
           type="submit"
-          className={`${commonBtnClasses} bg-secondary-S-90 disabled:opacity-50 active:bg-secondary-S-80`}
+          className={`${btnBase} bg-secondary-S-90 ${
+            quantity <= 1
+              ? 'opacity-50 cursor-not-allowed'
+              : 'active:bg-secondary-S-80'
+          }`}
         >
-          <span className="text-2xl ss:text-3xl">&#8722;</span>
+          <span className="text-2xl ss:text-3xl">−</span>
         </button>
       </CartLineUpdateButton>
 
-      {/* quantity read-out */}
+      {/* current qty */}
       <span className="flex items-center justify-center w-6 h-6 ss:w-8 ss:h-8 text-center">
         {quantity}
       </span>
 
-      {/* ––––– INCREMENT ––––– */}
-      <CartLineUpdateButton lines={[{id, quantity: nextQuantity}]}>
+      {/* ––– INCREMENT ––– */}
+      {reachedMax ? (
         <button
+          type="button"
           aria-label={t('Increase quantity')}
-          onClick={handleIncrement}
-          disabled={reachedMax}
-          value={nextQuantity}
-          type="submit"
-          /* visual feedback when max reached */
-          className={`${commonBtnClasses} ${
-            reachedMax ? 'bg-gray-500 opacity-50 cursor-not-allowed' : 'bg-secondary-S-90 active:bg-secondary-S-80'
-          }`}
-          title={
-            reachedMax
-              ? t('No more items in stock')
-              : t('Increase quantity')
+          onClick={() =>
+            window.alert(
+              outOfStock
+                ? t('This item is out of stock')
+                : t('No more items in stock'),
+            )
           }
+          className={`${btnBase} bg-gray-500 opacity-50 cursor-not-allowed`}
+          title={t('No more items in stock')}
         >
-          <span className="text-2xl ss:text-3xl">&#43;</span>
+          <span className="text-2xl ss:text-3xl">＋</span>
         </button>
-      </CartLineUpdateButton>
+      ) : (
+        <CartLineUpdateButton lines={[{id, quantity: nextQuantity}]}>
+          <button
+            aria-label={t('Increase quantity')}
+            type="submit"
+            className={`${btnBase} bg-secondary-S-90 active:bg-secondary-S-80`}
+            title={t('Increase quantity')}
+          >
+            <span className="text-2xl ss:text-3xl">＋</span>
+          </button>
+        </CartLineUpdateButton>
+      )}
     </div>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  PRICE COMPONENT                                                           */
+/*  LINE PRICE                                                                */
 /* -------------------------------------------------------------------------- */
 export function CartLinePrice({
   cost,
@@ -115,28 +126,28 @@ export function CartLinePrice({
   const {currency} = useCustomContext();
   if (!cost.amountPerQuantity || !cost.totalAmount) return null;
 
-  const moneyV2 =
+  const money =
     priceType === 'regular'
       ? cost.totalAmount
       : cost.compareAtAmountPerQuantity;
 
-  if (!moneyV2) return null;
+  if (!money) return null;
 
   return (
     <Money
       className="text-sm ss:text-base"
       data={{
         amount: (
-          parseFloat(moneyV2.amount) * currency.exchange_rate
+          parseFloat(money.amount) * currency.exchange_rate
         ).toString(),
-        currencyCode: currency.currency['en'] as CurrencyCode,
+        currencyCode: currency.currency.en as CurrencyCode,
       }}
     />
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/*  WRAPPERS                                                                  */
+/*  HELPERS                                                                   */
 /* -------------------------------------------------------------------------- */
 function CartLineUpdateButton({
   children,
@@ -152,26 +163,6 @@ function CartLineUpdateButton({
       inputs={{lines}}
     >
       {children}
-    </CartForm>
-  );
-}
-
-function CartLineRemoveButton({
-  lineIds,
-  t,
-}: {
-  lineIds: string[];
-  t: TFunction<'translation', undefined>;
-}) {
-  return (
-    <CartForm
-      route="/cart"
-      action={CartForm.ACTIONS.LinesRemove}
-      inputs={{lineIds}}
-    >
-      <button type="submit" className="text-xs ss:text-base mx-2">
-        {t('Remove')}
-      </button>
     </CartForm>
   );
 }

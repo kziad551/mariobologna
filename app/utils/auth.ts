@@ -20,6 +20,13 @@ export const tokenCookie = createCookie('shopifyAccessToken', {
   path: '/',
 });
 
+// Create a cookie to store the returnTo URL for guest checkouts
+export const returnToCookie = createCookie('returnToUrl', {
+  maxAge: 60 * 60 * 24, // 1 day
+  secure: true,
+  path: '/',
+});
+
 export async function verifyToken(
   token: string,
   storefront: Storefront<I18nLocale>,
@@ -203,6 +210,8 @@ export async function updateCartBuyerIdentity(
 export async function createSeparateCartCheckout(
   storefront: Storefront<I18nLocale>,
   lines: CartLineInput[],
+  buyerIdentity?: any,
+  returnTo?: string
 ) {
   const CREATE_CART_MUTATION = `#graphql
     mutation cartCreate($input: CartInput!) {
@@ -220,28 +229,47 @@ export async function createSeparateCartCheckout(
   ` as const;
 
   try {
-    console.log('Creating cart with mutation, lines:', lines);
+    const cartInput: any = { lines };
+    
+    // If buyer identity is provided, include it in the cart creation
+    if (buyerIdentity) {
+      cartInput.buyerIdentity = buyerIdentity;
+    }
+    
     const response = await storefront.mutate(CREATE_CART_MUTATION, {
       variables: {
-        input: {
-          lines,
-        },
+        input: cartInput,
       },
     });
-    console.log('Cart mutation response:', response);
 
-    if (response?.cartCreate?.userErrors?.length) {
-      return response.cartCreate.userErrors[0].message;
+    const { cartCreate } = response;
+
+    if (cartCreate?.userErrors?.length) {
+      throw new Error(cartCreate.userErrors?.[0].message);
     }
 
-    // Return the cart data directly for easier access
-    return response.cartCreate.cart;
+    if (cartCreate?.cart) {
+      let checkoutUrl = cartCreate.cart.checkoutUrl;
+      
+      // Always modify the checkout URL to redirect to our thank-you page
+      const urlObj = new URL(checkoutUrl);
+      urlObj.searchParams.set('redirect_url', '/thank-you');
+      
+      checkoutUrl = urlObj.toString();
+      
+      return {
+        id: cartCreate.cart.id,
+        checkoutUrl: checkoutUrl,
+      };
+    }
+
+    throw new Error('Failed to create cart');
   } catch (error) {
-    console.error('Error in createSeparateCartCheckout:', error);
     if (error instanceof Error) {
       return error.message;
     }
-    return 'Something went wrong';
+
+    return 'Failed to create cart: Unknown error';
   }
 }
 

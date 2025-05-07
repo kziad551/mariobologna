@@ -5,12 +5,13 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get('Cookie');
   const token = await tokenCookie.parse(cookieHeader);
 
-  if (!token) {
-    return json({ authenticated: false });
-  }
-
-  const customer = await verifyToken(token, context.storefront);
-  if (!customer) {
+  // First check if the user has a Shopify auth token
+  if (token) {
+    const customer = await verifyToken(token, context.storefront);
+    if (customer) {
+      return json({ authenticated: true });
+    }
+    
     return json(
       { authenticated: false },
       {
@@ -20,6 +21,6 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       },
     );
   }
-
-  return json({ authenticated: true });
+  
+  return json({ authenticated: false });
 } 
