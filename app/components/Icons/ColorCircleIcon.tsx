@@ -51,6 +51,9 @@ const COLOR_MAP: Record<string, string> = {
   'Taupe': '#483C32',
   'Ivory': '#FFFFF0',
   
+  // Special patterns
+  'Print': '#E6BEAA', // Leopard print peachy/tan base color
+  
   // Add more colors as needed
 };
 
@@ -81,6 +84,9 @@ const ColorCircleIcon = ({
   // Special handling for Multi Color
   const isMultiColor = normalizedOption.toLowerCase().includes('multi');
   
+  // Special handling for Print pattern
+  const isPrint = normalizedOption.toLowerCase() === 'print';
+  
   // Check if this color is selected
   const isSelected = 
     Object.keys(selectedVariant)[0] === productId &&
@@ -93,6 +99,7 @@ const ColorCircleIcon = ({
   const multiColorId = `multiColorGradient-${productId}-${normalizedOption.replace(/\s+/g, '')}`;
   const metallicId = `metallicGradient-${productId}-${normalizedOption.replace(/\s+/g, '')}`;
   const metallicStrokeId = `metallicStroke-${productId}-${normalizedOption.replace(/\s+/g, '')}`;
+  const printPatternId = `printPattern-${productId}-${normalizedOption.replace(/\s+/g, '')}`;
   
   // Scale up the selected color for better visibility
   const scaleFactor = isSelected ? 1.1 : 1;
@@ -129,6 +136,24 @@ const ColorCircleIcon = ({
             </linearGradient>
           )}
           
+          {/* Print pattern gradient */}
+          {isPrint && (
+            <pattern id={printPatternId} patternUnits="userSpaceOnUse" width="20" height="20">
+              <rect width="20" height="20" fill="#E6BEAA" /> {/* Peachy/tan base */}
+              
+              {/* Irregular leopard spots */}
+              <path d="M4,3 Q6,1 8,3 T12,4 Q14,6 12,8 T8,9 Q5,10 4,8 T3,4 Z" fill="#50290A" fillOpacity="0.8" />
+              <path d="M14,12 Q16,10 18,12 T15,15 Q12,16 11,14 T13,11 Z" fill="#50290A" fillOpacity="0.8" />
+              <path d="M2,15 Q3,13 5,14 T6,17 Q5,19 3,18 T2,15 Z" fill="#50290A" fillOpacity="0.8" />
+              <path d="M16,3 Q17,2 18,3 T17,5 Q16,6 15,5 T16,3 Z" fill="#50290A" fillOpacity="0.8" />
+              
+              {/* Smaller spots */}
+              <circle cx="10" cy="10" r="1.5" fill="#50290A" fillOpacity="0.7" />
+              <circle cx="7" cy="16" r="1" fill="#50290A" fillOpacity="0.7" />
+              <circle cx="13" cy="2" r="1" fill="#50290A" fillOpacity="0.7" />
+            </pattern>
+          )}
+          
           {/* Metallic effect gradients */}
           {isMetallic && (
             <>
@@ -153,9 +178,11 @@ const ColorCircleIcon = ({
           r="9"
           fill={isMultiColor 
             ? `url(#${multiColorId})` 
-            : isMetallic 
-              ? `url(#${metallicId})`
-              : colorValue
+            : isPrint
+              ? `url(#${printPatternId})`
+              : isMetallic 
+                ? `url(#${metallicId})`
+                : colorValue
           }
         />
         
@@ -174,6 +201,18 @@ const ColorCircleIcon = ({
               (normalizedOption === 'White' || normalizedOption === 'Beige') ? 
               "rgba(140, 114, 35, 1)" : "#E0E0E0"}
             strokeWidth={(normalizedOption === 'White' || normalizedOption === 'Beige') ? "1.5" : "1"}
+          />
+        )}
+        
+        {/* Add a thin border for Print pattern */}
+        {isPrint && !isSelected && (
+          <circle
+            cx="10"
+            cy="10"
+            r="9"
+            fill="none"
+            stroke="#50290A"
+            strokeWidth="0.5"
           />
         )}
         

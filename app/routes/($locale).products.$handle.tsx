@@ -567,39 +567,77 @@ function ProductImage({
       >)
     | string
   >(variantImage);
+  
+  // Track the current index for the mobile swiper
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Filter images based on selected color
+  const filteredImages = selectedColor 
+    ? images.nodes.filter(image => image.url.toLowerCase().includes(selectedColor))
+    : images.nodes;
+  
+  // Add video to the image array if available
+  const allMedia = [...filteredImages];
+  if (productVideo && productPreviewVideo) {
+    allMedia.push({
+      __typename: 'Video',
+      id: 'video-preview',
+      url: productVideo,
+      height: 400, // Default height
+      width: 400, // Default width
+      altText: productPreviewVideo.altText || 'Product Video',
+    } as any);
+  }
 
   useEffect(() => {
     setSelectedImage(variantImage);
-  }, [variantImage]);
+    setCurrentIndex(0); // Reset index when variant changes
+  }, [variantImage, selectedColor]);
+
+  // Handler for mobile swipe navigation
+  const handleSwipe = (direction: 'next' | 'prev') => {
+    if (direction === 'next') {
+      setCurrentIndex((prev) => (prev < allMedia.length - 1 ? prev + 1 : 0));
+      setSelectedImage(allMedia[currentIndex < allMedia.length - 1 ? currentIndex + 1 : 0]);
+    } else {
+      setCurrentIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
+      setSelectedImage(allMedia[currentIndex > 0 ? currentIndex - 1 : allMedia.length - 1]);
+    }
+  };
 
   return (
-    <div className="relative overflow-hidden flex items-start max-w-212.5 w-full px-2 sm:px-6 py-4 bg-white">
-      <div
-        className={`min-w-fit max-h-50 xs:max-h-65 sm:max-h-170 flex flex-col gap-4 scrollbar-none overflow-auto`}
-      >
-        {images.nodes.map((image) =>
-          selectedColor && image.url.toLowerCase().includes(selectedColor) ? (
-            <button
-              key={image.id}
-              onClick={() => setSelectedImage(image)}
-              className="overflow-hidden border border-neutral-N-50 w-9 min-h-7 xs:w-18 xs:min-h-14 sm:w-35.5 sm:min-h-26 bg-white rounded-sm hover:border-neutral-N-10 transition-colors"
-            >
-              <Image
-                data={image}
-                alt={image.altText || 'Product Image'}
-                aspectRatio="1/1"
-                className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-contain object-center rounded-none"
-                sizes="auto"
-              />
-            </button>
-          ) : (
-            <></>
-          ),
-        )}
+    <div className="relative overflow-hidden flex flex-col xs:flex-row items-start max-w-212.5 w-full px-2 sm:px-6 py-4 bg-white">
+      {/* Desktop vertical thumbnail gallery - hidden on very small screens */}
+      <div className="hidden xs:flex min-w-fit max-h-50 xs:max-h-65 sm:max-h-170 flex-col gap-4 scrollbar-none overflow-auto">
+        {filteredImages.map((image) => (
+          <button
+            key={image.id}
+            onClick={() => {
+              setSelectedImage(image);
+              setCurrentIndex(filteredImages.indexOf(image));
+            }}
+            className={`overflow-hidden border ${
+              typeof selectedImage !== 'string' && selectedImage.id === image.id 
+                ? 'border-primary-P-40' 
+                : 'border-neutral-N-50'
+            } w-9 min-h-7 xs:w-18 xs:min-h-14 sm:w-35.5 sm:min-h-26 bg-white rounded-sm hover:border-neutral-N-10 transition-colors`}
+          >
+            <Image
+              data={image}
+              alt={image.altText || 'Product Image'}
+              aspectRatio="1/1"
+              className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-contain object-center rounded-none"
+              sizes="auto"
+            />
+          </button>
+        ))}
         {productVideo && productPreviewVideo ? (
           <button
-            onClick={() => setSelectedImage(productVideo)}
-            className="overflow-hidden border border-neutral-N-50 w-9 min-h-7 xs:w-18 xs:min-h-14 sm:w-35.5 sm:min-h-26 bg-white rounded-sm hover:border-neutral-N-10 transition-colors"
+            onClick={() => {
+              setSelectedImage(productVideo);
+              setCurrentIndex(filteredImages.length);
+            }}
+            className={`overflow-hidden border ${typeof selectedImage === 'string' ? 'border-primary-P-40' : 'border-neutral-N-50'} w-9 min-h-7 xs:w-18 xs:min-h-14 sm:w-35.5 sm:min-h-26 bg-white rounded-sm hover:border-neutral-N-10 transition-colors`}
           >
             <Image
               data={productPreviewVideo}
@@ -613,28 +651,66 @@ function ProductImage({
           <></>
         )}
       </div>
-      {typeof selectedImage !== 'string' ? (
-        <Image
-          data={selectedImage}
-          alt={selectedImage.altText || 'Variant Product Image'}
-          aspectRatio="1/1"
-          className="w-auto max-h-50 xs:max-h-65 sm:max-h-170 bg-white object-contain object-center"
-          sizes="auto"
-        />
-      ) : (
-        <div className="max-w-full mx-auto">
-          <video
-            width="100%"
-            height="auto"
-            autoPlay
-            loop
-            className="w-auto max-h-50 xs:max-h-65 sm:max-h-170 px-4 bg-white object-contain object-center"
+      
+      {/* Mobile carousel indicators - visible only on xs screens */}
+      <div className="xs:hidden w-full flex justify-center items-center gap-1 mt-2 mb-4">
+        {allMedia.map((_, index) => (
+          <button 
+            key={`indicator-${index}`}
+            onClick={() => {
+              setCurrentIndex(index);
+              setSelectedImage(allMedia[index]);
+            }}
+            className={`w-2 h-2 rounded-full ${currentIndex === index ? 'bg-primary-P-40' : 'bg-neutral-N-80'}`}
+            aria-label={`View product image ${index + 1}`}
+          />
+        ))}
+      </div>
+      
+      {/* Main image display area */}
+      <div className="relative flex-grow flex flex-col">
+        {/* Mobile swipe navigation - visible only on xs screens */}
+        <div className="xs:hidden w-full flex justify-between absolute top-1/2 transform -translate-y-1/2 z-10 px-2">
+          <button 
+            onClick={() => handleSwipe('prev')}
+            className="bg-white/80 hover:bg-white rounded-full p-1 shadow"
+            aria-label="Previous image"
           >
-            <source src={selectedImage} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+            <IoIosArrowForward className={`${direction === 'rtl' ? '' : 'rotate-180'} w-5 h-5`} />
+          </button>
+          <button 
+            onClick={() => handleSwipe('next')}
+            className="bg-white/80 hover:bg-white rounded-full p-1 shadow"
+            aria-label="Next image"
+          >
+            <IoIosArrowForward className={`${direction === 'rtl' ? 'rotate-180' : ''} w-5 h-5`} />
+          </button>
         </div>
-      )}
+        
+        {/* Main display - image or video */}
+        {typeof selectedImage !== 'string' ? (
+          <Image
+            data={selectedImage}
+            alt={selectedImage.altText || 'Variant Product Image'}
+            aspectRatio="1/1"
+            className="w-auto max-h-50 xs:max-h-65 sm:max-h-170 bg-white object-contain object-center"
+            sizes="auto"
+          />
+        ) : (
+          <div className="max-w-full mx-auto">
+            <video
+              width="100%"
+              height="auto"
+              autoPlay
+              loop
+              className="w-auto max-h-50 xs:max-h-65 sm:max-h-170 px-4 bg-white object-contain object-center"
+            >
+              <source src={selectedImage} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
