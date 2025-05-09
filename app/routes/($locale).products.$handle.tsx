@@ -40,7 +40,7 @@ import {useTranslation} from 'react-i18next';
 import {useCustomContext} from '~/contexts/App';
 import {TFunction} from 'i18next';
 import {calculateSalePercentage, handleCreateCheckout} from '~/lib/utils';
-import {OTHER_COLLECTION_QUERY} from '~/lib/queries';
+import {OTHER_COLLECTION_QUERY, SIMILAR_PRODUCTS_QUERY} from '~/lib/queries';
 import {useViewedProducts} from '~/contexts/ViewedProducts';
 import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
 import ColorCircleIcon from '~/components/Icons/ColorCircleIcon';
@@ -164,6 +164,19 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     },
   );
 
+  // Fetch similar products within the same category/product type
+  const {products: similarProducts} = await storefront.query(
+    SIMILAR_PRODUCTS_QUERY,
+    {
+      variables: {
+        country,
+        productType: product.productType,
+        productId: product.id,
+        first: 8,
+      },
+    },
+  );
+
   const productID = product.id.split('/').pop();
 
   const SHOPIFY_ADMIN_API_URL = `https://${env.PUBLIC_STORE_DOMAIN}/admin/api/${env.ADMIN_VERSION}`;
@@ -188,6 +201,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     metafields: result.metafields,
     youMayAlsoLikeProducts,
     combineProductsCollection,
+    similarProducts: similarProducts?.nodes || [],
   });
 }
 
@@ -223,6 +237,7 @@ export default function Product() {
     metafields,
     youMayAlsoLikeProducts,
     combineProductsCollection,
+    similarProducts,
   } = useLoaderData<typeof loader>();
   const {width, height} = useWindowDimensions(50);
   const {selectedVariant} = product;
@@ -507,6 +522,20 @@ export default function Product() {
           </AnimatePresence>
         </div>
       </div>
+      {similarProducts && similarProducts.length > 0 ? (
+        <ProductsSection
+          t={t}
+          direction={direction}
+          title={t(`More ${product.productType}`)}
+          viewAllLink={`/collections/${product.productType.toLowerCase()}`}
+          width={width}
+          height={height}
+          products={similarProducts}
+          containerClassName="mx-4 sm:mx-8"
+        />
+      ) : (
+        <></>
+      )}
       {combineProducts.length > 0 ? (
         <ProductsSection
           t={t}
