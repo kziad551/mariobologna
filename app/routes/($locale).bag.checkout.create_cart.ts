@@ -19,17 +19,19 @@ export async function action({request, context}: ActionFunctionArgs) {
   // build the optional buyerIdentity
   let buyerIdentity: any = body.buyerIdentity ?? undefined;
 
+  // If token exists and is valid, add it to buyerIdentity
+  // If not, we'll create an anonymous checkout
   if (token) {
-    const customerID = await verifyToken(token, storefront);
-    if (!customerID) {
-      return json('/account/login', {
-        headers: {
-          'Set-Cookie': await tokenCookie.serialize('', {maxAge: 0}),
-        },
-      });
+    try {
+      const customerID = await verifyToken(token, storefront);
+      if (customerID) {
+        // add the access token for a customer-linked checkout
+        buyerIdentity = {...buyerIdentity, customerAccessToken: token};
+      }
+    } catch (error) {
+      console.error('Token verification error:', error);
+      // Continue with anonymous checkout - don't return error
     }
-    // add the access token so a logged-in shopper still gets a customer-linked checkout
-    buyerIdentity = {...buyerIdentity, customerAccessToken: token};
   }
 
   const lines = body.lines as CartLineInput[];
