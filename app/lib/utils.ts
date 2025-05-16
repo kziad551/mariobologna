@@ -140,13 +140,6 @@ export const handleCreateCheckout = async ({
     const authResult = await checkAuthResponse.json() as { authenticated: boolean };
     console.log('Authentication result:', authResult);
     
-    if (!authResult.authenticated) {
-      // Not authenticated, redirect to login
-      console.log('User not authenticated, redirecting to login with returnTo:', returnTo);
-      navigate(`/account/login?returnTo=${encodeURIComponent(returnTo)}`);
-      return;
-    }
-    
     // Get current cart items
     console.log('Fetching current cart items...');
     const cartResponse = await fetch('/api/bag/get_cart', {
@@ -225,13 +218,11 @@ export const handleCreateCheckout = async ({
       console.error('Error fetching cart, status:', cartResponse.status);
     }
     
-    // Create request based on authentication status
-    console.log('Creating checkout cart with merged lines:', mergedLines);
-    
     // Include the returnTo parameter in the URL when creating the cart
     const createCartUrl = `/api/bag/checkout/create_cart?returnTo=${encodeURIComponent(returnTo)}`;
     
-    // User is authenticated, proceed with normal checkout
+    // Create the cart directly, regardless of authentication status
+    console.log('Creating checkout cart with lines:', mergedLines);
     const response = await fetch(createCartUrl, {
       method: 'POST',
       body: JSON.stringify({lines: mergedLines}),
