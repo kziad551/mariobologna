@@ -321,6 +321,15 @@ export function FiltersDrawer({
           </div>
         ) : null}
         {filters.map((filter: Filter, index) => {
+          // Check if this is the Brand filter and if product type filter is applied
+          const isProductTypeFilterApplied = params.has(`${FILTER_URL_PREFIX}productType`);
+          
+          // Skip rendering the brand filter if it has no options with count > 0 when product type filter is applied
+          if (filter.label === 'Brand' && isProductTypeFilterApplied) {
+            const hasBrandsWithProducts = filter.values?.some(option => option.count > 0);
+            if (!hasBrandsWithProducts) return null;
+          }
+          
           return (
             <Disclosure as="div" key={index} className="w-full">
               {({open}) => (

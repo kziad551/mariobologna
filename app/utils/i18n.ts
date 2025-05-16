@@ -42,7 +42,6 @@ i18n.use(initReactI18next).init({
         Designers: 'Designers',
         Outlet: 'Outlet',
         Valentine: 'Valentine',
-        'New Arrivals': 'New Arrivals',
         'On Sale Items': 'On Sale Items',
         'About Mario Bologna': 'About Mario Bologna',
         Careers: 'Careers',
@@ -1215,6 +1214,7 @@ i18n.use(initReactI18next).init({
         'Change Email': 'تغيير البريد الإلكتروني',
         'Change Password': 'تغيير كلمة المرور',
         Close: 'اغلاق',
+Collections:'المجموعات',
         Add: 'أضف',
         'Personal Information': 'معلومات شخصية',
         address_note:
@@ -1873,6 +1873,7 @@ i18n.use(initReactI18next).init({
           'لا يوجد دليل رعاية لهذا المنتج حتى الآن',
 
         'Frequently Asked Questions': 'الأسئلة الشائعة',
+        'Continue as Guest':'الاستمرار كضيف',
         'I have received a wrong item': 'لقد استلمت سلعة خاطئة',
         'If you receive the wrong item, Please contact our customer care team via email customercare@mariobologna.net':
           ' إذا تلقيت سلعة خاطئة، يُرجى الاتفاق على إرجاع المنتج إلينا باستخدام عملية الإرجاع المذكورة.',

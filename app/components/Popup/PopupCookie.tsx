@@ -1,9 +1,11 @@
 import {AnimatePresence, motion} from 'framer-motion';
 import React, {useState, useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
+import Cookies from 'js-cookie';
 
 const COOKIE_CONSENT_KEY = 'mariobologna_cookie_consent';
 const COOKIE_CONSENT_VERSION = '1.0'; // Increment this when cookie policy changes
+const COOKIE_EXPIRY_DAYS = 365; // 1 year
 
 interface CookieConsentData {
   accepted: boolean;
@@ -16,31 +18,58 @@ const CookieConsent: React.FC = () => {
   const {t} = useTranslation();
 
   useEffect(() => {
-    try {
-      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-      const consentData = consent ? (JSON.parse(consent) as CookieConsentData) : null;
-      
-      // Show banner if no consent or if version is outdated
-      if (!consentData || consentData.version !== COOKIE_CONSENT_VERSION) {
-        setShowBanner(true);
-      }
-    } catch (error) {
-      // If localStorage is not available or parsing fails, show the banner
-      console.warn('Cookie consent check failed:', error);
-      setShowBanner(true);
-    }
+    // Check for consent in both cookies and localStorage for maximum compatibility
+    const hasConsent = checkConsent();
+    setShowBanner(!hasConsent);
   }, []);
+
+  // Check if valid consent exists in either cookies or localStorage
+  const checkConsent = (): boolean => {
+    try {
+      // Check cookies first (more reliable)
+      const cookieConsent = Cookies.get(COOKIE_CONSENT_KEY);
+      if (cookieConsent) {
+        const consentData = JSON.parse(cookieConsent) as CookieConsentData;
+        if (consentData.accepted && consentData.version === COOKIE_CONSENT_VERSION) {
+          return true;
+        }
+      }
+
+      // Fallback to localStorage
+      const localConsent = localStorage.getItem(COOKIE_CONSENT_KEY);
+      if (localConsent) {
+        const consentData = JSON.parse(localConsent) as CookieConsentData;
+        if (consentData.accepted && consentData.version === COOKIE_CONSENT_VERSION) {
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.warn('Cookie consent check failed:', error);
+      return false;
+    }
+  };
 
   const handleAccept = () => {
     try {
-      localStorage.setItem(
-        COOKIE_CONSENT_KEY,
-        JSON.stringify({
-          accepted: true,
-          version: COOKIE_CONSENT_VERSION,
-          timestamp: new Date().toISOString(),
-        }),
-      );
+      const consentData: CookieConsentData = {
+        accepted: true,
+        version: COOKIE_CONSENT_VERSION,
+        timestamp: new Date().toISOString(),
+      };
+      
+      // Store in cookies with proper expiration (1 year)
+      Cookies.set(COOKIE_CONSENT_KEY, JSON.stringify(consentData), { 
+        expires: COOKIE_EXPIRY_DAYS,
+        path: '/',
+        sameSite: 'Lax',
+        secure: window.location.protocol === 'https:'
+      });
+      
+      // Backup in localStorage
+      localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(consentData));
+      
       setShowBanner(false);
     } catch (error) {
       console.error('Failed to save cookie consent:', error);

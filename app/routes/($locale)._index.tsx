@@ -54,7 +54,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const {collection: brandNewProducts} = await storefront.query(
     OTHER_COLLECTION_QUERY,
     {
-      variables: {country, handle: 'new-arrivals', first: 8},
+      variables: {country, handle: 'new-arrivals', first: 5},
     },
   );
   const {collection: topPicksProducts} = await storefront.query(
@@ -131,8 +131,8 @@ export default function Homepage() {
         <Shops t={t} direction={direction} />
         {brandNewProducts && brandNewProducts.products.nodes.length > 0 ? (
           <ProductsSection
-            title={t('Brand New')}
-            viewAllLink={brandNewProducts?.handle}
+            title={t('New Arrivals')}
+            viewAllLink="new-arrivals"
             width={width}
             height={height}
             products={brandNewProducts?.products.nodes}
@@ -384,6 +384,7 @@ function LookSection({
   width,
   height,
   products = [],
+  collection,
 }: {
   t: TFunction<'translation', undefined>;
   direction: 'ltr' | 'rtl';
@@ -392,6 +393,7 @@ function LookSection({
   width: number;
   height: number;
   products?: ProductCardFragment[];
+  collection?: any;
 }) {
   const [totalPrice, setTotalPrice] = useState('0');
   const {currency} = useCustomContext();
@@ -448,7 +450,7 @@ function LookSection({
       <div className="flex items-center justify-between w-full mb-2 lg:mb-20">
         <h2 className="lg:text-5xl font-medium">{title}</h2>
         <Link
-          className="transition-all w-20 h-8 text-sm lg:text-base flex items-center justify-center text-primary-P-40 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87"
+          className="transition-all w-20 h-8 text-base lg:text-lg font-medium flex items-center justify-center text-primary-P-40 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87"
           to={viewAllLink}
         >
           {t('View All')}
@@ -457,6 +459,10 @@ function LookSection({
       <div className="flex w-fit items-start lg:items-stretch lg:flex-row flex-col gap-3 lg:gap-4 flex-wrap">
         <div className="flex flex-wrap xs:w-90.5 sm:max-w-181 sm:w-auto items-start justify-between gap-3 lg:flex-col sm:gap-4 sm:self-stretch">
           {products.map((product, index) => {
+            const fromCollection =
+              collection?.products.nodes.filter(
+                (p: any) => p.id !== product.id && p.productType === product.productType
+              ) ?? [];
             return (
               index < 2 &&
               (width >= 640 ? (
@@ -509,6 +515,10 @@ function LookSection({
         </NavLink>
         <div className="flex flex-wrap xs:w-89.5 sm:max-w-181 sm:w-auto items-start justify-between gap-3 lg:flex-col sm:gap-4 sm:self-stretch">
           {products.map((product, index) => {
+            const fromCollection =
+              collection?.products.nodes.filter(
+                (p: any) => p.id !== product.id && p.productType === product.productType
+              ) ?? [];
             return (
               index >= 2 &&
               (width >= 640 ? (
@@ -587,7 +597,6 @@ function Shops({
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/men.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
       >
         <div className="text-white group-hover:text-black text-4xl xs:text-7xl flex flex-col items-center justify-center transition-colors">
-          <span className="font-rangga">{t('Shop')}</span>
           <span className="font-rangga">{t('Men')}</span>
         </div>
       </NavLink>
@@ -596,7 +605,6 @@ function Shops({
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/women.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
       >
         <div className="text-white group-hover:text-black text-4xl xs:text-7xl flex flex-col items-center justify-center transition-colors">
-          <span className="font-rangga">{t('Shop')}</span>
           <span className="font-rangga">{t('Women')}</span>
         </div>
       </NavLink>
@@ -605,7 +613,6 @@ function Shops({
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/kids.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
       >
         <div className="text-white group-hover:text-black text-4xl xs:text-7xl flex flex-col items-center justify-center transition-colors">
-          <span className="font-rangga">{t('Shop')}</span>
           <span className="font-rangga">{t('Kids')}</span>
         </div>
       </NavLink>
