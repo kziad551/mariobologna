@@ -217,6 +217,17 @@ const Product = ({
       onClick={(event) => event.defaultPrevented && event.stopPropagation()}
     >
       <div className="relative">
+        <button
+          onClick={(event) => handleHeartClick(event, product)}
+          className={`${direction === 'ltr' ? 'right-2' : 'left-2'} absolute z-10 top-2 block transition-all bg-neutral-N-92/80 hover:bg-neutral-N-92 active:bg-neutral-N-90 rounded-full p-1.5`}
+        >
+          {wishlist.findIndex((item) => item.id === product.id) != -1 ? (
+            <BsSuitHeartFill className="w-5 h-5" />
+          ) : (
+            <BsSuitHeart className="w-5 h-5" />
+          )}
+        </button>
+        
         {currentImage ? (
           <Image
             data={currentImage}
