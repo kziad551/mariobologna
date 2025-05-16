@@ -15,6 +15,7 @@ export function ProductsSection({
   products = [],
   containerClassName,
   showViewAll = true,
+  children,
 }: {
   t: TFunction<'translation', undefined>;
   direction: 'ltr' | 'rtl';
@@ -25,15 +26,21 @@ export function ProductsSection({
   products?: ProductCardFragment[];
   containerClassName?: string;
   showViewAll?: boolean;
+  children?: React.ReactNode;
 }) {
+  // Determine the correct link path
+  const linkPath = viewAllLink === 'new-arrivals' 
+    ? '/collections/new-arrivals' 
+    : `/collections/${viewAllLink}`;
+
   return (
     <div className={`${containerClassName ?? ''} my-8 sm:my-36`}>
       <div className="flex items-center justify-between w-full mb-2 sm:mb-20">
         <h2 className="sm:text-5xl font-medium">{title}</h2>
         {showViewAll ? (
           <Link
-            className="transition-all text-sm sm:text-base flex items-center justify-center text-primary-P-40 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87"
-            to={`/collections/${viewAllLink}`}
+            className="transition-all text-base sm:text-lg font-medium flex items-center justify-center text-primary-P-40 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87"
+            to={linkPath}
           >
             {t('View All')}
           </Link>
@@ -42,6 +49,7 @@ export function ProductsSection({
         )}
       </div>
       <Products products={products} width={width} t={t} direction={direction} />
+      {children}
     </div>
   );
 }

@@ -60,6 +60,15 @@ const FiltersDrawerMobile = ({
     <>
       <nav className="z-10 bg-[#f5f5f5] border-t border-b border-neutral-N-80 scrollbar-none overflow-x-auto flex md:hidden p-0 m-0 gap-0 text-neutral-N-30">
         {filters.map((filter: Filter, index) => {
+          // Check if this is the Brand filter and if product type filter is applied
+          const isProductTypeFilterApplied = params.has(`${FILTER_URL_PREFIX}productType`);
+          
+          // Skip rendering the brand filter if it has no options with count > 0 when product type filter is applied
+          if (filter.label === 'Brand' && isProductTypeFilterApplied) {
+            const hasBrandsWithProducts = filter.values?.some(option => option.count > 0);
+            if (!hasBrandsWithProducts) return null;
+          }
+          
           return (
             <div key={index} className="relative w-full">
               <button
@@ -89,9 +98,11 @@ const FiltersDrawerMobile = ({
                   >
                     <div className="p-4">
                       {filter.values?.map((option, index) => (
-                        <div key={index} className="w-fit">
-                          {filterMarkup(filter, option)}
-                        </div>
+                        (option.label === 'Price' || option.count > 0) && (
+                          <div key={index} className="w-fit">
+                            {filterMarkup(filter, option)}
+                          </div>
+                        )
                       ))}
                     </div>
                   </motion.div>

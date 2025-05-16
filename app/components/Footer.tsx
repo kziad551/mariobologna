@@ -303,7 +303,7 @@ function FooterMenu({
             key={item.id}
             className="text-sm group-hover:underline"
             prefetch="intent"
-            to={url}
+            to="/collections/new-arrivals"
           >
             {t(`${item.title}`)}
           </NavLink>

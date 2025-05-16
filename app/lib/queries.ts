@@ -136,3 +136,73 @@ export const METAOBJECT_CONTENT_QUERY = `#graphql
     }
   }
 ` as const;
+
+export const NEW_ARRIVALS_QUERY = `#graphql
+  ${PRODUCT_CARD_FRAGMENT}
+  query NewArrivalsCollection(
+    $handle: String!
+    $first: Int
+    $sortKey: ProductCollectionSortKeys
+    $reverse: Boolean
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      description
+      image {
+        __typename
+        id
+        url
+        altText
+        width
+        height
+      }
+      products(
+        first: $first,
+        sortKey: $sortKey,
+        reverse: $reverse
+      ) {
+        nodes {
+          ...ProductCard
+        }
+      }
+    }
+  }
+` as const;
+
+export const PRODUCT_RECOMMENDATIONS_QUERY = `#graphql
+  ${PRODUCT_CARD_FRAGMENT}
+  query ProductRecommendations(
+    $productId: ID!
+    $first: Int = 4
+    $country: CountryCode
+  ) @inContext(country: $country) {
+    productRecommendations(productId: $productId, first: $first) {
+      ...ProductCard
+    }
+  }
+` as const;
+
+export const PRODUCT_BY_TYPE_QUERY = `#graphql
+  query ProductsByType(
+    $productType: String!
+    $excludeId: ID!
+    $first: Int = 4
+    $country: CountryCode
+  ) @inContext(country: $country) {
+    products(
+      first: $first
+      query: $productType
+      sortKey: CREATED_AT
+      reverse: true
+    ) {
+      nodes {
+        ...ProductCardFragment
+      }
+    }
+  }
+  ${PRODUCT_CARD_FRAGMENT}
+`;
