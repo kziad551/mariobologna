@@ -32,7 +32,20 @@ import {useRootLoaderData} from '~/root';
 import {Image} from '@shopify/hydrogen/customer-account-api-types';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Home'}];
+  return [
+    { title: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
+    { name: 'description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna. Shop luxury brands, new arrivals, and seasonal discounts with international shipping.' },
+    { name: 'keywords', content: 'Mario Bologna, luxury fashion, premium brands, designer clothes, men fashion, women fashion, kids fashion, online shopping' },
+    { property: 'og:title', content: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
+    { property: 'og:description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna. Shop luxury brands, new arrivals, and seasonal discounts with international shipping.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Mario Bologna' },
+    { property: 'og:locale', content: 'en_US' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
+    { name: 'twitter:description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna.' },
+    { name: 'robots', content: 'index, follow' },
+  ];
 };
 
 export async function loader({context, request}: LoaderFunctionArgs) {

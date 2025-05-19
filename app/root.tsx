@@ -205,11 +205,8 @@ type ShopData = {
 };
 
 type HeaderData = {
-  shop: ShopData;
+  shop: ShopData | null;
   menu: Menu | null;
-} | {
-  shop: null;
-  menu: null;
 };
 
 export type LayoutProps = {
@@ -398,7 +395,7 @@ export default function App() {
                     <WishlistProvider>
                       <I18nextProvider i18n={i18n}>
                         <GoogleMapWrapper googleKey={data.GOOGLE_API_KEY}>
-                          <Layout {...data}>
+                          <Layout {...data as any}>
                             <BrowsingHistoryProvider>
                               <Outlet />
                             </BrowsingHistoryProvider>
@@ -443,7 +440,7 @@ export function ErrorBoundary() {
         <Links />
       </head>
       <body>
-        <Layout {...rootData}>
+        <Layout {...rootData as any}>
           <div className="route-error">
             <h1>Oops</h1>
             <h2>{errorStatus}</h2>
