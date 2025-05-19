@@ -1,7 +1,24 @@
-import {Link} from '@remix-run/react';
+import {Link, type MetaFunction} from '@remix-run/react';
 import React, {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useCustomContext} from '~/contexts/App';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'About Us | Mario Bologna - House of Brands' },
+    { name: 'description', content: 'Learn about Mario Bologna, a premier house of brands with over 30 years of retail excellence offering curated fashion collections for men, women, and kids.' },
+    { name: 'keywords', content: 'Mario Bologna history, fashion brand, luxury retail, about Mario Bologna, fashion house history' },
+    { property: 'og:title', content: 'About Us | Mario Bologna - House of Brands' },
+    { property: 'og:description', content: 'Learn about Mario Bologna, a premier house of brands with over 30 years of retail excellence offering curated fashion collections.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Mario Bologna' },
+    { property: 'og:locale', content: 'en_US' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'About Us | Mario Bologna - House of Brands' },
+    { name: 'twitter:description', content: 'Learn about Mario Bologna, a premier house of brands with over 30 years of retail excellence.' },
+    { name: 'robots', content: 'index, follow' },
+  ];
+};
 
 const AboutUs = () => {
   const {setCurrentPage} = useCustomContext();
