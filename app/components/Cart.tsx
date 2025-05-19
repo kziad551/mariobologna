@@ -40,15 +40,6 @@ export function CartLineQuantity({
   const outOfStock = merchandise && !(merchandise as any).availableForSale;
   const reachedMax = quantity >= availableQty || outOfStock;
 
-  /* ---------- DEBUG (remove if you like) --------------------------------- */
-  console.debug('[Cart-debug]', {
-    variantId: merchandise?.id,
-    availableQty,
-    currentQty: quantity,
-    outOfStock,
-    reachedMax,
-  });
-
   /* ---------- VALUES FOR UPDATE FORMS ------------------------------------ */
   const prevQuantity = Math.max(0, quantity - 1);
   const nextQuantity = quantity + 1;

@@ -80,8 +80,6 @@ export function Layout({
       window.gtag('config', 'G-RRXF8VQM6Q', {
         page_path: location.pathname,
       });
-      
-      console.log('GA4 page_view event sent for:', location.pathname);
     }
   }, [location.pathname]);
 

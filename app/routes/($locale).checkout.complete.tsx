@@ -50,12 +50,6 @@ export default function CheckoutComplete() {
           currency: currency,
           items: [] // Ideally would contain actual items but not available at this point
         });
-        
-        console.log('GA4 purchase event sent:', {
-          transaction_id: orderId,
-          value: parseFloat(orderAmount as string),
-          currency: currency
-        });
       }
     }
   }
