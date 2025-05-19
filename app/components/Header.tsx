@@ -19,6 +19,13 @@ import {MdArrowBack} from 'react-icons/md';
 import {Dropdown, DropdownProps} from 'primereact/dropdown';
 import {BsSuitHeart} from 'react-icons/bs';
 
+// Define gtag on window
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
 type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'submenus'>;
 
 function activeLinkStyle({
@@ -549,16 +556,50 @@ function CartBadge({
   count,
   t,
   direction,
+  cart
 }: {
   count: number;
   t: TFunction<'translation', undefined>;
   direction: 'rtl' | 'ltr';
+  cart: HeaderProps['cart'];
 }) {
+  const {currency} = useCustomContext();
+
+  // Function to handle click on cart/bag and track GA4 event
+  const handleCartClick = () => {
+    // Only track checkout events when there are items in the cart
+    if (cart && cart.lines && cart.lines.nodes.length > 0) {
+      if (typeof window !== 'undefined' && window.gtag) {
+        // Prepare cart items for GA4
+        const items = cart.lines.nodes.map(line => ({
+          item_id: line.merchandise.id.split('/').pop() || '',
+          item_name: line.merchandise.product?.title || '',
+          quantity: line.quantity,
+          price: parseFloat(line.cost?.amountPerQuantity?.amount || '0'),
+          currency: currency?.currency['en'] || 'AED'
+        }));
+
+        // Send begin_checkout event
+        window.gtag('event', 'begin_checkout', {
+          currency: currency?.currency['en'] || 'AED',
+          value: parseFloat(cart.cost.totalAmount.amount),
+          items: items,
+        });
+
+        console.log('GA4 begin_checkout event sent from header:', {
+          value: parseFloat(cart.cost.totalAmount.amount),
+          items_count: items.length
+        });
+      }
+    }
+  };
+
   return (
     <NavLink
       className="px-3 py-2.5 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87 focus:bg-neutral-N-87 transition-all rounded-md"
       to="/bag"
       style={{whiteSpace: 'nowrap'}}
+      onClick={handleCartClick}
     >
       {direction === 'ltr' ? `${t('Bag')} ${count}` : `${t('Bag')} ${count}`}
     </NavLink>
@@ -575,7 +616,7 @@ function CartToggle({
 }) {
   const uniqueItemsCount = cart?.lines?.nodes?.length || 0;
   return (
-    <CartBadge t={t} direction={direction} count={uniqueItemsCount} />
+    <CartBadge t={t} direction={direction} count={uniqueItemsCount} cart={cart} />
   );
 }
 

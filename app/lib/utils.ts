@@ -123,6 +123,24 @@ export const handleCreateCheckout = async ({
       alert('Please select a valid product variant');
       return;
     }
+
+    // Track GA4 begin_checkout event if gtag is available in window
+    if (typeof window !== 'undefined' && window.gtag) {
+      // Create checkout items for GA4
+      const checkoutItems = validLines.map(line => ({
+        item_id: line.merchandiseId.split('/').pop() || '',
+        quantity: line.quantity || 1
+      }));
+      
+      // Send the begin_checkout event with line items
+      window.gtag('event', 'begin_checkout', {
+        currency: 'AED',
+        value: 0, // Value is typically unknown at this point
+        items: checkoutItems,
+      });
+      
+      console.log('GA4 begin_checkout event sent with items:', checkoutItems);
+    }
     
     // Save current page URL for redirects
     const returnTo = window.location.pathname + window.location.search;
