@@ -585,11 +585,6 @@ function CartBadge({
           value: parseFloat(cart.cost.totalAmount.amount),
           items: items,
         });
-
-        console.log('GA4 begin_checkout event sent from header:', {
-          value: parseFloat(cart.cost.totalAmount.amount),
-          items_count: items.length
-        });
       }
     }
   };

@@ -91,7 +91,6 @@ export default function Bag() {
       });
 
       const data = await response.json();
-      console.log('data', data);
 
       if (response.ok) {
         // setSuccessMessage('Discount code applied successfully!');
@@ -101,7 +100,6 @@ export default function Bag() {
         // );
       }
     } catch (error) {
-      console.log('error', error);
       // setErrorMessage('An unexpected error occurred.');
     } finally {
       setLoadingDiscount(false);
@@ -125,11 +123,6 @@ export default function Bag() {
         currency: currency.currency['en'],
         value: parseFloat(cart.cost.totalAmount.amount),
         items: items,
-      });
-
-      console.log('GA4 begin_checkout event sent from bag page:', {
-        value: parseFloat(cart.cost.totalAmount.amount),
-        items_count: items.length
       });
     }
   };

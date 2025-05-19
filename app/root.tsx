@@ -379,15 +379,13 @@ export default function App() {
                 gtag('js', new Date());
                 gtag('config', 'G-RRXF8VQM6Q', {
                   send_page_view: true,
-                  cookie_flags: 'SameSite=None;Secure',
-                  debug_mode: true
+                  cookie_flags: 'SameSite=None;Secure'
                 });
                 
                 // Enable Enhanced Ecommerce measurements
                 gtag('set', 'developer_id.dNDMyYj', true);
                 gtag('config', 'G-RRXF8VQM6Q', {
                   send_page_view: true,
-                  debug_mode: true,
                   ecommerce: {
                     currency: 'AED',
                     items: []
