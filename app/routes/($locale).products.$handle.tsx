@@ -50,6 +50,21 @@ import {useViewedProducts} from '~/contexts/ViewedProducts';
 import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
 import ColorCircleIcon from '~/components/Icons/ColorCircleIcon';
 
+// GA4 Event tracking functions
+const sendGA4Event = (eventName: string, eventParams?: any) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, eventParams);
+  }
+};
+
+// Define gtag on window
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    dataLayer: any[];
+  }
+}
+
 export const meta: MetaFunction<typeof loader> = ({data, location}) => {
   if (!data) {
     return [{title: 'Product not found'}];
@@ -692,7 +707,27 @@ export default function Product() {
         setProductVideo(source.url);
       }
     }
-  }, [product]);
+
+    // GA4: view_item event when product page is loaded
+    if (selectedVariant) {
+      sendGA4Event('view_item', {
+        currency: selectedVariant.price.currencyCode,
+        value: parseFloat(selectedVariant.price.amount),
+        items: [
+          {
+            item_id: selectedVariant.sku || selectedVariant.id,
+            item_name: product.title,
+            item_variant: selectedVariant.title,
+            price: parseFloat(selectedVariant.price.amount),
+            currency: selectedVariant.price.currencyCode,
+            item_brand: product.vendor,
+            item_category: product.productType,
+            item_variant_id: selectedVariant.id,
+          },
+        ],
+      });
+    }
+  }, [product, selectedVariant]);
 
   useEffect(() => {
     if (combineProductsCollection) {
@@ -1457,6 +1492,26 @@ function AddToCartButton({
             setIsLoading(true);
           } else if (fetcher.state === 'idle' && isLoading) {
             setIsLoading(false);
+            
+            // GA4: add_to_cart event when item is successfully added to cart
+            if (lines && lines.length > 0 && lines[0].merchandiseId) {
+              // Extract the variant info from the merchandiseId
+              // Example format: "gid://shopify/ProductVariant/123456789"
+              const variantId = lines[0].merchandiseId.split('/').pop();
+              
+              // Find the variant details if needed
+              // This depends on having access to the variants data, which might need to be passed to this component
+              sendGA4Event('add_to_cart', {
+                currency: 'AED', // You may need to pass this value dynamically
+                value: 0, // Set price dynamically if available
+                items: [
+                  {
+                    item_id: variantId,
+                    quantity: lines[0].quantity,
+                  },
+                ],
+              });
+            }
           }
         }, [fetcher]);
 
@@ -1489,6 +1544,21 @@ function AddToCartButton({
                     
                     // Log what we're sending to handleCreateCheckout
                     console.log('Buy Now clicked with valid lines:', JSON.stringify(validLines, null, 2));
+                    
+                    // GA4: begin_checkout event
+                    if (validLines && validLines.length > 0) {
+                      const variantId = validLines[0].merchandiseId.split('/').pop();
+                      sendGA4Event('begin_checkout', {
+                        currency: 'AED', // You may need to pass this value dynamically
+                        value: 0, // Set price dynamically if available
+                        items: [
+                          {
+                            item_id: variantId,
+                            quantity: validLines[0].quantity,
+                          }
+                        ]
+                      });
+                    }
                     
                     // Proceed with checkout
                     handleCreateCheckout({

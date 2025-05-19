@@ -5,6 +5,14 @@ import {BiShoppingBag} from 'react-icons/bi';
 import {BsPerson} from 'react-icons/bs';
 import {GoSearch} from 'react-icons/go';
 import {CartApiQueryFragment} from 'storefrontapi.generated';
+import {useCustomContext} from '~/contexts/App';
+
+// Define gtag on window
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
 
 type FooterMobileProps = {
   cart: CartApiQueryFragment | null;
@@ -47,6 +55,7 @@ const FooterMobile = ({cart}: FooterMobileProps) => {
         count={uniqueItemsCount}
         location={location}
         t={t}
+        cart={cart}
       />
       <NavLink
         prefetch="intent"
@@ -70,16 +79,50 @@ function MobileCartBadge({
   t,
   count,
   location,
+  cart
 }: {
   t: TFunction<'translation', undefined>;
   count: number;
   location: Location<any>;
+  cart: CartApiQueryFragment | null;
 }) {
+  const {currency} = useCustomContext();
+
+  // Function to handle click on the cart/bag
+  const handleCartClick = () => {
+    // Only track checkout events when there are items in the cart
+    if (cart && cart.lines && cart.lines.nodes.length > 0) {
+      if (typeof window !== 'undefined' && window.gtag) {
+        // Prepare cart items for GA4
+        const items = cart.lines.nodes.map(line => ({
+          item_id: line.merchandise.id.split('/').pop() || '',
+          item_name: line.merchandise.product?.title || '',
+          quantity: line.quantity,
+          price: parseFloat(line.cost?.amountPerQuantity?.amount || '0'),
+          currency: currency?.currency['en'] || 'AED'
+        }));
+
+        // Send begin_checkout event
+        window.gtag('event', 'begin_checkout', {
+          currency: currency?.currency['en'] || 'AED',
+          value: parseFloat(cart.cost.totalAmount.amount),
+          items: items,
+        });
+
+        console.log('GA4 begin_checkout event sent from mobile footer:', {
+          value: parseFloat(cart.cost.totalAmount.amount),
+          items_count: items.length
+        });
+      }
+    }
+  };
+
   return (
     <NavLink
       prefetch="intent"
       to="/bag"
       className="flex flex-1 flex-col items-center justify-center gap-1 py-3"
+      onClick={handleCartClick}
     >
       <div
         className={`${location.pathname === '/bag' ? 'bg-primary-P-40 text-white' : ''} w-full py-1 xs:px-5 px-1 rounded flex items-center justify-center`}

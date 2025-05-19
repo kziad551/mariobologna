@@ -21,6 +21,13 @@ import {
   CurrencyCode,
 } from '@shopify/hydrogen/storefront-api-types';
 
+// Define gtag on window
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
+
 export const meta: MetaFunction = () => {
   return [{title: 'Bag'}];
 };
@@ -100,6 +107,33 @@ export default function Bag() {
       setLoadingDiscount(false);
     }
   };
+
+  // Function to trigger GA4 begin_checkout event
+  const handleCheckoutClick = () => {
+    if (typeof window !== 'undefined' && window.gtag && cart) {
+      // Prepare cart items for GA4
+      const items = cart.lines?.nodes.map(line => ({
+        item_id: line.merchandise.id.split('/').pop() || '',
+        item_name: line.merchandise.product?.title || '',
+        quantity: line.quantity,
+        price: parseFloat(line.cost?.amountPerQuantity?.amount || '0'),
+        currency: currency.currency['en']
+      })) || [];
+
+      // Send begin_checkout event
+      window.gtag('event', 'begin_checkout', {
+        currency: currency.currency['en'],
+        value: parseFloat(cart.cost.totalAmount.amount),
+        items: items,
+      });
+
+      console.log('GA4 begin_checkout event sent from bag page:', {
+        value: parseFloat(cart.cost.totalAmount.amount),
+        items_count: items.length
+      });
+    }
+  };
+  
   return (
     <div className="bag">
       <div className="pt-12 px-0 sm:px-4 lg:px-8">
@@ -194,6 +228,7 @@ export default function Bag() {
                 <NavLink
                   to={isLoggedIn ? cart.checkoutUrl : '/bag/checkout?guest=true'}
                   className="px-6 py-2.5 text-center text-sm font-medium bg-primary-P-40 text-white rounded-lg border border-transparent"
+                  onClick={handleCheckoutClick}
                 >
                   {isLoggedIn ? t('Buy Now') : t('Checkout')}
                 </NavLink>
