@@ -9,7 +9,21 @@ import {useInView} from 'react-intersection-observer';
 import {TFunction} from 'i18next';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Designers'}];
+  const metaDescription = "Discover premium designer brands including Baldinini, Parah, Claudia Rossi, and more. Shop luxury fashion from top Italian and international designers.";
+  
+  return [
+    {title: 'Designers | Mario Bologna'},
+    {name: 'description', content: metaDescription},
+    // Open Graph tags for social sharing
+    {property: 'og:title', content: 'Designers | Mario Bologna'},
+    {property: 'og:description', content: metaDescription},
+    {property: 'og:type', content: 'website'},
+    {property: 'og:url', content: 'https://mariobologna.com/designers'},
+    // Twitter Card tags
+    {name: 'twitter:card', content: 'summary_large_image'},
+    {name: 'twitter:title', content: 'Designers | Mario Bologna'},
+    {name: 'twitter:description', content: metaDescription}
+  ];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {

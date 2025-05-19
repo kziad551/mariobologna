@@ -304,7 +304,7 @@ export function HeaderMenu({
       } else {
         const key = item.title.toLowerCase() as keyof LayoutProps['submenus'];
         if (key in submenus) {
-          setSubMenuItems(submenus[key]);
+          setSubMenuItems(submenus[key] as unknown as MenuItem[]);
         }
       }
       setSelectedMegaMenu(item.title);
