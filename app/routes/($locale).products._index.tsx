@@ -21,7 +21,29 @@ import {TFunction} from 'i18next';
 import {CountryCode} from '@shopify/hydrogen/storefront-api-types';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{title: `${data?.designer}`}];
+  if (!data) {
+    return [{title: 'Products | Mario Bologna'}];
+  }
+
+  const {designer} = data;
+  const designerName = designer ? designer : 'All Products';
+  const title = `${designerName} | Mario Bologna`;
+  const description = designer 
+    ? `Discover ${designerName} collection at Mario Bologna. Shop premium quality products with authentic designs and craftsmanship.`
+    : 'Explore our premium collection of fashion products at Mario Bologna. Find the perfect style with our curated selection of luxury brands.';
+
+  return [
+    { title },
+    { name: 'description', content: description },
+    { name: 'keywords', content: `${designerName}, Mario Bologna, fashion collection, luxury brands, designer products` },
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Mario Bologna' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+  ];
 };
 
 export async function loader({request, context}: LoaderFunctionArgs) {
