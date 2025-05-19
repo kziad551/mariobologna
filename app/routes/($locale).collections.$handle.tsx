@@ -52,7 +52,28 @@ import {
 import {allCurrencies, currencyType} from '~/data/currencies';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
-  return [{title: `${data?.collection.title ?? ''} Collection`}];
+  if (!data) {
+    return [{title: 'Collection | Mario Bologna'}];
+  }
+
+  const {collection} = data;
+  const title = collection.title || 'Collection';
+  const description = collection.description 
+    ? collection.description.substring(0, 150) + (collection.description.length > 150 ? '...' : '')
+    : `Shop our ${title} collection at Mario Bologna. Discover premium quality clothing, shoes, and accessories with authentic designs.`;
+
+  return [
+    { title: `${title} | Mario Bologna` },
+    { name: 'description', content: description },
+    { name: 'keywords', content: `${title}, collection, Mario Bologna, fashion, luxury clothing, designer collection` },
+    { property: 'og:title', content: `${title} | Mario Bologna` },
+    { property: 'og:description', content: description },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Mario Bologna' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: `${title} | Mario Bologna` },
+    { name: 'twitter:description', content: description },
+  ];
 };
 
 export async function loader({request, params, context}: LoaderFunctionArgs) {

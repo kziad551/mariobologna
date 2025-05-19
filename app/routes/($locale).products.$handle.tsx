@@ -51,7 +51,36 @@ import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
 import ColorCircleIcon from '~/components/Icons/ColorCircleIcon';
 
 export const meta: MetaFunction<typeof loader> = ({data, location}) => {
-  return [{title: `${data?.product.title ?? ''}`}];
+  if (!data) {
+    return [{title: 'Product not found'}];
+  }
+
+  const {product} = data;
+  const title = product.title || '';
+  const description = product.description || '';
+  
+  // Extract product details for meta description
+  const productType = product.productType || '';
+  const brandName = 'Mario Bologna';
+  const madeIn = product.vendor || '';
+  
+  // Build a rich meta description using product data
+  const metaDescription = description
+    ? description.substring(0, 150) + (description.length > 150 ? '...' : '')
+    : `${title} - ${productType} by ${brandName}. ${madeIn ? `Made in ${madeIn}.` : ''} Premium quality, authentic design.`;
+
+  return [
+    { title: `${title} | Mario Bologna` },
+    { name: 'description', content: metaDescription },
+    { name: 'keywords', content: `${title}, ${productType}, Mario Bologna, fashion, luxury clothing` },
+    { property: 'og:title', content: `${title} | Mario Bologna` },
+    { property: 'og:description', content: metaDescription },
+    { property: 'og:type', content: 'product' },
+    { property: 'og:site_name', content: 'Mario Bologna' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: `${title} | Mario Bologna` },
+    { name: 'twitter:description', content: metaDescription },
+  ];
 };
 
 export async function loader({params, request, context}: LoaderFunctionArgs) {
