@@ -3,7 +3,6 @@ import {Image} from '@shopify/hydrogen';
 import {NavLink} from '@remix-run/react';
 import {useVariantUrl} from '~/lib/variants';
 import {CartReturn} from '@shopify/hydrogen';
-import {BsSuitHeart} from 'react-icons/bs';
 import {TFunction} from 'i18next';
 import {useEffect, useState} from 'react';
 import {useCustomContext} from '~/contexts/App';
@@ -145,7 +144,6 @@ const BagSection = ({
                     >
                       {productTitle[merchandise.product.id]}
                     </NavLink>
-                    <BsSuitHeart className="w-4.5 h-4.5 xs:w-6 xs:h-6" />
                   </div>
                   <CartLinePrice cost={cost} />
                 </div>

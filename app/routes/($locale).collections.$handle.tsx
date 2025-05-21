@@ -605,7 +605,7 @@ export default function Collection() {
       {collection.products.filters.length > 0 ? (
         <SortFilter
           filters={allFilters as Filter[]}
-          appliedFilters={appliedFilters}
+          appliedFilters={appliedFilters as any}
           isOpen={openFilter}
           setIsOpen={setOpenFilter}
           t={t}
@@ -644,7 +644,7 @@ export default function Collection() {
                     handle={section}
                     t={t}
                     direction={direction}
-                    products={nodes}
+                    products={nodes as ProductCardFragment[]}
                     openFilter={openFilter}
                     width={width}
                     inView={inView}
