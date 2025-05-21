@@ -95,6 +95,8 @@ export const meta: MetaFunction<typeof loader> = ({data, location}) => {
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: `${title} | Mario Bologna` },
     { name: 'twitter:description', content: metaDescription },
+    // Disable scroll restoration for product pages
+    { name: 'scroll-restoration', content: 'manual' }
   ];
 };
 
@@ -633,6 +635,19 @@ export default function Product() {
     'id' | 'url'
   > | null>(null);
   const [primaryCollection, setPrimaryCollection] = useState<string>('');
+  
+  // Ensure we start at the top of the page when navigating from a collection
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const navigatingToProduct = window.sessionStorage.getItem('navigatingToProduct');
+      if (navigatingToProduct === 'true') {
+        // Scroll to top
+        window.scrollTo(0, 0);
+        // Clear the flag
+        window.sessionStorage.removeItem('navigatingToProduct');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (product.collections && product.collections.nodes.length > 0) {

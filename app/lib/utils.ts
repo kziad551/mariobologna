@@ -158,6 +158,18 @@ export const handleCreateCheckout = async ({
     const authResult = await checkAuthResponse.json() as { authenticated: boolean };
     console.log('Authentication result:', authResult);
     
+    // If user is not authenticated, redirect to login page with returnTo parameter
+    if (!authResult.authenticated) {
+      console.log('User not authenticated, redirecting to login page');
+      // Store product info in session storage for later retrieval
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        window.sessionStorage.setItem('pendingCheckoutLines', JSON.stringify(validLines));
+      }
+      // Redirect to login page with returnTo parameter
+      navigate(`/account/login?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    
     // Get current cart items
     console.log('Fetching current cart items...');
     const cartResponse = await fetch('/api/bag/get_cart', {

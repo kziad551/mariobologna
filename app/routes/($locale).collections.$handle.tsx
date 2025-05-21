@@ -200,43 +200,73 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
         };
       }
 
+      // If no allFilterValues yet, just create a basic filter object
+      if (!allFilterValues || allFilterValues.length === 0) {
+        // Create a generic label based on the filter properties
+        let label = 'Filter';
+        if (filter.productType) label = `Type: ${filter.productType}`;
+        else if (filter.tag) label = `Tag: ${filter.tag}`;
+        
+        return {
+          filter,
+          label
+        };
+      }
+
       const foundValue = allFilterValues.find((value) => {
-        const valueInput = JSON.parse(value.input as string) as ProductFilter;
-        // special case for price, the user can enter something freeform (still a number, though)
-        // that may not make sense for the locale/currency.
-        // Basically just check if the price filter is applied at all.
-        if (valueInput.price && filter.price) {
-          return true;
+        if (!value.input) return false;
+        
+        try {
+          const valueInput = JSON.parse(value.input as string) as ProductFilter;
+          // special case for price
+          if (valueInput.price && filter.price) {
+            return true;
+          }
+          return (
+            JSON.stringify(valueInput) === JSON.stringify(filter)
+          );
+        } catch (e) {
+          return false;
         }
-        return (
-          // This comparison should be okay as long as we're not manipulating the input we
-          // get from the API before using it as a URL param.
-          JSON.stringify(valueInput) === JSON.stringify(filter)
-        );
       });
+
       if (!foundValue) {
-        // Instead of logging to console, just return null
-        return null;
+        // If we can't match the filter to a value, create a generic label
+        let label = 'Filter';
+        if (filter.productType) label = `Type: ${filter.productType}`;
+        else if (filter.tag) label = `Tag: ${filter.tag}`;
+        
+        return {
+          filter,
+          label
+        };
       }
 
       if (foundValue.id === 'filter.v.price') {
-        // Special case for price, we want to show the min and max values as the label.
-        const input = JSON.parse(foundValue.input as string) as ProductFilter;
-        const min = parseAsCurrency(input.price?.min ?? 0, currency);
-        const max = parseAsCurrency(input.price?.max ?? 0, currency);
-        const label = min && max ? `${min} - ${max}` : 'Price';
+        // Special case for price
+        try {
+          const input = JSON.parse(foundValue.input as string) as ProductFilter;
+          const min = parseAsCurrency(input.price?.min ?? 0, currency);
+          const max = parseAsCurrency(input.price?.max ?? 0, currency);
+          const label = min && max ? `${min} - ${max}` : 'Price';
 
-        return {
-          filter,
-          label,
-        };
+          return {
+            filter,
+            label,
+          };
+        } catch (e) {
+          return {
+            filter,
+            label: 'Price'
+          };
+        }
       }
+      
       return {
         filter,
-        label: foundValue.label,
+        label: foundValue.label || 'Filter',
       };
-    })
-    .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
+    });
 
   const {collection: lookCollection} = await context.storefront.query(
     ONE_LOOK_COLLECTION_QUERY,
@@ -708,6 +738,39 @@ function ProductsGrid({
     hasNextPage,
     hasPreviousPage,
   ]);
+
+  // Restore scroll position when coming back from product page
+  useEffect(() => {
+    // Only attempt to restore if we have sessionStorage access
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const savedScrollData = window.sessionStorage.getItem('lastScrollPosition');
+        if (savedScrollData) {
+          interface ScrollPosition {
+            path: string;
+            position: number;
+          }
+          
+          const scrollData = JSON.parse(savedScrollData) as ScrollPosition;
+          
+          // Only restore if we're navigating back to the same collection/filter combo
+          if (scrollData.path === location.pathname + location.search && scrollData.position > 0) {
+            // Delay scroll restoration slightly to ensure DOM is ready
+            setTimeout(() => {
+              window.scrollTo({
+                top: scrollData.position,
+                behavior: 'auto' // Don't use smooth scrolling for restoration
+              });
+              // Clear the saved position after restoration
+              window.sessionStorage.removeItem('lastScrollPosition');
+            }, 10);
+          }
+        }
+      } catch (e) {
+        console.error('Error restoring scroll position:', e);
+      }
+    }
+  }, [location.pathname, location.search]);
 
   const [modulo, setModulo] = useState(openFilter ? 6 : 8);
   const [metafieldsMap, setMetafieldsMap] = useState<{[id: string]: any}>({});
