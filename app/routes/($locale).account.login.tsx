@@ -333,9 +333,67 @@ function LoginSection({
 
     if (data.error) {
       setErrorMessage(data.error);
-    } else {
-      navigate(returnTo);
+      setLoading(false);
+      return;
     }
+    
+    // Check if there are pending checkout lines from a Buy Now action
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const pendingCheckoutLines = window.sessionStorage.getItem('pendingCheckoutLines');
+      
+      if (pendingCheckoutLines) {
+        try {
+          // Parse the stored lines
+          const lines = JSON.parse(pendingCheckoutLines);
+          console.log('Found pending checkout lines after login:', lines);
+          
+          // Create a cart with these lines
+          const createCartUrl = `/api/bag/checkout/create_cart?returnTo=${encodeURIComponent(returnTo)}`;
+          
+          const cartResponse = await fetch(createCartUrl, {
+            method: 'POST',
+            body: JSON.stringify({ lines }),
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'Application/json',
+            },
+          });
+          
+          if (cartResponse.ok) {
+            const cartResult = await cartResponse.json() as {
+              success?: boolean;
+              data?: { 
+                checkoutUrl?: string;
+              };
+              formError?: string;
+            } | string;
+            
+            // Clear the pending checkout lines
+            window.sessionStorage.removeItem('pendingCheckoutLines');
+            
+            if (typeof cartResult === 'string') {
+              console.log('Navigating to:', cartResult);
+              navigate(cartResult, { replace: true });
+              setLoading(false);
+              return;
+            }
+            
+            // If the cart creation was successful, navigate to checkout
+            if (cartResult.success && cartResult.data?.checkoutUrl) {
+              console.log('Redirecting to checkout after login:', cartResult.data.checkoutUrl);
+              window.location.href = cartResult.data.checkoutUrl;
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error processing pending checkout after login:', error);
+          // If there's an error, fall back to the normal returnTo path
+        }
+      }
+    }
+    
+    // If no pending checkout or error occurred, continue to the returnTo path
+    navigate(returnTo);
     setLoading(false);
   };
 
@@ -416,9 +474,19 @@ function LoginSection({
 <div className="flex justify-center w-full">
   <button
     type="button"
-    onClick={() =>
-      navigate(`/bag/checkout?guest=true&returnTo=${encodeURIComponent(returnTo)}&is_guest_checkout=true`)
-    }
+    onClick={() => {
+      // Check for pending checkout lines
+      let guestCheckoutUrl = `/bag/checkout?guest=true&returnTo=${encodeURIComponent(returnTo)}&is_guest_checkout=true`;
+      
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        const pendingCheckoutLines = window.sessionStorage.getItem('pendingCheckoutLines');
+        if (pendingCheckoutLines) {
+          guestCheckoutUrl += `&pendingLines=${encodeURIComponent(pendingCheckoutLines)}`;
+        }
+      }
+      
+      navigate(guestCheckoutUrl);
+    }}
     className="mt-8 border border-primary-P-40 w-full text-center py-2.5 text-sm text-primary-P-40 rounded font-medium flex items-center justify-center"
   >
     {t('Continue as Guest')}
