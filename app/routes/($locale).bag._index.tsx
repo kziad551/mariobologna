@@ -237,7 +237,9 @@ export default function Bag() {
                   />
                 </div>
                 <div className="flex flex-col gap-2 text-sm">
-                  <span>{t('Free shipping')}</span>
+                  <span>{t('Same Day Delivery before 6pm')}</span>
+                  <span>{t('Free shipping from orders above 1000 AED')}</span>
+                  <span>{t('Extended Exchange, Return Policy of 14 Days')}</span>
                 </div>
                 <div className="flex flex-col items-start mt-5 gap-2">
                   <p className="font-medium text-xl">{t('Disclaimer')}</p>

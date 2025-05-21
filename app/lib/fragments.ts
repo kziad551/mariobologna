@@ -160,6 +160,7 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
         width
         height
       }
+
     }
     variants(first: 250) {
       nodes {
@@ -343,3 +344,4 @@ export const ORDER_FRAGMENT = `#graphql
     }
   }
 ` as const;
+

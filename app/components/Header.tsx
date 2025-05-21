@@ -408,7 +408,7 @@ export function HeaderMenu({
                               : designerLink
                             : fullURL
                         }
-                        className={`${item.title === 'All Designers' ? 'self-center font-semibold' : 'font-semibold'} text-xs hover:underline`}
+                        className={`${item.title === 'All Designers' ? 'self-center font-semibold' : 'font-semibold'} text-base font-medium hover:underline`}
                         onClick={() => setOpenMegaMenu({})}
                       >
                         {t(item.title)}
