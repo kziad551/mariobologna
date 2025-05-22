@@ -219,354 +219,48 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   );
 
   // Fetch similar products within the same category/product type
+  const productTypeQuery = `product_type:"${product.productType}"`;
+
   const {products: similarProducts} = await storefront.query(
     SIMILAR_PRODUCTS_QUERY,
     {
       variables: {
-        country,
-        productType: product.productType,
-        productId: product.id,
+        query: productTypeQuery,
         first: 8,
+        country,
       },
     },
   );
 
-  // Fetch product recommendations
-  /* ─────────────────────────────────────────────────────────── */
-  /* 1.  Native Shopify recommendations                         */
-  /* ─────────────────────────────────────────────────────────── */
-  let { productRecommendations } = await storefront.query(
-    PRODUCT_RECOMMENDATIONS_QUERY,
-    {
-      variables: {
-        productId: product.id,
-        first: 4,
-        country: storefront.i18n.country,
-      },
-    },
-  );
+  // Filter out the current product and ensure products are from the same type
+  let recommendations = similarProducts?.nodes
+    .filter((p: any) => p.id !== product.id && p.productType === product.productType)
+    .slice(0, 4) || [];
 
-  /* ─────────────────────────────────────────────────────────── */
-  /* 2.  Extract gender & type                                  */
-  /* ─────────────────────────────────────────────────────────── */
-  const GENDERS = ['Men', 'Women', 'Kids'] as const;
-
-  // Debug what we know about this product
-  console.log(`[PDP] Product details - ID: ${product.id}, Type: ${product.productType}, Tags: ${JSON.stringify(product.tags)}`);
-  console.log(`[PDP] Collections: ${JSON.stringify(product.collections.nodes.map((c: any) => c.handle))}`);
-  console.log(`[PDP] Title: "${product.title}"`);
-  
-  // Detect gender from tags or collections
-  const gender =
-    product.tags.find((t: string) => GENDERS.includes(t as any)) ??
-    product.collections.nodes
-      .map((c: {title: string}) => c.title)
-      .find((t: string) => GENDERS.includes(t as any)) ??
-    null;
-
-  // Get product type and subtype from title if it's a Clothes item
-  let type = product.productType?.trim();
-  let subtype: string | null = null;
-  
-  // For Clothes products, try to extract a more specific category from title or collections
-  if (type?.toLowerCase() === 'clothes') {
-    // Check direct in title
-    const clothesTypes = ['Dress', 'Shirt', 'Pants', 'Jacket', 'Coat', 'Skirt', 'Top', 'Blouse', 'Sweater', 'Jeans'];
-    const foundType = clothesTypes.find((clothesType) => 
-      product.title.toLowerCase().includes(clothesType.toLowerCase())
-    );
-    if (foundType) subtype = foundType;
-    
-    // If not found directly in title, check collection handles for dress/shirts/etc.
-    if (!subtype) {
-      const collectionHandles = product.collections.nodes.map((c: any) => c.handle.toLowerCase());
-      if (collectionHandles.some((h: string) => h.includes('dress'))) {
-        subtype = 'Dress';
-      } else if (collectionHandles.some((h: string) => h.includes('shirt'))) {
-        subtype = 'Shirt';
-      } else if (collectionHandles.some((h: string) => h.includes('pants') || h.includes('jeans'))) {
-        subtype = 'Pants';
-      }
-    }
-    
-    // Special case: if it's a long item, it's probably a dress
-    if (!subtype && product.title.toLowerCase().includes('long')) {
-      subtype = 'Dress';
-    }
-    
-    if (subtype) {
-      console.log(`[PDP] Detected clothing subtype: ${subtype} from title or collections`);
-    }
-  }
-  
-  console.log(`[PDP] Detected gender: ${gender}, type: ${type}, subtype: ${subtype}`);
-
-  /* Helper function to check if a product matches the current context */
-  /* Simpler approach - just check if products share a collection */
-  function sharesCollection(
-    p: Pick<ProductCardFragment, 'id'> & {
-      collections?: {nodes: Array<{handle: string}>};
-    },
-  ) {
-    if (!p || !p.collections || !p.collections.nodes) return false;
-    if (p.id === product.id) return false; // Don't include current product
-    
-    // Get collection handles from current product
-    const currentCollectionHandles = product.collections.nodes.map(
-      (c: any) => c.handle?.toLowerCase()
-    ).filter(Boolean);
-    
-    // Check if product shares any collections with current product
-    return p.collections.nodes.some(c => 
-      c.handle && currentCollectionHandles.includes(c.handle.toLowerCase())
-    );
-  }
-  
-  /* Use all Shopify recommendations first, then add collection-based */
-  let recommendations = productRecommendations ?? [];
-
-  /* ─────────────────────────────────────────────────────────── */
-  /* 3.  If we still need more, search by *both* gender & type   */
-  /* ─────────────────────────────────────────────────────────── */
-  if (recommendations.length < 4 && gender && type) {
-    const query = `tag:'${gender.replace(/'/g, "\\'")}' product_type:"${type.replace(/"/g, '\\"')}"`;
-
-    const { products: match } = await storefront.query(
-      /* GraphQL */ `#graphql
-        ${PRODUCT_CARD_FRAGMENT}
-        query GenderTypeSearch($query: String!, $first: Int = 20, $country: CountryCode)
-          @inContext(country: $country) {
-          products(first: $first, query: $query) {
-            nodes {
-              ...ProductCard
-            }
-          }
-        }
-      `,
+  // If we don't have enough recommendations, try Shopify's native recommendations
+  if (recommendations.length < 4) {
+    const { productRecommendations } = await storefront.query(
+      PRODUCT_RECOMMENDATIONS_QUERY,
       {
         variables: {
-          query,
-          first: 20,
+          productId: product.id,
+          first: 8,
           country: storefront.i18n.country,
         },
       },
     );
 
-    // Deduplicate and randomly shuffle
-    if (match && match.nodes) {
-      const pool = match.nodes
-        .filter((p: {id: string}) => p.id !== product.id)
-        .filter(sharesCollection);
-      recommendations = [
-        ...recommendations,
-        ...pool
-          .filter((p: {id: string}) => !recommendations.find((r: {id: string}) => r.id === p.id))
-          .sort(() => 0.5 - Math.random()),
-      ].slice(0, 4);
-    }
-  }
+    // Filter recommendations to only include products from the same category
+    const sameTypeRecommendations = productRecommendations.filter(
+       (rec: { productType: any; }) => rec.productType && rec.productType === product.productType,
+    );
 
-  console.info(
-    `[PDP] Final recommendations for ${product.handle}: ${recommendations.length} (gender: ${gender}, type: ${type})`,
-  );
-
-  /* ─────────────────────────────────────────────────────────── */
-  /* 4. EMERGENCY FALLBACK - show products from SAME CATEGORY & TYPE */
-  /* ─────────────────────────────────────────────────────────── */
-  if (recommendations.length === 0) {
-    console.log("🚨 Using emergency fallback - finding products from same category & type");
-    
-    // SPECIAL CASE FOR DRESSES - Direct approach for women's dresses
-    const isDress = 
-      subtype === 'Dress' || 
-      product.title.toLowerCase().includes('dress') || 
-      product.collections.nodes.some((c: any) => c.handle.toLowerCase().includes('dress')) ||
-      product.tags.some((t: string) => t.toLowerCase().includes('dress'));
-    
-    const isWomens = 
-      gender === 'Women' || 
-      product.collections.nodes.some((c: any) => c.handle.toLowerCase().includes('women')) ||
-      product.tags.some((t: string) => t.toLowerCase().includes('women'));
-      
-     // Fetch metafields early to avoid 'used before declaration' errors
-   const productID = product.id.split('/').pop();
-   const SHOPIFY_ADMIN_API_URL = `https://${env.PUBLIC_STORE_DOMAIN}/admin/api/${env.ADMIN_VERSION}`;
-   const ADMIN_URL = `${SHOPIFY_ADMIN_API_URL}/products/${productID}/metafields.json`;
-   
-   try {
-    const response = await fetch(ADMIN_URL, {
-      method: 'GET',
-      headers: {
-        'X-Shopify-Access-Token': `${env.ADMIN_API_ACCESS_TOKEN}`,
-      },
-    });
-    if (response) {
-      const data = await response.json();
-      result = data as { metafields: any[] };
-    }
-  } catch (error) {
-    console.log('error while getting product metafields from Admin API', error);
-  }
-    
-    if (isDress && isWomens) {
-      console.log("🎯 SPECIAL CASE: Women's Dress detected - using targeted query");
-      
-      // Try approach 1: Direct women's dresses collection
-      const { products: dressProducts } = await storefront.query(
-        /* GraphQL */ `#graphql
-          ${PRODUCT_CARD_FRAGMENT}
-          query WomensDresses($country: CountryCode) @inContext(country: $country) {
-            products(first: 10, query: "tag:Women product_type:Clothes title:dress") {
-              nodes {
-                ...ProductCard
-              }
-            }
-          }
-        `,
-        {
-          variables: {
-            country: storefront.i18n.country,
-          },
-        },
-      );
-      
-      if (dressProducts && dressProducts.nodes && dressProducts.nodes.length > 0) {
-        // Get dresses, excluding the current one
-        recommendations = dressProducts.nodes
-          .filter((p: {id: string}) => p.id !== product.id)
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 4);
-        
-        console.info(`[PDP] Women's dresses direct query found: ${recommendations.length}`);
-        
-        if (recommendations.length > 0) {
-          // Skip other fallbacks if we found dresses
-          return defer({
-            product,
-            variants,
-            metafields: result.metafields,
-            recommendations,
-            youMayAlsoLikeProducts,
-            combineProductsCollection,
-            similarProducts: similarProducts?.nodes || [],
-          });
-        }
-      }
-    }
-    
-    // Regular fallback logic continues...
-    let searchQuery = '';
-    
-    // Add gender/category constraint if available
-    if (gender) {
-      searchQuery += `tag:'${gender.replace(/'/g, "\\'")}' `;
-    } else {
-      // Try to find any main collection the product belongs to
-      const mainCollection = product.collections.nodes.find(
-        (c: any) => !['all', 'frontpage'].includes(c.handle.toLowerCase())
-      );
-      if (mainCollection) {
-        searchQuery += `collection:'${mainCollection.handle.replace(/'/g, "\\'")}' `;
-      }
-    }
-    
-    // For clothes, try to match by both product type AND title keywords
-    if (type?.toLowerCase() === 'clothes' && subtype) {
-      // For clothes, search by type AND title containing the subtype (e.g., Dress)
-      searchQuery += `product_type:"${type.replace(/"/g, '\\"')}" title:${subtype} `;
-    } else if (type) {
-      // For other products, just search by product type
-      searchQuery += `product_type:"${type.replace(/"/g, '\\"')}" `;
-    }
-    
-    // Fallback to just the collection if we have nothing else
-    if (!searchQuery) {
-      const anyCollection = product.collections.nodes[0];
-      if (anyCollection) {
-        searchQuery = `collection:'${anyCollection.handle.replace(/'/g, "\\'")}' `;
-      }
-    }
-    
-    console.log(`[PDP] Emergency search query: "${searchQuery}"`);
-
-    // Only proceed if we have a meaningful query
-    if (searchQuery) {
-      const { products: categoryProducts } = await storefront.query(
-        /* GraphQL */ `#graphql
-          ${PRODUCT_CARD_FRAGMENT}
-          query CategoryProducts($query: String!, $first: Int = 20, $country: CountryCode)
-            @inContext(country: $country) {
-            products(first: $first, query: $query) {
-              nodes {
-                ...ProductCard
-              }
-            }
-          }
-        `,
-        {
-          variables: {
-            query: searchQuery,
-            first: 20,
-            country: storefront.i18n.country,
-          },
-        },
-      );
-
-      if (categoryProducts && categoryProducts.nodes) {
-        // Get products that share collections with current product
-        const filteredProducts = categoryProducts.nodes
-          .filter((p: {id: string}) => p.id !== product.id)
-          .filter(sharesCollection);
-
-        if (filteredProducts.length > 0) {
-          // Randomly select up to 4 products
-          recommendations = filteredProducts
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 4);
-          
-          console.info(
-            `[PDP] Category-specific fallback recommendations: ${recommendations.length}`,
-          );
-        }
-      }
-    }
-    
-    // Ultimate fallback if still no recommendations
-    if (recommendations.length === 0) {
-      console.log("🚨 Using last resort fallback - showing ANY products");
-      const { products: anyProducts } = await storefront.query(
-        /* GraphQL */ `#graphql
-          ${PRODUCT_CARD_FRAGMENT}
-          query AnyProducts($first: Int = 10, $country: CountryCode)
-            @inContext(country: $country) {
-            products(first: $first, sortKey: BEST_SELLING) {
-              nodes {
-                ...ProductCard
-              }
-            }
-          }
-        `,
-        {
-          variables: {
-            first: 10,
-            country: storefront.i18n.country,
-          },
-        },
-      );
-
-      if (anyProducts && anyProducts.nodes) {
-        // Get any products except the current one
-        recommendations = anyProducts.nodes
-          .filter((p: {id: string}) => p.id !== product.id)
-          .filter(sharesCollection)
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 4);
-        
-        console.info(
-          `[PDP] Last resort fallback recommendations: ${recommendations.length}`,
-        );
-      }
-    }
+    // Add filtered recommendations to our list, avoiding duplicates
+    recommendations = [
+      ...recommendations,
+      ...sameTypeRecommendations
+        .filter((rec: any) => !recommendations.find((r: any) => r.id === rec.id))
+    ].slice(0, 4);
   }
 
   // Metafields are already fetched above
