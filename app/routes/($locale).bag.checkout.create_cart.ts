@@ -23,10 +23,10 @@ export async function action({request, context}: ActionFunctionArgs) {
   // If not, we'll create an anonymous checkout
   if (token) {
     try {
-      const customerID = await verifyToken(token, storefront);
+    const customerID = await verifyToken(token, storefront);
       if (customerID) {
         // add the access token for a customer-linked checkout
-        buyerIdentity = {...buyerIdentity, customerAccessToken: token};
+    buyerIdentity = {...buyerIdentity, customerAccessToken: token};
       }
     } catch (error) {
       console.error('Token verification error:', error);
