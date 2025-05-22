@@ -123,7 +123,7 @@ export const handleCreateCheckout = async ({
       alert('Please select a valid product variant');
       return;
     }
-
+    
     // Track GA4 begin_checkout event if gtag is available in window
     if (typeof window !== 'undefined' && window.gtag) {
       // Create checkout items for GA4

@@ -627,7 +627,7 @@ export default function Product() {
           </AnimatePresence>
         </div>
       </div>
-      {similarProducts && similarProducts.length > 0 ? (
+      {/* {similarProducts && similarProducts.length > 0 ? (
         <ProductsSection
           t={t}
           direction={direction}
@@ -640,7 +640,7 @@ export default function Product() {
         />
       ) : (
         <></>
-      )}
+      )} */}
       {combineProducts.length > 0 ? (
         <ProductsSection
           t={t}

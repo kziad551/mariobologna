@@ -41,7 +41,7 @@ const CookieConsent: React.FC = () => {
         const consentData = JSON.parse(localConsent) as CookieConsentData;
         if (consentData.accepted && consentData.version === COOKIE_CONSENT_VERSION) {
           return true;
-        }
+      }
       }
       
       return false;
@@ -54,9 +54,9 @@ const CookieConsent: React.FC = () => {
   const handleAccept = () => {
     try {
       const consentData: CookieConsentData = {
-        accepted: true,
-        version: COOKIE_CONSENT_VERSION,
-        timestamp: new Date().toISOString(),
+          accepted: true,
+          version: COOKIE_CONSENT_VERSION,
+          timestamp: new Date().toISOString(),
       };
       
       // Store in cookies with proper expiration (1 year)

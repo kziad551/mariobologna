@@ -217,14 +217,14 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
         if (!value.input) return false;
         
         try {
-          const valueInput = JSON.parse(value.input as string) as ProductFilter;
+        const valueInput = JSON.parse(value.input as string) as ProductFilter;
           // special case for price
-          if (valueInput.price && filter.price) {
-            return true;
-          }
-          return (
-            JSON.stringify(valueInput) === JSON.stringify(filter)
-          );
+        if (valueInput.price && filter.price) {
+          return true;
+        }
+        return (
+          JSON.stringify(valueInput) === JSON.stringify(filter)
+        );
         } catch (e) {
           return false;
         }
@@ -245,21 +245,21 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
       if (foundValue.id === 'filter.v.price') {
         // Special case for price
         try {
-          const input = JSON.parse(foundValue.input as string) as ProductFilter;
-          const min = parseAsCurrency(input.price?.min ?? 0, currency);
-          const max = parseAsCurrency(input.price?.max ?? 0, currency);
-          const label = min && max ? `${min} - ${max}` : 'Price';
+        const input = JSON.parse(foundValue.input as string) as ProductFilter;
+        const min = parseAsCurrency(input.price?.min ?? 0, currency);
+        const max = parseAsCurrency(input.price?.max ?? 0, currency);
+        const label = min && max ? `${min} - ${max}` : 'Price';
 
-          return {
-            filter,
-            label,
-          };
+        return {
+          filter,
+          label,
+        };
         } catch (e) {
           return {
             filter,
             label: 'Price'
           };
-        }
+      }
       }
       
       return {
