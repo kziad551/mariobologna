@@ -63,23 +63,16 @@ export const OTHER_COLLECTION_QUERY = `#graphql
 
 export const SIMILAR_PRODUCTS_QUERY = `#graphql
   ${PRODUCT_CARD_FRAGMENT}
-  query SimilarProducts(
-    $productType: String!
-    $productId: ID!
-    $first: Int!
+ query SimilarProducts(
+   $query: String!
+   $first: Int!
     $country: CountryCode
     $language: LanguageCode
-  ) @inContext(country: $country, language: $language) {
-    products(
-      first: $first,
-      filters: [
-        {
-          productType: $productType
-        }
-      ]
-    ) {
+ ) @inContext(country: $country, language: $language) {
+  products(first: $first, query: $query) {
       nodes {
         ...ProductCard
+        productType
       }
     }
   }

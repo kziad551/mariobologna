@@ -219,11 +219,23 @@ export default function Bag() {
               </div>
               <div className="flex flex-col items-stretch justify-start">
                 <NavLink
-                  to={isLoggedIn ? cart.checkoutUrl : '/bag/checkout?guest=true'}
+                  to={isLoggedIn ? cart.checkoutUrl : `/account/login?returnTo=${encodeURIComponent('/bag')}`}
                   className="px-6 py-2.5 text-center text-sm font-medium bg-primary-P-40 text-white rounded-lg border border-transparent"
-                  onClick={handleCheckoutClick}
+                  onClick={(e) => {
+                    if (!isLoggedIn) {
+                      // Store cart info in session storage for later retrieval after login
+                      if (typeof window !== 'undefined' && window.sessionStorage && cart?.lines?.nodes) {
+                        const lines = cart.lines.nodes.map(line => ({
+                          merchandiseId: line.merchandise.id,
+                          quantity: line.quantity
+                        }));
+                        window.sessionStorage.setItem('pendingCheckoutLines', JSON.stringify(lines));
+                      }
+                    }
+                    handleCheckoutClick();
+                  }}
                 >
-                  {isLoggedIn ? t('Buy Now') : t('Checkout')}
+                  {t('Checkout')}
                 </NavLink>
                 <div className="flex flex-wrap items-center justify-start gap-6 mt-3 mb-4">
                   <img className="" src="/icons/payments/visa_card.svg" />

@@ -93,7 +93,9 @@ export function CartLineQuantity({
           <button
             aria-label={t('Increase quantity')}
             type="submit"
-            className={`${btnBase} bg-secondary-S-90 active:bg-secondary-S-80`}
+            className={`${btnBase} bg-secondary-S-90 active:bg-secondary-S-80  ${
+              reachedMax && 'opacity-40 cursor-not-allowed'
+            }`}
             title={t('Increase quantity')}
           >
             <span className="text-2xl ss:text-3xl">＋</span>
