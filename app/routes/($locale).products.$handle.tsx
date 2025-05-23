@@ -49,6 +49,8 @@ import {
 import {useViewedProducts} from '~/contexts/ViewedProducts';
 import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
 import ColorCircleIcon from '~/components/Icons/ColorCircleIcon';
+import {BsSuitHeart, BsSuitHeartFill} from 'react-icons/bs';
+import {useWishlist} from '~/contexts/WishList';
 
 // GA4 Event tracking functions
 const sendGA4Event = (eventName: string, eventParams?: any) => {
@@ -329,6 +331,7 @@ export default function Product() {
     'id' | 'url'
   > | null>(null);
   const [primaryCollection, setPrimaryCollection] = useState<string>('');
+  const {toggleWishlist, wishlist} = useWishlist();
   
   // Ensure we start at the top of the page when navigating from a collection
   useEffect(() => {
@@ -493,6 +496,7 @@ export default function Product() {
             .replace(/\s+/g, '_')}
           productVideo={productVideo}
           productPreviewVideo={productPreviewVideo}
+          product={product}
         />
         <ProductMain
           t={t}
@@ -701,6 +705,7 @@ function ProductImage({
   selectedColor = null,
   productVideo = null,
   productPreviewVideo = null,
+  product = null,
 }: {
   images: ProductFragment['images'];
   variantImage: ProductVariantFragment['image'];
@@ -708,6 +713,7 @@ function ProductImage({
   selectedColor?: string | null;
   productVideo?: string | null;
   productPreviewVideo?: Pick<ImageType, 'id' | 'url' | 'altText'> | null;
+  product?: ProductFragment | null;
 }) {
   if (!variantImage) {
     return <></>;
@@ -758,8 +764,24 @@ function ProductImage({
     }
   };
 
+  const {toggleWishlist, wishlist} = useWishlist();
+
   return (
     <div className="relative overflow-hidden flex flex-col xs:flex-row items-start max-w-212.5 w-full px-2 sm:px-6 py-4 bg-white">
+      {/* Wishlist Heart Button */}
+      {product && (
+        <button
+          onClick={() => toggleWishlist(product as any)}
+          className="absolute top-4 right-4 z-20 bg-white rounded-full p-2 shadow"
+          aria-label="Add to wishlist"
+        >
+          {wishlist.findIndex((item) => item.id === (product as any).id) !== -1 ? (
+            <BsSuitHeartFill className="w-7 h-7 text-primary-P-40" />
+          ) : (
+            <BsSuitHeart className="w-7 h-7 text-primary-P-40" />
+          )}
+        </button>
+      )}
       {/* Desktop vertical thumbnail gallery - hidden on very small screens */}
       <div className="hidden xs:flex min-w-fit max-h-50 xs:max-h-65 sm:max-h-170 flex-col gap-4 scrollbar-none overflow-auto">
         {filteredImages.map((image) => (
