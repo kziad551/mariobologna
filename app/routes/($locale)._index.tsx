@@ -178,6 +178,93 @@ export default function Homepage() {
           direction={direction}
         /> */}
       </div>
+      
+      {/* SEO Content - Hidden from users but visible to search engines */}
+      <div style={{display: 'none'}}>
+        <section>
+          <h2>New Season, Summer 2025</h2>
+          <p>
+            Step into Summer 2025 with Mario Bologna House of Brands, latest arrivals – where Italian
+            luxury meets Dubai and Gulf elegance.
+            Explore exclusive collections for women, men, and kids, designed for Dubai's vibrant days and
+            refined nights.
+            Lightweight silks, airy linens, bold silhouettes.
+            Fast delivery across Dubai, Riyadh, and the GCC.
+            Check out our luxury brands like Baldinini, Peserico, Cromia, Jijil, Mario Cerutti, Claudia Rossi
+            and more! From high heels to comfortable, stylish ballerinas, Mario Bologna House of Brands
+            has the most stylish summer collection for you.
+            Shop the look. Own the season.
+          </p>
+          <p>
+            SEO Keywords: luxury fashion Dubai, summer collection 2025, designer clothing UAE, fast
+            delivery Dubai, high-end fashion online GCC
+          </p>
+        </section>
+
+        <section>
+          <h2>New Arrivals Section</h2>
+          <h3>Just In: Summer Icons You'll Love</h3>
+          <p>
+            Discover fresh drops from top European designers, curated for the modern Middle East
+            lifestyle.
+            From statement eveningwear to effortlessly chic day looks, our new arrivals embody
+            refinement, versatility, and global sophistication.
+            Perfect for events, meetings, travel, or simply showing up in style.
+            Enjoy fast and secure delivery across the UAE, KSA, and Gulf countries.
+          </p>
+          <p>
+            SEO Keyword: new luxury arrivals Dubai, summer 2025 fashion, designer clothes UAE, shop
+            new in women men kids, latest trends GCC.
+          </p>
+        </section>
+
+        <section>
+          <h2>Shop Women's Collection</h2>
+          <h3>Luxury Looks for the Elegant Woman</h3>
+          <p>
+            Explore our Summer 2025 Women's Collection – designed for women who dress with passion.
+            From flowing maxi dresses and kaftans to sharp tailoring and luxe essentials, every piece is
+            made to impress.
+            Inspired by Dubai's high fashion scene & Saudi elegance.
+            Order now for fast delivery to your doorstep.
+          </p>
+          <p>
+            SEO Keywords: women's luxury fashion UAE, summer dresses Dubai, Italian designer women's
+            wear, high-end abayas, fast shipping Saudi Arabia
+          </p>
+        </section>
+
+        <section>
+          <h2>Shop Men's Collection</h2>
+          <h3>Luxury Style for Every Occasion</h3>
+          <p>
+            Upgrade your wardrobe with House of Brands Mario Bologna's Summer 2025 Men's Edit, a
+            refined blend of lightweight tailoring, soft cotton shirts, classic shoes, sneakers, and timeless
+            silhouettes.
+            Ideal for DIFC boardrooms, sunset dinners in Jeddah, and effortless elegance at every turn.
+            Express delivery available in Dubai, Riyadh & more.
+          </p>
+          <p>
+            SEO Keywords: men's luxury fashion Dubai, summer shirts UAE, classy outfits for men, linen
+            suits Gulf, designer menswear Saudi Arabia, designer clothes
+          </p>
+        </section>
+
+        <section>
+          <h2>Shop Kids' Collection</h2>
+          <h3>Stylish Little Looks for Big Summer Moments</h3>
+          <p>
+            Let your kids shine with House of Brands Mario Bologna's premium children's collection,
+            designed for comfort, movement, and celebration.
+            Shop adorable Eid outfits, stylish sets, and breathable fabrics perfect for hot climates.
+            Fast delivery across Dubai and the GCC, get ready in time for the holidays!
+          </p>
+          <p>
+            SEO Keywords: luxury kids fashion UAE, Eid outfits children Dubai, stylish boys & girls clothes
+            GCC, designer kidswear online, kids clothing fast shipping Dubai
+          </p>
+        </section>
+      </div>
     </div>
   );
 }
