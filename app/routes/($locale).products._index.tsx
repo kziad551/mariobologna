@@ -75,7 +75,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     const {products} = await context.storefront.query(PRODUCT_QUERY, {
       variables: {
         ...paginationVariables,
-        query: designer || '', // Ensure we have a valid query string
+        query: designer ? `vendor:${designer}` : '', // Use vendor: prefix for designer search
         sortKey: 'CREATED',
         reverse: true,
         country,
