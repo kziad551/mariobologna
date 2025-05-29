@@ -76,7 +76,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
       variables: {
         ...paginationVariables,
         query: designer ? `vendor:${designer}` : '', // Use vendor: prefix for designer search
-        sortKey: 'CREATED',
+        sortKey: 'CREATED_AT',
         reverse: true,
         country,
       },
