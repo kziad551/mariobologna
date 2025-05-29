@@ -106,7 +106,7 @@ const MobileProduct = ({
   return (
     <div
       key={product.id}
-      className={`${!showCompare ? 'h-auto min-h-[18.5rem]' : ''} relative hover:no-underline flex flex-col items-stretch cursor-pointer rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-37.5 flex-grow ss:w-43.75`}
+      className={`${!showCompare ? 'h-auto min-h-[18.5rem]' : ''} relative hover:no-underline flex flex-col items-stretch cursor-pointer rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-full`}
       onClick={() => productRef.current.openTrigger()}
     >
       <div

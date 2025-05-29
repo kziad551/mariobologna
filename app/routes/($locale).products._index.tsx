@@ -1,4 +1,4 @@
-import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {json, type LoaderFunctionArgs, redirect} from '@shopify/remix-oxygen';
 import {
   useLoaderData,
   type MetaFunction,
@@ -47,12 +47,13 @@ export const meta: MetaFunction<typeof loader> = ({data}) => {
 };
 
 export async function loader({request, context}: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  
   const paginationVariables = getPaginationVariables(request, {
-    pageBy: 4,
+    pageBy: 8,
   });
 
-  const searchParams = new URL(request.url).searchParams;
-  const designer = searchParams.get('designer') ?? '';
   const cookies = request.headers.get('Cookie');
   let country: CountryCode = 'AE';
   if (cookies) {
@@ -67,13 +68,16 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     }
   }
 
+  // Get designer parameter from URL
+  const designer = searchParams.get('designer') ?? '';
+
   try {
     const {products} = await context.storefront.query(PRODUCT_QUERY, {
       variables: {
         ...paginationVariables,
         query: designer,
-        sortKey: 'ID',
-        reverse: false,
+        sortKey: 'CREATED',
+        reverse: true,
         country,
       },
     });
@@ -288,7 +292,7 @@ function ProductsGrid({
   }, [products]); // Re-fetch when `products` changes
 
   return (
-    <div className="flex flex-wrap gap-2 md:gap-6 overflow-hidden">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-2 md:gap-6 overflow-hidden">
       {products.map((product, index) =>
         width >= 640 ? (
           <Product

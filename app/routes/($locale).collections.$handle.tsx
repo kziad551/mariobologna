@@ -115,8 +115,9 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;
 
   const {sortKey, reverse} = getSortValuesFromParam(
-    searchParams.get('sort') as SortParam,
+    (searchParams.get('sort') as SortParam) || 'newest',
   );
+  
   const filters = [...searchParams.entries()].reduce(
     (filters, [key, value]) => {
       if (key.startsWith(FILTER_URL_PREFIX)) {
@@ -876,7 +877,7 @@ function ProductsGrid({
 
   return (
     <div
-      className={`${openFilter ? 'max-w-[1098px] md:gap-x-6' : 'max-w-[1472px] md:gap-x-3'} flex flex-wrap gap-2 md:gap-y-6 overflow-hidden`}
+      className={`${openFilter ? 'max-w-[1098px]' : 'max-w-[1472px]'} grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-2 md:gap-6 overflow-hidden`}
     >
       {elements}
     </div>

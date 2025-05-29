@@ -1,18 +1,20 @@
-import {CartForm, Image, Money} from '@shopify/hydrogen';
+import {useEffect, useRef, useState} from 'react';
+import {CartForm, Money} from '@shopify/hydrogen';
 import type {
   CartLineUpdateInput,
   CurrencyCode,
 } from '@shopify/hydrogen/storefront-api-types';
-import {Link} from '@remix-run/react';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
-import {useVariantUrl} from '~/lib/variants';
 import {TFunction} from 'i18next';
 import {useCustomContext} from '~/contexts/App';
 
+/* -------------------------------------------------------------------------- */
+/*  TYPES                                                                     */
+/* -------------------------------------------------------------------------- */
 type CartLine = CartApiQueryFragment['lines']['nodes'][0];
 
 /* -------------------------------------------------------------------------- */
-/*  CART-LINE QUANTITY HANDLING                                               */
+/*  CART‑LINE QUANTITY HANDLING – pure client guard                           */
 /* -------------------------------------------------------------------------- */
 export function CartLineQuantity({
   t,
@@ -25,83 +27,97 @@ export function CartLineQuantity({
   quantity: number;
   merchandise?: CartLine['merchandise'];
 }) {
+  // Guard against SSR missing value
   if (typeof quantity === 'undefined') return null;
 
-  /* ---------- DETERMINE LIMIT -------------------------------------------- */
-  // 1. real stock if Shopify returns it
-  // 2. fallback hard limit (prevents infinite adding during dev if
-  //    quantityAvailable is null for some reason)
-  const HARD_LIMIT = 5;
-  const availableQty =
-    typeof (merchandise as any)?.quantityAvailable === 'number'
-      ? (merchandise as any).quantityAvailable
-      : HARD_LIMIT;
+  /* ---------------------- LOCAL STATE / REFS ----------------------------- */
+  const [blocked, setBlocked] = useState(false);        // user hit max detected client‑side
+  const timerRef = useRef<NodeJS.Timeout | null>(null); // pending + click timer
+  const prevQty = useRef(quantity);                     // last known qty
 
+  /* ------------------ WHEN QUANTITY CHANGES ----------------------------- */
+  useEffect(() => {
+    // Successful update clears the timer & un‑blocks if stock replenished
+    if (quantity !== prevQty.current) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setBlocked(false);
+      prevQty.current = quantity;
+    }
+  }, [quantity]);
+
+  /* ------------------ HANDLERS ----------------------------- */
+  function handleIncreaseAttempt() {
+    if (blocked) return; // already maxed
+
+    // Set a 2‑second watchdog: if qty doesn't change → no stock
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (quantity === prevQty.current) {
+        setBlocked(true);
+      }
+    }, 2000);
+  }
+
+  /* ------------------ DERIVED VALUES ------------------------ */
   const outOfStock = merchandise && !(merchandise as any).availableForSale;
-  const reachedMax = quantity >= availableQty || outOfStock;
+  const reachedMax = blocked || outOfStock; // rely only on client watchdog + availableForSale
 
-  /* ---------- VALUES FOR UPDATE FORMS ------------------------------------ */
   const prevQuantity = Math.max(0, quantity - 1);
   const nextQuantity = quantity + 1;
 
   const btnBase =
-    'overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:w-8 ss:h-8 p-2.5 text-white focus:outline-none';
+    'overflow-hidden rounded flex items-center justify-center h-6 w-6 ss:h-8 ss:w-8 p-2.5 text-white focus:outline-none transition-colors';
 
-  /* ---------------------------------------------------------------------- */
+  /* ------------------ RENDER ------------------------------- */
   return (
-    <div className="flex items-center xs:justify-center gap-0.5">
-      {/* ––– DECREMENT ––– */}
-      <CartLineUpdateButton lines={[{id, quantity: prevQuantity}]}>
-        <button
-          aria-label={t('Decrease quantity')}
-          disabled={quantity <= 1}
-          type="submit"
-          className={`${btnBase} bg-secondary-S-90 ${
-            quantity <= 1
-              ? 'opacity-50 cursor-not-allowed'
-              : 'active:bg-secondary-S-80'
-          }`}
-        >
-          <span className="text-2xl ss:text-3xl">−</span>
-        </button>
-      </CartLineUpdateButton>
-
-      {/* current qty */}
-      <span className="flex items-center justify-center w-6 h-6 ss:w-8 ss:h-8 text-center">
-        {quantity}
-      </span>
-
-      {/* ––– INCREMENT ––– */}
-      {reachedMax ? (
-        <button
-          type="button"
-          aria-label={t('Increase quantity')}
-          onClick={() =>
-            window.alert(
-              outOfStock
-                ? t('This item is out of stock')
-                : t('No more items in stock'),
-            )
-          }
-          className={`${btnBase} bg-gray-500 opacity-50 cursor-not-allowed`}
-          title={t('No more items in stock')}
-        >
-          <span className="text-2xl ss:text-3xl">＋</span>
-        </button>
-      ) : (
-        <CartLineUpdateButton lines={[{id, quantity: nextQuantity}]}>
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center xs:justify-center gap-0.5">
+        {/* ––– DECREMENT ––– */}
+        <CartLineUpdateButton lines={[{id, quantity: prevQuantity}]}>         
           <button
+            aria-label={t('Decrease quantity')}
+            disabled={quantity <= 1}
+            type="submit"
+            className={`${btnBase} bg-secondary-S-90 ${
+              quantity <= 1
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-secondary-S-80 active:bg-secondary-S-70'
+            }`}
+          >
+            <span className="text-2xl ss:text-3xl">−</span>
+          </button>
+        </CartLineUpdateButton>
+
+        {/* current qty */}
+        <span className="flex items-center justify-center w-6 h-6 ss:w-8 ss:h-8 text-center">
+          {quantity}
+        </span>
+
+        {/* ––– INCREMENT ––– */}
+        <CartLineUpdateButton lines={[{id, quantity: nextQuantity}]}>         
+          <button
+            onClick={handleIncreaseAttempt}
             aria-label={t('Increase quantity')}
             type="submit"
-            className={`${btnBase} bg-secondary-S-90 active:bg-secondary-S-80  ${
-              reachedMax && 'opacity-40 cursor-not-allowed'
+            disabled={reachedMax}
+            className={`${btnBase} ${
+              reachedMax
+                ? 'bg-gray-400 opacity-50 cursor-not-allowed'
+                : 'bg-secondary-S-90 hover:bg-secondary-S-80 active:bg-secondary-S-70'
             }`}
-            title={t('Increase quantity')}
+            title={
+              reachedMax
+                ? t(outOfStock ? 'This item is out of stock' : 'No more stock for this item')
+                : t('Increase quantity')
+            }
           >
             <span className="text-2xl ss:text-3xl">＋</span>
           </button>
         </CartLineUpdateButton>
-      )}
+      </div>
+      
+      {/* ––– REMOVE BUTTON ––– */}
+      <CartLineRemoveButton id={id} t={t} />
     </div>
   );
 }
@@ -157,5 +173,28 @@ function CartLineUpdateButton({
     >
       {children}
     </CartForm>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  CART‑LINE REMOVE BUTTON                                                  */
+/* -------------------------------------------------------------------------- */
+export function CartLineRemoveButton({
+  id,
+  t,
+}: {
+  id: string;
+  t: TFunction<'translation', undefined>;
+}) {
+  return (
+    <CartLineUpdateButton lines={[{id, quantity: 0}]}>
+      <button
+        aria-label={t('Remove item')}
+        type="submit"
+        className="text-xs text-red-600 hover:text-red-800 hover:underline transition-colors"
+      >
+        {t('Remove')}
+      </button>
+    </CartLineUpdateButton>
   );
 }
