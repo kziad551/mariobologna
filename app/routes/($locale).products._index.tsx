@@ -75,12 +75,29 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     const {products} = await context.storefront.query(PRODUCT_QUERY, {
       variables: {
         ...paginationVariables,
-        query: designer,
+        query: designer || '', // Ensure we have a valid query string
         sortKey: 'CREATED',
         reverse: true,
         country,
       },
     });
+    
+    // Ensure products is not null/undefined
+    if (!products) {
+      return json({
+        products: {
+          nodes: [],
+          pageInfo: {
+            hasPreviousPage: false,
+            hasNextPage: false,
+            startCursor: null,
+            endCursor: null
+          }
+        }, 
+        designer
+      });
+    }
+    
     return json({products, designer});
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -138,7 +155,7 @@ export default function Collection() {
         </NavLink>
       </div>
       <div className="px-4 ss:px-8">
-        {products.nodes.length === 0 ? (
+        {!products || !products.nodes || products.nodes.length === 0 ? (
           <div>
             <p>{t("This Designer doesn't have any products yet")}</p>
             <NavLink to="/designers" className="hover:underline">
@@ -148,56 +165,58 @@ export default function Collection() {
         ) : (
           <></>
         )}
-        <Pagination connection={products}>
-          {({
-            nodes,
-            isLoading,
-            PreviousLink,
-            NextLink,
-            previousPageUrl,
-            nextPageUrl,
-            hasPreviousPage,
-            hasNextPage,
-            state,
-          }) => (
-            <>
-              <div
-                className={`${hasPreviousPage ? 'mb-6' : ''} flex items-center justify-center`}
-              >
-                <Button
-                  ref={ref}
-                  as={PreviousLink}
-                  variant="secondary"
-                  width="full"
+        {products && products.nodes ? (
+          <Pagination connection={products}>
+            {({
+              nodes,
+              isLoading,
+              PreviousLink,
+              NextLink,
+              previousPageUrl,
+              nextPageUrl,
+              hasPreviousPage,
+              hasNextPage,
+              state,
+            }) => (
+              <>
+                <div
+                  className={`${hasPreviousPage ? 'mb-6' : ''} flex items-center justify-center`}
                 >
-                  {isLoading ? t('Loading...') : t('Load previous')}
-                </Button>
-              </div>
-              <ProductsGrid
-                t={t}
-                direction={direction}
-                products={nodes as ProductCardFragment[]}
-                width={width}
-                inView={inView}
-                hasNextPage={hasNextPage}
-                hasPreviousPage={hasPreviousPage}
-                previousPageUrl={previousPageUrl}
-                nextPageUrl={nextPageUrl}
-                state={state}
-              />
-              <div className="flex items-center justify-center mt-6">
-                <Button
-                  ref={ref}
-                  as={NextLink}
-                  variant="secondary"
-                  width="full"
-                >
-                  {isLoading ? t('Loading...') : t('Load more products')}
-                </Button>
-              </div>
-            </>
-          )}
-        </Pagination>
+                  <Button
+                    ref={ref}
+                    as={PreviousLink}
+                    variant="secondary"
+                    width="full"
+                  >
+                    {isLoading ? t('Loading...') : t('Load previous')}
+                  </Button>
+                </div>
+                <ProductsGrid
+                  t={t}
+                  direction={direction}
+                  products={nodes as ProductCardFragment[]}
+                  width={width}
+                  inView={inView}
+                  hasNextPage={hasNextPage}
+                  hasPreviousPage={hasPreviousPage}
+                  previousPageUrl={previousPageUrl}
+                  nextPageUrl={nextPageUrl}
+                  state={state}
+                />
+                <div className="flex items-center justify-center mt-6">
+                  <Button
+                    ref={ref}
+                    as={NextLink}
+                    variant="secondary"
+                    width="full"
+                  >
+                    {isLoading ? t('Loading...') : t('Load more products')}
+                  </Button>
+                </div>
+              </>
+            )}
+          </Pagination>
+        ) : null}
       </div>
     </div>
   );
