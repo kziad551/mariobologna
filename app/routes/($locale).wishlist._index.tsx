@@ -279,7 +279,7 @@ function MyWishlist({
   }, [wishlist]); // Re-fetch when `products` changes
 
   return (
-    <div className="flex flex-wrap items-stretch justify-start gap-3">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,350px))] items-stretch justify-start gap-3">
       {wishlist.length > 0 ? (
         wishlist.map((product) => {
           return width >= 640 ? (
@@ -377,7 +377,7 @@ function ViewedProducts({
   }, [viewedProducts]); // Re-fetch when `products` changes
 
   return (
-    <div className="flex flex-wrap items-stretch justify-start gap-3">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,350px))] items-stretch justify-start gap-3">
       {viewedProducts.length > 0 ? (
         viewedProducts.map((product) => {
           return width >= 640 ? (
