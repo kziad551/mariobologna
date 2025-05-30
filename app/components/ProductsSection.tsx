@@ -107,7 +107,7 @@ function Products({
 
   return (
     <div className="">
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3 sm:gap-4 md:gap-6 lg:gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,350px))] gap-3 sm:gap-4 md:gap-6 lg:gap-4">
         {products.map((product, index) => {
           return width >= 640 ? (
             <Product

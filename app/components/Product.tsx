@@ -213,7 +213,7 @@ const Product = ({
     <Link
       to={`/products/${product.handle}`}
       key={product.id}
-      className={`${!showCompare ? 'h-auto min-h-110' : ''} relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-full hover:shadow-md hover:shadow-black/30 active:shadow-none`}
+      className={`${!showCompare ? 'h-auto min-h-110' : ''} relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden max-w-87.5 hover:shadow-md hover:shadow-black/30 active:shadow-none`}
       onClick={(event) => event.defaultPrevented && event.stopPropagation()}
     >
       <div className="relative">
