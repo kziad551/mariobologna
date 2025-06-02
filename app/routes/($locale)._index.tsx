@@ -35,7 +35,7 @@ export const meta: MetaFunction = () => {
   return [
     { title: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
     { name: 'description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna. Shop luxury brands, new arrivals, and seasonal discounts with international shipping.' },
-    { name: 'keywords', content: 'Mario Bologna, luxury fashion, premium brands, designer clothes, men fashion, women fashion, kids fashion, online shopping' },
+    { name: 'keywords', content: 'Mario Bologna, luxury fashion, House of Brands ,luxury Fashion & Accessories , designer clothes, men fashion, women fashion, kids fashion, online shopping' },
     { property: 'og:title', content: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
     { property: 'og:description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna. Shop luxury brands, new arrivals, and seasonal discounts with international shipping.' },
     { property: 'og:type', content: 'website' },
@@ -182,6 +182,7 @@ export default function Homepage() {
       {/* SEO Content - Hidden from users but visible to search engines */}
       <div style={{display: 'none'}}>
         <section>
+        <h1>Mario Bologna - Italian Fashion Designer</h1>
           <h2>New Season, Summer 2025</h2>
           <p>
             Step into Summer 2025 with Mario Bologna House of Brands, latest arrivals – where Italian
