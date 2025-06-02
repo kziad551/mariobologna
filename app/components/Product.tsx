@@ -211,28 +211,10 @@ const Product = ({
 
   return (
     <Link
+      to={`/products/${product.handle}`}
       key={product.id}
-      className={`${!showCompare ? 'h-auto' : ''} flex flex-col flex-grow relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden w-87.5 hover:shadow-md hover:shadow-black/30 active:shadow-none`}
-      to={`/products/${product.handle}?${params}`}
-      onClick={(event) => {
-        // Save current scroll position before navigation
-        if (typeof window !== 'undefined') {
-          const key = window.location.pathname + window.location.search;
-          if (window.sessionStorage) {
-            window.sessionStorage.setItem('lastScrollPosition', JSON.stringify({
-              path: key,
-              position: window.scrollY
-            }));
-            
-            // Also ensure we start at the top of the product page
-            window.sessionStorage.setItem('navigatingToProduct', 'true');
-          }
-        }
-        
-        if (event.defaultPrevented) event.stopPropagation();
-      }}
-      preventScrollReset={true}
-      data-product-id={product.id}
+      className={`${!showCompare ? 'h-auto min-h-110' : ''} relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden max-w-87.5 hover:shadow-md hover:shadow-black/30 active:shadow-none`}
+      onClick={(event) => event.defaultPrevented && event.stopPropagation()}
     >
       <div className="relative">
         <button

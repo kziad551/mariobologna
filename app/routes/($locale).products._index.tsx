@@ -1,4 +1,4 @@
-import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {json, type LoaderFunctionArgs, redirect} from '@shopify/remix-oxygen';
 import {
   useLoaderData,
   type MetaFunction,
@@ -47,12 +47,13 @@ export const meta: MetaFunction<typeof loader> = ({data}) => {
 };
 
 export async function loader({request, context}: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  
   const paginationVariables = getPaginationVariables(request, {
-    pageBy: 4,
+    pageBy: 8,
   });
 
-  const searchParams = new URL(request.url).searchParams;
-  const designer = searchParams.get('designer') ?? '';
   const cookies = request.headers.get('Cookie');
   let country: CountryCode = 'AE';
   if (cookies) {
@@ -67,16 +68,36 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     }
   }
 
+  // Get designer parameter from URL
+  const designer = searchParams.get('designer') ?? '';
+
   try {
     const {products} = await context.storefront.query(PRODUCT_QUERY, {
       variables: {
         ...paginationVariables,
-        query: designer,
-        sortKey: 'ID',
-        reverse: false,
+        query: designer ? `vendor:${designer}` : '', // Use vendor: prefix for designer search
+        sortKey: 'CREATED_AT',
+        reverse: true,
         country,
       },
     });
+    
+    // Ensure products is not null/undefined
+    if (!products) {
+      return json({
+        products: {
+          nodes: [],
+          pageInfo: {
+            hasPreviousPage: false,
+            hasNextPage: false,
+            startCursor: null,
+            endCursor: null
+          }
+        }, 
+        designer
+      });
+    }
+    
     return json({products, designer});
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -134,7 +155,7 @@ export default function Collection() {
         </NavLink>
       </div>
       <div className="px-4 ss:px-8">
-        {products.nodes.length === 0 ? (
+        {!products || !products.nodes || products.nodes.length === 0 ? (
           <div>
             <p>{t("This Designer doesn't have any products yet")}</p>
             <NavLink to="/designers" className="hover:underline">
@@ -144,56 +165,58 @@ export default function Collection() {
         ) : (
           <></>
         )}
-        <Pagination connection={products}>
-          {({
-            nodes,
-            isLoading,
-            PreviousLink,
-            NextLink,
-            previousPageUrl,
-            nextPageUrl,
-            hasPreviousPage,
-            hasNextPage,
-            state,
-          }) => (
-            <>
-              <div
-                className={`${hasPreviousPage ? 'mb-6' : ''} flex items-center justify-center`}
-              >
-                <Button
-                  ref={ref}
-                  as={PreviousLink}
-                  variant="secondary"
-                  width="full"
+        {products && products.nodes ? (
+          <Pagination connection={products}>
+            {({
+              nodes,
+              isLoading,
+              PreviousLink,
+              NextLink,
+              previousPageUrl,
+              nextPageUrl,
+              hasPreviousPage,
+              hasNextPage,
+              state,
+            }) => (
+              <>
+                <div
+                  className={`${hasPreviousPage ? 'mb-6' : ''} flex items-center justify-center`}
                 >
-                  {isLoading ? t('Loading...') : t('Load previous')}
-                </Button>
-              </div>
-              <ProductsGrid
-                t={t}
-                direction={direction}
-                products={nodes as ProductCardFragment[]}
-                width={width}
-                inView={inView}
-                hasNextPage={hasNextPage}
-                hasPreviousPage={hasPreviousPage}
-                previousPageUrl={previousPageUrl}
-                nextPageUrl={nextPageUrl}
-                state={state}
-              />
-              <div className="flex items-center justify-center mt-6">
-                <Button
-                  ref={ref}
-                  as={NextLink}
-                  variant="secondary"
-                  width="full"
-                >
-                  {isLoading ? t('Loading...') : t('Load more products')}
-                </Button>
-              </div>
-            </>
-          )}
-        </Pagination>
+                  <Button
+                    ref={ref}
+                    as={PreviousLink}
+                    variant="secondary"
+                    width="full"
+                  >
+                    {isLoading ? t('Loading...') : t('Load previous')}
+                  </Button>
+                </div>
+                <ProductsGrid
+                  t={t}
+                  direction={direction}
+                  products={nodes as ProductCardFragment[]}
+                  width={width}
+                  inView={inView}
+                  hasNextPage={hasNextPage}
+                  hasPreviousPage={hasPreviousPage}
+                  previousPageUrl={previousPageUrl}
+                  nextPageUrl={nextPageUrl}
+                  state={state}
+                />
+                <div className="flex items-center justify-center mt-6">
+                  <Button
+                    ref={ref}
+                    as={NextLink}
+                    variant="secondary"
+                    width="full"
+                  >
+                    {isLoading ? t('Loading...') : t('Load more products')}
+                  </Button>
+                </div>
+              </>
+            )}
+          </Pagination>
+        ) : null}
       </div>
     </div>
   );
@@ -288,7 +311,7 @@ function ProductsGrid({
   }, [products]); // Re-fetch when `products` changes
 
   return (
-    <div className="flex flex-wrap gap-2 md:gap-6 overflow-hidden">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,350px))] gap-2 md:gap-6 overflow-hidden">
       {products.map((product, index) =>
         width >= 640 ? (
           <Product

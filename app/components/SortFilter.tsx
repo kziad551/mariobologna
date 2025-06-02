@@ -574,16 +574,26 @@ export default function SortMenu({
   ];
   const [params] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [activeItem, setActiveItem] = useState(
-    items.find((item) => item.key === params.get('sort')) ?? items[0],
+    items.find((item) => item.key === params.get('sort')) ?? items.find((item) => item.key === 'newest') ?? items[0],
   );
 
   useEffect(() => {
     setActiveItem(
-      items.find((item) => item.key === params.get('sort')) ?? items[0],
+      items.find((item) => item.key === params.get('sort')) ?? items.find((item) => item.key === 'newest') ?? items[0],
     );
   }, [params]);
+
+  // Auto-navigate to newest if no sort parameter is present
+  useEffect(() => {
+    if (!params.get('sort')) {
+      const newParams = new URLSearchParams(params);
+      newParams.set('sort', 'newest');
+      navigate(`${location.pathname}?${newParams.toString()}`, { replace: true });
+    }
+  }, [params, location.pathname, navigate]);
 
   return (
     <Menu as="div" className="relative z-40">
@@ -609,7 +619,7 @@ export default function SortMenu({
             {() => (
               <Link
                 className={`block text-sm pb-2 px-3 ${
-                  (activeItem || items[0]).key === item.key
+                  (activeItem || items.find((item) => item.key === 'newest') || items[0]).key === item.key
                     ? 'font-bold'
                     : 'font-normal'
                 }`}
