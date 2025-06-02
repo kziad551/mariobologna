@@ -34,7 +34,7 @@ import {Image} from '@shopify/hydrogen/customer-account-api-types';
 export const meta: MetaFunction = () => {
   return [
     { title: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
-    { name: 'description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna. Shop luxury brands, new arrivals, and seasonal discounts with international shipping.' },
+    { name: 'description', content: 'Shop premium fashion for men, women & kids at Mario Bologna. Discover luxury brands, new arrivals & discounts. Worldwide shipping available.' },
     { name: 'keywords', content: 'Mario Bologna, luxury fashion, House of Brands ,luxury Fashion & Accessories , designer clothes, men fashion, women fashion, kids fashion, online shopping' },
     { property: 'og:title', content: 'Mario Bologna - House of Brands | Luxury Fashion & Accessories' },
     { property: 'og:description', content: 'Discover premium fashion collections for men, women, and kids at Mario Bologna. Shop luxury brands, new arrivals, and seasonal discounts with international shipping.' },
@@ -185,7 +185,7 @@ export default function Homepage() {
         <h1>Mario Bologna - Italian Fashion Designer</h1>
           <h2>New Season, Summer 2025</h2>
           <p>
-            Step into Summer 2025 with Mario Bologna House of Brands, latest arrivals – where Italian
+            <a href="/aboutus">About us</a> Step into Summer 2025 with Mario Bologna House of Brands, latest arrivals – where Italian
             luxury meets Dubai and Gulf elegance.
             Explore exclusive collections for women, men, and kids, designed for Dubai's vibrant days and
             refined nights.
