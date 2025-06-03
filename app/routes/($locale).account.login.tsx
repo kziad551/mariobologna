@@ -218,7 +218,7 @@ export default function Login() {
             />
           )}
         </div>
-        {section === 'login' ? <LoginBanner t={t} /> : <RegisterBanner t={t} />}
+        <RegisterBanner t={t} />
       </div>
     </div>
   );
@@ -500,10 +500,10 @@ function LoginSection({
 function LoginBanner({t}: {t: TFunction<'translation', undefined>}) {
   return (
     <div className="flex-1">
-      {/* <video width="100%" autoPlay loop muted>
+      <video width="100%" autoPlay loop muted>
         <source src="/videos/login_banner.mp4" type="video/mp4" />
         {t('Your browser does not support the video tag.')}
-      </video> */}
+      </video>
     </div>
   );
 }
@@ -743,35 +743,39 @@ function RegisterSection({
 
 function RegisterBanner({t}: {t: TFunction<'translation', undefined>}) {
   return (
-    <div className="flex-1 bg-neutral-N-90 flex flex-col items-center justify-center p-6 sm:p-4">
-      <img src="/logo.svg" className="mb-3 w-79" />
-      <h1 className="font-bold text-2xl sm:text-5xl mb-6 sm:mb-12">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-4" style={{ background: 'linear-gradient(rgb(123 63 160 / 19%) 0%, rgb(185 131 255 / 16%) 100%)' }}>
+      <img src="https://cdn.shopify.com/s/files/1/0823/5224/3009/files/logo_2-01_SVG_MB.svg?v=1734419842" alt="Mario Bologna Logo" className="mb-2 w-79" />
+      <h1 className="font-bold text-2xl sm:text-5xl mb-3 sm:mb-6 text-black">
         {t('Society')}
       </h1>
-      <h3 className="sm:text-3xl mb-5 sm:mb-10">
+      <h3 className="sm:text-3xl mb-3 sm:mb-5 text-black text-center">
         {t('Create an Account to Access Our Benefits')}
       </h3>
-      <div className="flex flex-col items-start justify-start gap-8 sm:gap-16 mb-8 sm:mb-16">
-        <div className="flex items-center justify-start gap-5 sm:gap-10">
-          <PiPercentLight className="w-10 h-10" />
-          <p className="font-bold text-sm sm:text-2xl">
+      <div className="flex flex-col items-start justify-start gap-4 sm:gap-6 mb-5 sm:mb-8 w-full max-w-xs">
+        <div className="flex items-center gap-3 sm:gap-5">
+          <PiPercentLight className="w-8 h-8 text-black" />
+          <p className="font-bold text-sm sm:text-lg text-black">
             {t('15% Off Your First Order')}
           </p>
         </div>
-        <div className="flex items-center justify-start gap-5 sm:gap-10">
-          <PiMegaphoneSimpleThin className="w-10 h-10" />
-          <p className="font-bold text-sm sm:text-2xl">{t('Special Offers')}</p>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <PiPercentLight className="w-8 h-8 text-black" />
+          <p className="font-bold text-sm sm:text-lg text-black">Use Code “First”</p>
         </div>
-        <div className="flex items-center justify-start gap-5 sm:gap-10">
-          <PiStarThin className="w-10 h-10" />
-          <p className="font-bold text-sm sm:text-2xl">{t('Reviews')}</p>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <PiMegaphoneSimpleThin className="w-8 h-8 text-black" />
+          <p className="font-bold text-sm sm:text-lg text-black">{t('Special Offers')}</p>
         </div>
-        <div className="flex items-center justify-start gap-5 sm:gap-10">
-          <CiDeliveryTruck className="w-10 h-10" />
-          <p className="font-bold text-sm sm:text-2xl">{t('Free Returns')}</p>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <PiStarThin className="w-8 h-8 text-black" />
+          <p className="font-bold text-sm sm:text-lg text-black">{t('Reviews')}</p>
+        </div>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <CiDeliveryTruck className="w-8 h-8 text-black" />
+          <p className="font-bold text-sm sm:text-lg text-black">{t('Free Returns')}</p>
         </div>
       </div>
-      <h2 className="text-2xl sm:text-5xl font-bold">{t('Sign Up Now !')}</h2>
+      <h2 className="text-xl sm:text-3xl font-bold text-black mt-2">{t('Sign Up Now !')}</h2>
     </div>
   );
 }
