@@ -877,7 +877,7 @@ function ProductsGrid({
 
   return (
     <div
-      className={`${openFilter ? 'max-w-[1098px]' : 'max-w-[1472px]'} grid grid-cols-[repeat(auto-fit,minmax(280px,350px))] gap-2 md:gap-6 overflow-hidden`}
+      className={`grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 sm:gap-4 md:gap-6 lg:gap-4`}
     >
       {elements}
     </div>

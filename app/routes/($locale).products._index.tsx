@@ -311,7 +311,7 @@ function ProductsGrid({
   }, [products]); // Re-fetch when `products` changes
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,350px))] gap-2 md:gap-6 overflow-hidden">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 sm:gap-4 md:gap-6 lg:gap-4 overflow-hidden">
       {products.map((product, index) =>
         width >= 640 ? (
           <Product
