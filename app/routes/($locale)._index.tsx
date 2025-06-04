@@ -83,21 +83,47 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       variables: {country, handle: 'one-look'},
     },
   );
-  const handle = 'hero-section-2teqinir';
-  const type = 'hero_section';
+
+  // Keep old hero section code commented out for future reference
+  /*
+  const oldHeroHandle = 'hero-section-2teqinir';
+  const oldHeroType = 'hero_section';
+  const {metaobject: oldHeroMetaObject} = await context.storefront.query(
+    METAOBJECT_CONTENT_QUERY,
+    {
+      variables: {
+        country,
+        handle: oldHeroHandle,
+        type: oldHeroType,
+      },
+    },
+  );
+
+  if (!oldHeroMetaObject) {
+    throw new Response(`Metaobject ${oldHeroHandle} - ${oldHeroType} not found`, {
+      status: 404,
+    });
+  }
+  */
+
+  const newHeroHandle = 'new-hero-section-rpt8eg0p';
+  const newHeroType = 'new_hero_section';
   const {metaobject} = await context.storefront.query(
     METAOBJECT_CONTENT_QUERY,
     {
       variables: {
         country,
-        handle,
-        type,
+        handle: newHeroHandle,
+        type: newHeroType,
       },
     },
   );
 
+  // Debug log to check the metaobject response
+  console.log('Metaobject response:', JSON.stringify(metaobject, null, 2));
+
   if (!metaobject) {
-    throw new Response(`Metaobject ${handle} - ${type} not found`, {
+    throw new Response(`Metaobject ${newHeroHandle} - ${newHeroType} not found`, {
       status: 404,
     });
   }
@@ -182,7 +208,7 @@ export default function Homepage() {
       {/* SEO Content - Hidden from users but visible to search engines */}
       <div style={{display: 'none'}}>
         <section>
-        <h1>Mario Bologna - Italian Fashion Designer</h1>
+          <h1>Mario Bologna - Italian Fashion Designer</h1>
           <h2>New Season, Summer 2025</h2>
           <p>
             <a href="/aboutus">About us</a> Step into Summer 2025 with Mario Bologna House of Brands, latest arrivals – where Italian
@@ -346,69 +372,6 @@ export default function Homepage() {
   );
 }
 
-function OldHeroSection({
-  t,
-  direction,
-  logo,
-}: {
-  t: TFunction<'translation', undefined>;
-  direction: 'rtl' | 'ltr';
-  logo: string | undefined;
-}) {
-  return (
-    <div className="relative overflow-hidden h-70 md:h-195 bg-[#F3F0EF]">
-      <IoTriangle
-        className={`${direction === 'ltr' ? 'rotate-45 -right-[105px] md:-right-[340px]' : '-rotate-45 -left-[105px] md:-left-[340px]'} text-primary-P-40 w-56 h-56 md:w-[707px] md:h-[707px] absolute -top-[105px] md:-top-[340px]`}
-      />
-      <IoTriangle
-        className={`${direction === 'ltr' ? '-rotate-[135deg] -left-[90px] md:-left-[290px]' : 'rotate-[135deg] -right-[90px] md:-right-[290px]'} text-secondary-S-90 w-48 h-48 md:w-[598px] md:h-[598px] absolute -bottom-[90px] md:-bottom-[290px]`}
-      />
-      <img
-        src="/images/landing/landing-2.png"
-        className={`${direction === 'ltr' ? 'right-0 xs:right-4 md:right-1/4 md:translate-x-1/2' : 'left-0 xs:left-4 md:left-1/4 md:-translate-x-1/2'} absolute bottom-0 md:w-130 w-40 xs:w-45`}
-        // style={{
-        //   transform:
-        //     direction === 'ltr' ? 'rotateY(0deg)' : 'rotateY(180deg)',
-        // }}
-      />
-      <p
-        className={`${direction === 'ltr' ? 'left-20' : 'right-20'} hidden md:block absolute top-1/2 -translate-y-1/2 text-nowrap text-8xl md:text-[344px] text-black/5`}
-      >
-        {t('Mario Bologna')}
-      </p>
-      <div
-        className={`${direction === 'ltr' ? 'md:left-1/4 md:-translate-x-1/2' : 'md:right-1/4 md:translate-x-1/2'} relative top-1/3 -translate-y-1/4 md:-translate-y-1/2 flex flex-col items-start md:items-end w-fit px-4 sm:px-8`}
-      >
-        {/* {direction === 'ltr' ? (
-          <img src={logo} className="w-40 ss:w-50 md:w-100 2xl:w-150" />
-        ) : (
-          <p className="text-2xl ss:text-4xl md:text-7xl 2xl:text-9xl sm:!leading-normal">
-            {t('Mario Bologna')}
-          </p>
-        )}
-        <p className="text-sm ss:text-xl md:text-3xl 2xl:text-5xl mb-2 ss:mb-5">{t('House of Brands')}</p> */}
-        <p className="text-lg ss:text-2xl sm:text-4xl lg:text-5xl 2xl:text-6xl sm:!leading-normal">
-          {t('Festive Season Discount')}
-        </p>
-        <div className="mb-2 ss:mb-5 flex flex-col items-start md:items-end">
-          <p className="text-sm ss:text-xl md:text-3xl 2xl:text-4xl">
-            {t('Up to 50%')}
-          </p>
-          <p className="text-xs ss:text-lg md:text-xl 2xl:text-3xl">
-            {t('Extra 10% off your first purchase')}
-          </p>
-        </div>
-        <NavLink
-          to="/#products_section"
-          className="ss:self-end bg-secondary-S-90 px-4 py-2 sm:px-6 sm:py-2.5 rounded-md text-xs ss:text-sm md:text-xl 2xl:text-2xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all"
-        >
-          {t('Shop Now')}
-        </NavLink>
-      </div>
-    </div>
-  );
-}
-
 function HeroSection({
   t,
   direction,
@@ -426,129 +389,73 @@ function HeroSection({
             image?: Maybe<Pick<Image, 'url' | 'altText' | 'width' | 'height'>>;
           }
         >;
+        references?: Maybe<{
+          nodes: Array<
+            Pick<MediaImage, 'id'> & {
+              image?: Maybe<Pick<Image, 'url' | 'altText' | 'width' | 'height'>>;
+            }
+          >;
+        }>;
       }
     >;
   };
 }) {
-  const [headlineOne, setHeadlineOne] = useState('');
-  const [headlineTwo, setHeadlineTwo] = useState('');
-  const [rightLine, setRightLine] = useState('');
-  const [rightSubLine, setRightSubLine] = useState<Maybe<string | undefined>>();
-  const [leftLine, setLeftLine] = useState('');
-  const [middleImageSrc, setMiddleImageSrc] = useState('');
-  const [rightImageSrc, setRightImageSrc] = useState('');
-  const [leftImageSrc, setLeftImageSrc] = useState('');
+  const [imageSrc, setImageSrc] = useState<string>('');
 
   useEffect(() => {
-    const middleImage = metaobject.fields.find(
-      (meta) => meta.key === 'middle_image',
+    // Log the entire metaobject for debugging
+    console.log('Full metaobject:', metaobject);
+    
+    // Find the image field
+    const imageField = metaobject?.fields?.find(
+      (field) => field.key === 'image'
     );
-    const rightImage = metaobject.fields.find(
-      (meta) => meta.key === 'right_image',
-    );
-    const leftImage = metaobject.fields.find(
-      (meta) => meta.key === 'left_image',
-    );
-    setMiddleImageSrc(middleImage?.reference?.image?.url ?? '');
-    setRightImageSrc(rightImage?.reference?.image?.url ?? '');
-    setLeftImageSrc(leftImage?.reference?.image?.url ?? '');
+    console.log('Image field:', imageField);
+    
+    // Try to get the image URL from different possible locations
+    let imageUrl: string | undefined = imageField?.reference?.image?.url;
+    
+    if (!imageUrl && imageField?.references?.nodes?.[0]?.image?.url) {
+      imageUrl = imageField.references.nodes[0].image.url;
+    }
+    
+    if (!imageUrl && imageField?.value) {
+      try {
+        const valueData = JSON.parse(imageField.value) as { url?: string; src?: string };
+        imageUrl = valueData?.url || valueData?.src || undefined;
+      } catch (e) {
+        console.log('Failed to parse image field value:', e);
+      }
+    }
+    
+    console.log('Final image URL:', imageUrl);
+    
+    if (imageUrl) {
+      setImageSrc(imageUrl);
+    }
   }, [metaobject]);
 
-  useEffect(() => {
-    const fields = metaobject.fields;
-    let headlineOne = '';
-    let headlineTwo = '';
-    let leftLine = '';
-    let rightLine = '';
-    let rightSubLine: Maybe<string | undefined>;
-    if (language === 'en') {
-      headlineOne =
-        fields.find((meta) => meta.key === 'headline_one')?.value ?? '';
-      headlineTwo =
-        fields.find((meta) => meta.key === 'headline_two')?.value ?? '';
-      leftLine = fields.find((meta) => meta.key === 'left_line')?.value ?? '';
-      rightLine = fields.find((meta) => meta.key === 'right_line')?.value ?? '';
-      rightSubLine = fields.find(
-        (meta) => meta.key === 'right_sub_line',
-      )?.value;
-    }
-    if (language === 'ar') {
-      headlineOne =
-        fields.find((meta) => meta.key === 'arabic_headline_one')?.value ?? '';
-      headlineTwo =
-        fields.find((meta) => meta.key === 'arabic_headline_two')?.value ?? '';
-      leftLine =
-        fields.find((meta) => meta.key === 'arabic_left_line')?.value ?? '';
-      rightLine =
-        fields.find((meta) => meta.key === 'arabic_right_line')?.value ?? '';
-      rightSubLine = fields.find(
-        (meta) => meta.key === 'arabic_right_sub_line',
-      )?.value;
-    }
-
-    setHeadlineOne(headlineOne);
-    setHeadlineTwo(headlineTwo);
-    setRightLine(rightLine);
-    setRightSubLine(rightSubLine);
-    setLeftLine(leftLine);
-  }, [language]);
-
   return (
-    <div className="relative overflow-hidden flex items-center justify-between gap-4 lg:gap-6 xl:gap-10 mt-10 px-4 sm:px-10 w-full h-75 sm:h-120 lg:h-165 xl:h-180">
-      <img
-        src={middleImageSrc}
-        className="object-contain absolute top-1/2 -translate-y-1/2 h-full w-auto left-1/2 -translate-x-1/2"
-        alt="Hero middle"
-      />
-      <img
-        src={leftImageSrc}
-        className="hidden lg:block object-contain max-w-0 lg:max-w-60 xl:max-w-80 2xl:max-w-96"
-        alt="Hero left"
-      />
-      <div className="z-10 flex-1 flex flex-col items-center w-fit px-4 sm:px-8">
-        <p
-          className={`${direction === 'ltr' ? 'sm:text-9xl' : 'lg:text-9xl'} text-3xl xs:text-5xl !leading-[0.8] font-rangga`}
-        >
-          {headlineOne}
-        </p>
-        <div className="flex w-full items-center">
-          <div className="flex-1 flex flex-col items-end">
-            <p className="font-rangga text-base xs:text-lg sm:text-2xl text-end">
-              {leftLine}
-            </p>
-          </div>
-          <p
-            className={`${direction === 'ltr' ? 'sm:text-9xl' : 'lg:text-9xl'} text-3xl xs:text-5xl !leading-[0.8] font-rangga`}
-          >
-            {headlineTwo}
-          </p>
-          <div className="flex-1 relative flex flex-col items-start">
-            <p className="font-rangga text-base xs:text-lg sm:text-2xl">
-              {rightLine}
-            </p>
-            <div className="w-fit absolute top-full flex flex-col xs:gap-2 sm:gap-4">
-              {typeof rightSubLine !== 'undefined' ? (
-                <p className="top-full font-light text-primary-P-40 text-xs xs:text-sm sm:text-xl">
-                  {rightSubLine}
-                </p>
-              ) : (
-                <></>
-              )}
-              <NavLink
-                to="/#products_section"
-                className="text-nowrap font-bold text-xs xs:text-sm sm:text-lg uppercase rounded-md text-primary-P-40 self-center hover:text-[#F5F5F5] hover:bg-primary-P-40 transition-colors px-3 xs:px-4 sm:px-6 py-2 sm:py-2.5"
-              >
-                {t('Shop Now')}
-              </NavLink>
-            </div>
-          </div>
+    <div className="relative w-full h-[60vh] lg:h-[calc(100vh-80px)]">
+      {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt="Hero"
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+          <p>Loading hero image...</p>
         </div>
+      )}
+      <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8">
+        <NavLink
+          to="/#products_section"
+          className="bg-secondary-S-90 px-6 py-2.5 rounded-md text-sm md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all"
+        >
+          {t('Shop Now')}
+        </NavLink>
       </div>
-      <img
-        src={rightImageSrc}
-        className="hidden lg:block object-contain max-w-0 lg:max-w-60 xl:max-w-80 2xl:max-w-96"
-        alt="Hero right"
-      />
     </div>
   );
 }
@@ -731,7 +638,7 @@ function OldShops({
   direction: 'ltr' | 'rtl';
 }) {
   return (
-    <div className="my-20 lg:my-36 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="my-20 lg:my-36 grid grid-cols-2 md:grid-cols-3 gap-4">
       <button className="relative flex-grow border border-neutral-N-80 rounded-lg w-full min-h-96 lg:min-h-120 bg-[url('/images/shops/men.png')] bg-contain bg-center bg-no-repeat hover:bg-black/10 focus:bg-black/10 active:bg-black/15 transition-colors">
         <a
           href="/collections/men"
@@ -768,7 +675,7 @@ function Shops({
   direction: 'ltr' | 'rtl';
 }) {
   return (
-    <div className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
       <NavLink
         to="/collections/men"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/men.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
