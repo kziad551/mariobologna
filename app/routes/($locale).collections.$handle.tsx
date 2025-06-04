@@ -1146,40 +1146,87 @@ function BannerSection({
   }, [metaobject, language]);
 
   return (
-    <div className="relative overflow-hidden p-4 xs:p-8 md:p-14 mx-4 ss:mx-8 mt-8 lg:mt-0 flex items-center justify-between sm:justify-center gap-4">
-      <div
-        className={`${direction === 'ltr' ? 'left-0' : 'right-0'} absolute hidden sm:flex items-center justify-center gap-2`}
-      >
-        {leftImagesSrc &&
-          leftImagesSrc.map((src) => (
-            <img
-              key={src}
-              src={src}
-              className={`max-h-20 xs:max-h-26 sm:max-h-38`}
-              alt=""
-            />
-          ))}
+    <div className="relative w-full h-screen sm:h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-50">
+      {/* Desktop layout */}
+      <div className="hidden sm:flex absolute inset-0 items-center justify-center">
+        {/* Left images */}
+        <div
+          className={`${direction === 'ltr' ? 'left-8 md:left-16' : 'right-8 md:right-16'} absolute flex items-center justify-center gap-4`}
+        >
+          {leftImagesSrc &&
+            leftImagesSrc.map((src) => (
+              <img
+                key={src}
+                src={src}
+                className="max-h-32 md:max-h-48 lg:max-h-64 w-auto object-contain"
+                alt=""
+              />
+            ))}
+        </div>
+
+        {/* Center text */}
+        <div className="flex flex-col items-center gap-6 md:gap-8 z-10 max-w-2xl px-8">
+          <p className="font-rangga text-2xl md:text-4xl lg:text-5xl backdrop-blur bg-white/20 px-6 py-3 rounded-lg text-center">
+            {leftLine}
+          </p>
+          <p className="font-rangga text-2xl md:text-4xl lg:text-5xl backdrop-blur bg-white/20 px-6 py-3 rounded-lg text-center">
+            {rightLine}
+          </p>
+        </div>
+
+        {/* Right images */}
+        <div
+          className={`${direction === 'ltr' ? 'right-8 md:right-16' : 'left-8 md:left-16'} absolute flex items-center justify-center gap-4`}
+        >
+          {rightImagesSrc &&
+            rightImagesSrc.map((src) => (
+              <img
+                key={src}
+                src={src}
+                className="max-h-32 md:max-h-48 lg:max-h-64 w-auto object-contain"
+                alt=""
+              />
+            ))}
+        </div>
       </div>
-      <div className="flex flex-col items-start sm:items-center md:flex-row gap-4 md:gap-10">
-        <p className="z-10 font-rangga text-xl ss:text-3xl backdrop-blur bg-[#F5F5F544] px-2 rounded">
-          {leftLine}
-        </p>
-        <p className="z-10 font-rangga text-xl ss:text-3xl backdrop-blur bg-[#F5F5F544] px-2 rounded">
-          {rightLine}
-        </p>
-      </div>
-      <div
-        className={`${direction === 'ltr' ? 'right-0' : 'left-0'} absolute flex items-center justify-center gap-2`}
-      >
-        {rightImagesSrc &&
-          rightImagesSrc.map((src) => (
-            <img
-              key={src}
-              src={src}
-              className={`max-h-20 xs:max-h-26 sm:max-h-38`}
-              alt=""
-            />
-          ))}
+
+      {/* Mobile layout */}
+      <div className="sm:hidden flex flex-col items-center justify-center gap-6 p-6 w-full">
+        {/* Top images */}
+        <div className="flex items-center justify-center gap-3">
+          {leftImagesSrc &&
+            leftImagesSrc.map((src) => (
+              <img
+                key={src}
+                src={src}
+                className="max-h-16 w-auto object-contain"
+                alt=""
+              />
+            ))}
+        </div>
+        
+        {/* Text content */}
+        <div className="flex flex-col items-center gap-4 w-full">
+          <p className="font-rangga text-xl backdrop-blur bg-white/30 px-4 py-2 rounded-lg text-center w-full">
+            {leftLine}
+          </p>
+          <p className="font-rangga text-xl backdrop-blur bg-white/30 px-4 py-2 rounded-lg text-center w-full">
+            {rightLine}
+          </p>
+        </div>
+        
+        {/* Bottom images */}
+        <div className="flex items-center justify-center gap-3">
+          {rightImagesSrc &&
+            rightImagesSrc.map((src) => (
+              <img
+                key={src}
+                src={src}
+                className="max-h-16 w-auto object-contain"
+                alt=""
+              />
+            ))}
+        </div>
       </div>
     </div>
   );
