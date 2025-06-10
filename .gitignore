@@ -31,3 +31,45 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Archive and compressed files
+*.zip
+*.rar
+*.tar.gz
+*.tar
+*.7z
+Archive.zip
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*.tmp
+
+# Sensitive files
+*.key
+*.p12
+*.p8
+config.json
+secrets.json
+
+# Firebase config (if contains sensitive data)
+firebaseConfig.json
+
+# Shopify CLI files
+.shopify/
+.shopifyignore
+
+# Cache directories
+.cache/
+.nuxt/
+.next/
+.vuepress/dist/
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
