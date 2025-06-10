@@ -8,8 +8,10 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import {db} from 'firebaseConfig';
+import {initializeFirebaseClient} from '~/lib/firebaseConfig';
 
+// Initialize Firebase and get database instance
+const {db} = initializeFirebaseClient();
 const auth = getAuth();
 
 type AddDocumentType = {

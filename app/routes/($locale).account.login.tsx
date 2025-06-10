@@ -23,17 +23,15 @@ import {tokenCookie, verifyToken} from '~/utils/auth';
 import {useTranslation} from 'react-i18next';
 import {TFunction} from 'i18next';
 import {
-  FacebookAuthProvider,
-  GoogleAuthProvider,
   signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
 } from 'firebase/auth';
-import {
-  auth,
-  googleProvider,
-  // facebookProvider,
-  // appleProvider,
-} from 'firebaseConfig';
+import {initializeFirebaseClient} from '~/lib/firebaseConfig';
 import {addDocument, getUserByEmail} from '~/utils/firestore';
+
+// Initialize Firebase and get auth instance and providers
+const {auth, googleProvider} = initializeFirebaseClient();
 
 export const meta: MetaFunction = () => {
   return [{title: 'Login'}];
@@ -760,7 +758,7 @@ function RegisterBanner({t}: {t: TFunction<'translation', undefined>}) {
         </div>
         <div className="flex items-center gap-3 sm:gap-5">
           <PiPercentLight className="w-8 h-8 text-black" />
-          <p className="font-bold text-sm sm:text-lg text-black">Use Code “First”</p>
+          <p className="font-bold text-sm sm:text-lg text-black">Use Code "First"</p>
         </div>
         <div className="flex items-center gap-3 sm:gap-5">
           <PiMegaphoneSimpleThin className="w-8 h-8 text-black" />
