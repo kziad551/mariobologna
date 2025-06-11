@@ -758,7 +758,7 @@ function RegisterBanner({t}: {t: TFunction<'translation', undefined>}) {
         </div>
         <div className="flex items-center gap-3 sm:gap-5">
           <PiPercentLight className="w-8 h-8 text-black" />
-          <p className="font-bold text-sm sm:text-lg text-black">Use Code "First"</p>
+          <p className="font-bold text-sm sm:text-lg text-black">{t('Use Code')} "First"</p>
         </div>
         <div className="flex items-center gap-3 sm:gap-5">
           <PiMegaphoneSimpleThin className="w-8 h-8 text-black" />

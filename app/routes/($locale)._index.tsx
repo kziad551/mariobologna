@@ -680,24 +680,24 @@ function Shops({
         to="/collections/men"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/men.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
       >
-        <div className="text-white group-hover:text-black text-4xl xs:text-7xl flex flex-col items-center justify-center transition-colors">
-          <span className="font-rangga">{t('Shop Men')}</span>
+        <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
+          <span className="font-rangga text-center leading-tight">{t('Shop Men')}</span>
         </div>
       </NavLink>
       <NavLink
         to="/collections/women"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/women.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
       >
-        <div className="text-white group-hover:text-black text-4xl xs:text-7xl flex flex-col items-center justify-center transition-colors">
-          <span className="font-rangga">{t('Shop Women')}</span>
+        <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
+          <span className="font-rangga text-center leading-tight">{t('Shop Women')}</span>
         </div>
       </NavLink>
       <NavLink
         to="/collections/kids"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/kids.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
       >
-        <div className="text-white group-hover:text-black text-4xl xs:text-7xl flex flex-col items-center justify-center transition-colors">
-          <span className="font-rangga">{t('Shop Kids')}</span>
+        <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
+          <span className="font-rangga text-center leading-tight">{t('Shop Kids')}</span>
         </div>
       </NavLink>
     </div>
