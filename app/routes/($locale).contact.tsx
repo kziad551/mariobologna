@@ -19,7 +19,23 @@ const center = {
 };
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Contact Us'}];
+  return [
+    {title: 'Contact Mario Bologna - Luxury Fashion Brand in Dubai'},
+    {description: 'Get in touch with Mario Bologna, the premier luxury fashion brand in Dubai. Contact us for customer service, store locations, and business inquiries.'},
+    {keywords: 'Mario Bologna contact, luxury fashion Dubai, customer service, store location, business inquiries, fashion brand contact'},
+    {robots: 'index, follow'},
+    {og: {
+      title: 'Contact Mario Bologna - Luxury Fashion Brand in Dubai',
+      description: 'Connect with Mario Bologna for premium fashion services in Dubai',
+      type: 'website',
+      url: 'https://mariobologna.net/contact'
+    }},
+    {twitter: {
+      card: 'summary_large_image',
+      title: 'Contact Mario Bologna - Luxury Fashion Brand in Dubai',
+      description: 'Connect with Mario Bologna for premium fashion services in Dubai'
+    }}
+  ];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {
@@ -38,6 +54,30 @@ const ContactUs = () => {
 
   return (
     <div className="contact">
+      {/* SEO Content - Hidden but accessible to search engines */}
+      <div className="hidden">
+        <h1>Contact Mario Bologna - Luxury Fashion Brand in Dubai</h1>
+        <h2>Connect With Our Premium Fashion Services</h2>
+        <h3>Customer Service & Support</h3>
+        <p>Experience exceptional customer service at Mario Bologna. Our dedicated team is available during UAE working hours to assist you with all your fashion needs.</p>
+        
+        <h3>Store Location & Directions</h3>
+        <p>Visit our flagship store in Dubai at Office 303, Metropolis Tower, Business Bay. Easily accessible and centrally located in the heart of Dubai's business district.</p>
+        
+        <h4>Business Hours</h4>
+        <p>Our store is open during UAE working hours from 9AM to 6PM, providing you with convenient access to our luxury fashion collections.</p>
+        
+        <h4>Contact Information</h4>
+        <p>Reach out to us via email at customercare@mariobologna.net or call us at +971 4 666 7601 for immediate assistance.</p>
+        
+        <h5>Related Links</h5>
+        <ul>
+          <li><Link to="/about">About Mario Bologna</Link></li>
+          <li><Link to="/collections">Our Collections</Link></li>
+          <li><Link to="/stores">Store Locations</Link></li>
+        </ul>
+      </div>
+
       <div className="py-3 px-4 sm:py-36 sm:px-8 flex flex-col items-stretch justify-start gap-8 sm:gap-18">
         <h1 className="text-5xl font-medium hidden sm:block">
           {t('Contact Us')}
