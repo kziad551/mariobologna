@@ -430,7 +430,7 @@ function HeroSection({
     console.log('Available field keys:', metaobject.fields.map(f => f.key));
     
     // Try different possible field key variations
-    const possibleDesktopKeys = ['desktop', 'pc', 'Desktop', 'PC', 'pc_image', 'desktop_image'];
+    const possibleDesktopKeys = ['desktop', 'pc', 'Desktop', 'PC', 'pc_image', 'desktop_image', 'image'];
     const possibleTabletKeys = ['tablet', 'Tablet', 'tablet_image', 'ipad'];
     const possibleMobileKeys = ['mobile', 'Mobile', 'mobile_image', 'phone'];
     
