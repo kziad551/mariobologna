@@ -117,7 +117,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   }
   */
 
-  const newHeroHandle = 'new-hero-section-rpt8eg0p';
+  const newHeroHandle = 'new-hero-section-bxxwyyls';
   const newHeroType = 'new_hero_section';
   const {metaobject} = await context.storefront.query(
     METAOBJECT_CONTENT_QUERY,
@@ -413,57 +413,159 @@ function HeroSection({
     >;
   };
 }) {
-  const [imageSrc, setImageSrc] = useState<string>('');
+  const [desktopImage, setDesktopImage] = useState<string>('');
+  const [tabletImage, setTabletImage] = useState<string>('');
+  const [mobileImage, setMobileImage] = useState<string>('');
 
   useEffect(() => {
     // Log the entire metaobject for debugging
-    console.log('Full metaobject:', metaobject);
+    console.log('Full metaobject:', JSON.stringify(metaobject, null, 2));
     
-    // Find the image field
-    const imageField = metaobject?.fields?.find(
-      (field) => field.key === 'image'
-    );
-    console.log('Image field:', imageField);
-    
-    // Try to get the image URL from different possible locations
-    let imageUrl: string | undefined = imageField?.reference?.image?.url;
-    
-    if (!imageUrl && imageField?.references?.nodes?.[0]?.image?.url) {
-      imageUrl = imageField.references.nodes[0].image.url;
+    if (!metaobject?.fields) {
+      console.log('No metaobject fields found');
+      return;
     }
     
-    if (!imageUrl && imageField?.value) {
-      try {
-        const valueData = JSON.parse(imageField.value) as { url?: string; src?: string };
-        imageUrl = valueData?.url || valueData?.src || undefined;
-      } catch (e) {
-        console.log('Failed to parse image field value:', e);
+    // Log all field keys to see what's available
+    console.log('Available field keys:', metaobject.fields.map(f => f.key));
+    
+    // Try different possible field key variations
+    const possibleDesktopKeys = ['desktop', 'pc', 'Desktop', 'PC', 'pc_image', 'desktop_image'];
+    const possibleTabletKeys = ['tablet', 'Tablet', 'tablet_image', 'ipad'];
+    const possibleMobileKeys = ['mobile', 'Mobile', 'mobile_image', 'phone'];
+    
+    // Find the desktop, tablet, and mobile image fields
+    const desktopField = metaobject.fields.find(
+      (field) => possibleDesktopKeys.includes(field.key)
+    );
+    const tabletField = metaobject.fields.find(
+      (field) => possibleTabletKeys.includes(field.key)
+    );
+    const mobileField = metaobject.fields.find(
+      (field) => possibleMobileKeys.includes(field.key)
+    );
+    
+    console.log('Desktop field found:', desktopField);
+    console.log('Tablet field found:', tabletField);
+    console.log('Mobile field found:', mobileField);
+    
+    // Helper function to extract image URL from a field
+    const extractImageUrl = (field: any, fieldName: string): string | undefined => {
+      if (!field) return undefined;
+      
+      console.log(`Extracting ${fieldName} image from field:`, field);
+      
+      // Try reference.image.url
+      if (field.reference?.image?.url) {
+        console.log(`Found ${fieldName} URL in reference.image.url:`, field.reference.image.url);
+        return field.reference.image.url;
+      }
+      
+      // Try references.nodes[0].image.url
+      if (field.references?.nodes?.[0]?.image?.url) {
+        console.log(`Found ${fieldName} URL in references.nodes[0].image.url:`, field.references.nodes[0].image.url);
+        return field.references.nodes[0].image.url;
+      }
+      
+      // Try parsing value as JSON
+      if (field.value) {
+        try {
+          const parsedValue = JSON.parse(field.value) as any;
+          console.log(`Parsed ${fieldName} value:`, parsedValue);
+          const url = parsedValue?.url || parsedValue?.src;
+          if (url) {
+            console.log(`Found ${fieldName} URL in parsed value:`, url);
+            return url;
+          }
+        } catch (e) {
+          console.log(`Failed to parse ${fieldName} field value as JSON:`, e);
+          // Maybe it's a direct URL string
+          if (typeof field.value === 'string' && field.value.includes('http')) {
+            console.log(`Found ${fieldName} URL as direct string:`, field.value);
+            return field.value;
+          }
+        }
+      }
+      
+      console.log(`No ${fieldName} URL found in field`);
+      return undefined;
+    };
+    
+    // Extract URLs using the helper function
+    let desktopUrl = extractImageUrl(desktopField, 'desktop');
+    let tabletUrl = extractImageUrl(tabletField, 'tablet');
+    let mobileUrl = extractImageUrl(mobileField, 'mobile');
+    
+    // FALLBACK: If no separate fields found, use the single 'image' field for all devices
+    if (!desktopUrl && !tabletUrl && !mobileUrl) {
+      console.log('No separate device fields found, looking for single image field...');
+      const imageField = metaobject.fields.find(field => field.key === 'image');
+      if (imageField) {
+        const fallbackUrl = extractImageUrl(imageField, 'fallback');
+        if (fallbackUrl) {
+          console.log('Using single image for all devices:', fallbackUrl);
+          desktopUrl = fallbackUrl;
+          tabletUrl = fallbackUrl;
+          mobileUrl = fallbackUrl;
+        }
       }
     }
     
-    console.log('Final image URL:', imageUrl);
+    console.log('Final URLs:');
+    console.log('Desktop URL:', desktopUrl);
+    console.log('Tablet URL:', tabletUrl);
+    console.log('Mobile URL:', mobileUrl);
     
-    if (imageUrl) {
-      setImageSrc(imageUrl);
-    }
+    if (desktopUrl) setDesktopImage(desktopUrl);
+    if (tabletUrl) setTabletImage(tabletUrl);
+    if (mobileUrl) setMobileImage(mobileUrl);
   }, [metaobject]);
 
   return (
     <div className="relative w-full h-[60vh] lg:h-[calc(100vh-80px)]">
-      {imageSrc ? (
+      {/* Mobile Image - visible only on mobile screens */}
+      {mobileImage && (
         <img
-          src={imageSrc}
+          src={mobileImage}
           alt="Mario Bologna - Luxury Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover block sm:hidden"
+          loading="eager"
+          width="414"
+          height="500"
+        />
+      )}
+      
+      {/* Tablet Image - visible only on tablet screens */}
+      {tabletImage && (
+        <img
+          src={tabletImage}
+          alt="Mario Bologna - Luxury Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          className="w-full h-full object-cover hidden sm:block lg:hidden"
+          loading="eager"
+          width="768"
+          height="600"
+        />
+      )}
+      
+      {/* Desktop Image - visible only on desktop screens */}
+      {desktopImage && (
+        <img
+          src={desktopImage}
+          alt="Mario Bologna - Luxury Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          className="w-full h-full object-cover hidden lg:block"
           loading="eager"
           width="1920"
           height="1080"
         />
-      ) : (
+      )}
+      
+      {/* Fallback if no images are loaded */}
+      {!desktopImage && !tabletImage && !mobileImage && (
         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
           <p>Loading Mario Bologna luxury brands hero image...</p>
         </div>
       )}
+      
       <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8">
         <NavLink
           to="/#products_section"
