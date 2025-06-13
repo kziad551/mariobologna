@@ -522,7 +522,7 @@ function HeroSection({
   }, [metaobject]);
 
   return (
-    <div className="relative w-full h-[60vh] lg:h-[calc(100vh-80px)]">
+    <div className="relative w-full">
       {/* Mobile Image - visible only on mobile screens */}
       {mobileImage && (
         <img
@@ -566,10 +566,13 @@ function HeroSection({
         </div>
       )}
       
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-8">
+      {/* Overlay gradient for better text readability */}
+      <div className="absolute inset-0 bg-black/20 lg:bg-black/10"></div>
+      
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center pb-8">
         <NavLink
           to="/#products_section"
-          className="bg-secondary-S-90 px-6 py-2.5 rounded-md text-sm md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all"
+          className="bg-secondary-S-90 px-8 py-3 rounded-md text-lg md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all backdrop-blur-sm"
         >
           {t('Shop Now')}
         </NavLink>
