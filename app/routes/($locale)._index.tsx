@@ -33,25 +33,25 @@ import {Image} from '@shopify/hydrogen/customer-account-api-types';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Mario Bologna - Luxury Brands in Dubai UAE' },
-    { name: 'description', content: 'Mario Bologna - Luxury Brands in Dubai offers premium Italian fashion collections. Shop designer clothes, accessories & luxury brands for men, women & kids. Fast delivery across UAE & GCC.' },
-    { name: 'keywords', content: 'Mario Bologna luxury brands Dubai, luxury brands Dubai, premium fashion Dubai UAE, Italian luxury brands, designer clothes Dubai, luxury fashion Dubai, high-end brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium brands UAE, luxury fashion store Dubai, designer brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer brands Dubai, exclusive brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite brands Dubai UAE' },
-    { property: 'og:title', content: 'Mario Bologna - Luxury Brands in Dubai | Premium Fashion & Accessories' },
-    { property: 'og:description', content: 'Mario Bologna - Luxury Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.' },
+    { title: 'Mario Bologna - Luxury Fashion Brands in Dubai UAE' },
+    { name: 'description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai offers premium Italian fashion collections. Shop designer clothes, accessories & luxury fashion brands for men, women & kids. Fast delivery across UAE & GCC.' },
+    { name: 'keywords', content: 'Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium fashion Dubai UAE, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands UAE, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai UAE' },
+    { property: 'og:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion & Accessories' },
+    { property: 'og:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.' },
     { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'Mario Bologna - Luxury Brands in Dubai' },
+    { property: 'og:site_name', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
     { property: 'og:locale', content: 'en_US' },
     { property: 'og:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
     { property: 'og:image:width', content: '1200' },
     { property: 'og:image:height', content: '630' },
     { property: 'og:url', content: 'https://mariobologna.com' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Mario Bologna - Luxury Brands in Dubai | Premium Fashion UAE' },
-    { name: 'twitter:description', content: 'Mario Bologna - Luxury Brands in Dubai. Premium Italian fashion collections with fast UAE delivery.' },
+    { name: 'twitter:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion UAE' },
+    { name: 'twitter:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai. Premium Italian fashion collections with fast UAE delivery.' },
     { name: 'twitter:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
     { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
-    { name: 'author', content: 'Mario Bologna - Luxury Brands in Dubai' },
-    { name: 'publisher', content: 'Mario Bologna - Luxury Brands in Dubai' },
+    { name: 'author', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
+    { name: 'publisher', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
     { name: 'geo.region', content: 'AE-DU' },
     { name: 'geo.placename', content: 'Dubai' },
     { name: 'geo.position', content: '25.2048;55.2708' },
@@ -219,32 +219,32 @@ export default function Homepage() {
       {/* SEO Content - Hidden from users but visible to search engines */}
       <div style={{display: 'none'}}>
         <section>
-          <h1>Mario Bologna - Luxury Brands in Dubai | Premium Fashion Destination UAE</h1>
+          <h1>Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion Destination UAE</h1>
           <h2>Dubai's Premier Luxury Brands Experience - Summer 2025</h2>
           <p>
-            <a href="/aboutus" title="About Mario Bologna - Luxury Brands in Dubai">About Mario Bologna - Luxury Brands in Dubai</a> Welcome to Mario Bologna - Luxury Brands in Dubai, where the world's most prestigious 
+            <a href="/aboutus" title="About Mario Bologna - Luxury Fashion Brands in Dubai">About Mario Bologna - Luxury Fashion Brands in Dubai</a> Welcome to Mario Bologna - Luxury Fashion Brands in Dubai, where the world's most prestigious 
             luxury brands meet Dubai's sophisticated fashion scene. Step into Summer 2025 with our exclusive luxury brands collection, featuring the finest <a href="https://www.vogue.com/article/italian-fashion-designers" target="_blank" rel="noopener noreferrer" title="Italian Fashion Designers - Vogue">Italian designers</a> and international luxury brands.
-            Mario Bologna - Luxury Brands in Dubai offers an unparalleled selection of luxury brands for discerning customers who appreciate the finest things in life.
+            Mario Bologna - Luxury Fashion Brands in Dubai offers an unparalleled selection of luxury brands for discerning customers who appreciate the finest things in life.
             Explore our curated luxury brands collections for <a href="/collections/women" title="Women's Luxury Fashion Dubai">women</a>, <a href="/collections/men" title="Men's Designer Fashion Dubai">men</a>, and <a href="/collections/kids" title="Kids Luxury Clothing Dubai">kids</a>, designed for Dubai's vibrant lifestyle and refined taste.
             Premium fabrics, exquisite craftsmanship, and exclusive luxury brands define our summer collection.
             Fast delivery of luxury brands across <a href="https://www.visitdubai.com/" target="_blank" rel="noopener noreferrer" title="Visit Dubai Official Website">Dubai</a>, Abu Dhabi, Riyadh, and the entire GCC region.
             Discover our prestigious luxury brands portfolio including <a href="https://www.baldinini.it/" target="_blank" rel="noopener noreferrer" title="Baldinini Official Website">Baldinini</a>, <a href="https://www.peserico.it/" target="_blank" rel="noopener noreferrer" title="Peserico Official Website">Peserico</a>, <a href="https://www.cromia.it/" target="_blank" rel="noopener noreferrer" title="Cromia Official Website">Cromia</a>, Jijil, Mario Cerutti, Claudia Rossi and many more exclusive luxury brands! 
-            From designer high heels to comfortable luxury footwear, Mario Bologna - Luxury Brands in Dubai has the most coveted luxury brands collection for you.
+            From designer high heels to comfortable luxury footwear, Mario Bologna - Luxury Fashion Brands in Dubai has the most coveted luxury brands collection for you.
             <a href="/new-arrivals" title="New Arrivals - Mario Bologna Dubai">Shop luxury brands</a>. Experience excellence. Own the finest.
           </p>
           <p>
-            SEO Keywords: Mario Bologna luxury brands Dubai, luxury brands Dubai, premium luxury brands UAE, designer luxury brands Dubai, 
+            SEO Keywords: Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium luxury brands UAE, designer luxury brands Dubai, 
             high-end luxury brands Dubai, exclusive luxury brands Dubai, Italian luxury brands Dubai, luxury brands store Dubai, 
             luxury brands shopping Dubai, premium fashion brands Dubai, elite luxury brands UAE, luxury brands boutique Dubai
           </p>
         </section>
 
         <section>
-          <h2>New Arrivals Section - Mario Bologna Luxury Brands in Dubai</h2>
-          <h3>Just In: Summer Icons You'll Love from Luxury Brands in Dubai</h3>
+          <h2>New Arrivals Section - Mario Bologna Luxury Fashion Brands in Dubai</h2>
+          <h3>Just In: Summer Icons You'll Love from Luxury Fashion Brands in Dubai</h3>
           <p>
             Discover fresh drops from top <a href="https://www.fashionhistory.it/" target="_blank" rel="noopener noreferrer" title="European Fashion History">European designers</a>, curated for the modern Middle East
-            lifestyle at Mario Bologna - Luxury Brands in Dubai.
+            lifestyle at Mario Bologna - Luxury Fashion Brands in Dubai.
             From statement <a href="/collections/evening-wear" title="Evening Wear Collection Dubai">eveningwear</a> to effortlessly chic <a href="/collections/casual" title="Casual Luxury Fashion Dubai">day looks</a>, our new arrivals embody
             refinement, versatility, and global sophistication.
             Perfect for <a href="https://whatson.ae/dubai/" target="_blank" rel="noopener noreferrer" title="Dubai Events - What's On">Dubai events</a>, business meetings, luxury travel, or simply showing up in style.
@@ -252,7 +252,7 @@ export default function Homepage() {
             Visit our <a href="/stores" title="Mario Bologna Store Locations Dubai">Dubai showroom</a> or shop online for the finest luxury brands in Dubai.
           </p>
           <p>
-            SEO Keywords: Mario Bologna luxury brands in Dubai, new luxury arrivals Dubai, summer 2025 fashion Dubai, designer clothes UAE, shop
+            SEO Keywords: Mario Bologna luxury fashion brands in Dubai, new luxury arrivals Dubai, summer 2025 fashion Dubai, designer clothes UAE, shop
             new in women men kids Dubai, latest trends GCC, luxury brands Dubai new arrivals.
           </p>
         </section>
@@ -527,7 +527,7 @@ function HeroSection({
       {mobileImage && (
         <img
           src={mobileImage}
-          alt="Mario Bologna - Luxury Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          alt="Mario Bologna - Luxury Fashion Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
           className="w-full h-full object-cover block sm:hidden"
           loading="eager"
           width="414"
@@ -539,7 +539,7 @@ function HeroSection({
       {tabletImage && (
         <img
           src={tabletImage}
-          alt="Mario Bologna - Luxury Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          alt="Mario Bologna - Luxury Fashion Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
           className="w-full h-full object-cover hidden sm:block lg:hidden"
           loading="eager"
           width="768"
@@ -551,7 +551,7 @@ function HeroSection({
       {desktopImage && (
         <img
           src={desktopImage}
-          alt="Mario Bologna - Luxury Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          alt="Mario Bologna - Luxury Fashion Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
           className="w-full h-full object-cover hidden lg:block"
           loading="eager"
           width="1920"
@@ -562,7 +562,7 @@ function HeroSection({
       {/* Fallback if no images are loaded */}
       {!desktopImage && !tabletImage && !mobileImage && (
         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-          <p>Loading Mario Bologna luxury brands hero image...</p>
+          <p>Loading Mario Bologna luxury fashion brands hero image...</p>
         </div>
       )}
       
@@ -800,7 +800,7 @@ function Shops({
       <NavLink
         to="/collections/men"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/men.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
-        title="Men's Luxury Fashion Dubai - Mario Bologna Luxury Brands"
+        title="Men's Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Men's Luxury Designer Fashion Collection Dubai"
       >
         <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
@@ -816,7 +816,7 @@ function Shops({
       <NavLink
         to="/collections/women"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/women.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
-        title="Women's Luxury Fashion Dubai - Mario Bologna Luxury Brands"
+        title="Women's Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Women's Luxury Designer Fashion Collection Dubai"
       >
         <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
@@ -832,7 +832,7 @@ function Shops({
       <NavLink
         to="/collections/kids"
         className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/kids.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
-        title="Kids Luxury Fashion Dubai - Mario Bologna Luxury Brands"
+        title="Kids Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Kids Luxury Designer Fashion Collection Dubai"
       >
         <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
