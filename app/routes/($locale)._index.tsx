@@ -33,9 +33,9 @@ import {Image} from '@shopify/hydrogen/customer-account-api-types';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Mario Bologna - Luxury Fashion Brands in Dubai UAE' },
+    { title: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
     { name: 'description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai offers premium Italian fashion collections. Shop designer clothes, accessories & luxury fashion brands for men, women & kids. Fast delivery across UAE & GCC.' },
-    { name: 'keywords', content: 'Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium fashion Dubai UAE, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands UAE, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai UAE' },
+    { name: 'keywords', content: 'Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium fashion Dubai, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands Dubai, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai' },
     { property: 'og:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion & Accessories' },
     { property: 'og:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.' },
     { property: 'og:type', content: 'website' },
@@ -46,7 +46,7 @@ export const meta: MetaFunction = () => {
     { property: 'og:image:height', content: '630' },
     { property: 'og:url', content: 'https://mariobologna.com' },
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion UAE' },
+    { name: 'twitter:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion' },
     { name: 'twitter:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai. Premium Italian fashion collections with fast UAE delivery.' },
     { name: 'twitter:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
     { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
@@ -527,7 +527,7 @@ function HeroSection({
       {mobileImage && (
         <img
           src={mobileImage}
-          alt="Mario Bologna - Luxury Fashion Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
           className="w-full h-full object-cover block sm:hidden"
           loading="eager"
           width="414"
@@ -539,7 +539,7 @@ function HeroSection({
       {tabletImage && (
         <img
           src={tabletImage}
-          alt="Mario Bologna - Luxury Fashion Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
           className="w-full h-full object-cover hidden sm:block lg:hidden"
           loading="eager"
           width="768"
@@ -551,7 +551,7 @@ function HeroSection({
       {desktopImage && (
         <img
           src={desktopImage}
-          alt="Mario Bologna - Luxury Fashion Brands in Dubai UAE | Premium Italian Fashion Collections Summer 2025"
+          alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
           className="w-full h-full object-cover hidden lg:block"
           loading="eager"
           width="1920"
