@@ -375,7 +375,7 @@ export default function Collection() {
           className={`mt-4 lg:mt-0 px-4 ss:px-8 grid grid-cols-1 ss:grid-cols-2 ${handle !== 'kids' ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-2 md:gap-4`}
         >
           <Link
-            to={`/collections/${collection.handle}?filter.productType="Footwear"#filtering_section`}
+            to={`/collections/${collection.handle}?filter.productType="Footwear"`}
             className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
             style={{
               backgroundImage: section
@@ -388,7 +388,7 @@ export default function Collection() {
           {handle !== 'kids' ? (
             <>
               <Link
-                to={`/collections/${collection.handle}?filter.productType="Clothes"#filtering_section`}
+                to={`/collections/${collection.handle}?filter.productType="Clothes"`}
                 className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
                 style={{
                   backgroundImage: section
@@ -401,7 +401,7 @@ export default function Collection() {
                 </p>
               </Link>
               <Link
-                to={`/collections/${collection.handle}?filter.productType="Bags"#filtering_section`}
+                to={`/collections/${collection.handle}?filter.productType="Bags"`}
                 className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
                 style={{
                   backgroundImage: section
@@ -412,7 +412,7 @@ export default function Collection() {
                 <p className="p-2 text-xs ss:text-base md:p-4">{t('Bags')}</p>
               </Link>
               <Link
-                to={`/collections/${collection.handle}?filter.productType="Accessories"#filtering_section`}
+                to={`/collections/${collection.handle}?filter.productType="Accessories"`}
                 className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
                 style={{
                   backgroundImage: section

@@ -358,21 +358,10 @@ export default function Product() {
   }, [product.collections, language]);
 
   useEffect(() => {
-    console.log('=== CLIENT-SIDE METAFIELDS DEBUG ===');
-    console.log('Raw metafields received:', metafields);
-    console.log('Metafields type:', typeof metafields);
-    console.log('Metafields length:', metafields ? metafields.length : 'null/undefined');
-    
     // Filter out null/undefined metafields before processing
     const validMetafields = metafields?.filter(Boolean) || [];
     
     if (validMetafields && validMetafields.length > 0) {
-      console.log('Valid metafields structure:', JSON.stringify(validMetafields, null, 2));
-      
-      // Log all available keys from valid metafields only
-      const allKeys = validMetafields.map((item: any) => item?.key).filter(Boolean);
-      console.log('All available metafield keys:', allKeys);
-      
       // More flexible key matching for care guide
       const careGuideKeys = language === 'en' 
         ? [
@@ -390,10 +379,8 @@ export default function Product() {
           ];
       
       let careGuide: string = '';
-      console.log('Searching for care guide with keys:', careGuideKeys);
       
       for (const keyToTry of careGuideKeys) {
-        console.log(`Trying key: "${keyToTry}"`);
         const found = validMetafields.find((item: any) => 
           item?.key === keyToTry ||
           item?.key?.toLowerCase() === keyToTry.toLowerCase() ||
@@ -402,20 +389,15 @@ export default function Product() {
         
         if (found?.value) {
           careGuide = found.value;
-          console.log(`✅ Found care guide with key: "${found.key}" -> value: "${careGuide.substring(0, 50)}..."`);
           break;
-        } else {
-          console.log(`❌ No match for key: "${keyToTry}"`);
         }
       }
       
       if (careGuide) {
         const array = careGuide.split('\n').filter(line => line.trim()); // Remove empty lines
         setCareGuide(array);
-        console.log('Set care guide array:', array);
       } else {
         setCareGuide([]);
-        console.log('No care guide found, setting empty array');
       }
 
       const title: string =
@@ -448,9 +430,7 @@ export default function Product() {
       ];
       let code: string = '';
       
-      console.log('Searching for product code with keys:', codeKeys);
       for (const keyToTry of codeKeys) {
-        console.log(`Trying code key: "${keyToTry}"`);
         const found = validMetafields.find((item: any) => 
           item?.key === keyToTry ||
           item?.key?.toLowerCase() === keyToTry.toLowerCase() ||
@@ -459,28 +439,21 @@ export default function Product() {
         
         if (found?.value) {
           code = found.value;
-          console.log(`✅ Found product code with key: "${found.key}" -> value: "${code}"`);
           break;
-        } else {
-          console.log(`❌ No match for code key: "${keyToTry}"`);
         }
       }
       
       if (code) {
         setProductCode(code);
-        console.log('Set product code:', code);
       } else {
         setProductCode('');
-        console.log('No cegidcode found, setting empty string');
       }
     } else {
-      console.log('No valid metafields received or empty array');
       setCareGuide([]);
       setProductCode('');
       setProductTitle(product.title);
       setProductDescription(product.descriptionHtml);
     }
-    console.log('=== END METAFIELDS DEBUG ===');
   }, [metafields, language]);
 
   useEffect(() => {
@@ -1349,9 +1322,6 @@ function AddToCartButton({
                       alert('Please select a valid product variant first');
                       return;
                     }
-                    
-                    // Log what we're sending to handleCreateCheckout
-                    console.log('Buy Now clicked with valid lines:', JSON.stringify(validLines, null, 2));
                     
                     // GA4: begin_checkout event
                     if (validLines && validLines.length > 0) {

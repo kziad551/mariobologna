@@ -131,7 +131,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   );
 
   // Debug log to check the metaobject response
-  console.log('Metaobject response:', JSON.stringify(metaobject, null, 2));
+  // console.log('Metaobject response:', JSON.stringify(metaobject, null, 2));
 
   if (!metaobject) {
     throw new Response(`Metaobject ${newHeroHandle} - ${newHeroType} not found`, {
@@ -419,15 +419,15 @@ function HeroSection({
 
   useEffect(() => {
     // Log the entire metaobject for debugging
-    console.log('Full metaobject:', JSON.stringify(metaobject, null, 2));
+    // console.log('Full metaobject:', JSON.stringify(metaobject, null, 2));
     
     if (!metaobject?.fields) {
-      console.log('No metaobject fields found');
+      // console.log('No metaobject fields found');
       return;
     }
     
     // Log all field keys to see what's available
-    console.log('Available field keys:', metaobject.fields.map(f => f.key));
+    // console.log('Available field keys:', metaobject.fields.map(f => f.key));
     
     // Try different possible field key variations
     const possibleDesktopKeys = ['desktop', 'pc', 'Desktop', 'PC', 'pc_image', 'desktop_image', 'image'];
@@ -445,25 +445,25 @@ function HeroSection({
       (field) => possibleMobileKeys.includes(field.key)
     );
     
-    console.log('Desktop field found:', desktopField);
-    console.log('Tablet field found:', tabletField);
-    console.log('Mobile field found:', mobileField);
+    // console.log('Desktop field found:', desktopField);
+    // console.log('Tablet field found:', tabletField);
+    // console.log('Mobile field found:', mobileField);
     
     // Helper function to extract image URL from a field
     const extractImageUrl = (field: any, fieldName: string): string | undefined => {
       if (!field) return undefined;
       
-      console.log(`Extracting ${fieldName} image from field:`, field);
+      // console.log(`Extracting ${fieldName} image from field:`, field);
       
       // Try reference.image.url
       if (field.reference?.image?.url) {
-        console.log(`Found ${fieldName} URL in reference.image.url:`, field.reference.image.url);
+        // console.log(`Found ${fieldName} URL in reference.image.url:`, field.reference.image.url);
         return field.reference.image.url;
       }
       
       // Try references.nodes[0].image.url
       if (field.references?.nodes?.[0]?.image?.url) {
-        console.log(`Found ${fieldName} URL in references.nodes[0].image.url:`, field.references.nodes[0].image.url);
+        // console.log(`Found ${fieldName} URL in references.nodes[0].image.url:`, field.references.nodes[0].image.url);
         return field.references.nodes[0].image.url;
       }
       
@@ -471,23 +471,23 @@ function HeroSection({
       if (field.value) {
         try {
           const parsedValue = JSON.parse(field.value) as any;
-          console.log(`Parsed ${fieldName} value:`, parsedValue);
+          // console.log(`Parsed ${fieldName} value:`, parsedValue);
           const url = parsedValue?.url || parsedValue?.src;
           if (url) {
-            console.log(`Found ${fieldName} URL in parsed value:`, url);
+            // console.log(`Found ${fieldName} URL in parsed value:`, url);
             return url;
           }
         } catch (e) {
-          console.log(`Failed to parse ${fieldName} field value as JSON:`, e);
+          // console.log(`Failed to parse ${fieldName} field value as JSON:`, e);
           // Maybe it's a direct URL string
           if (typeof field.value === 'string' && field.value.includes('http')) {
-            console.log(`Found ${fieldName} URL as direct string:`, field.value);
+            // console.log(`Found ${fieldName} URL as direct string:`, field.value);
             return field.value;
           }
         }
       }
       
-      console.log(`No ${fieldName} URL found in field`);
+      // console.log(`No ${fieldName} URL found in field`);
       return undefined;
     };
     
@@ -498,12 +498,12 @@ function HeroSection({
     
     // FALLBACK: If no separate fields found, use the single 'image' field for all devices
     if (!desktopUrl && !tabletUrl && !mobileUrl) {
-      console.log('No separate device fields found, looking for single image field...');
+      // console.log('No separate device fields found, looking for single image field...');
       const imageField = metaobject.fields.find(field => field.key === 'image');
       if (imageField) {
         const fallbackUrl = extractImageUrl(imageField, 'fallback');
         if (fallbackUrl) {
-          console.log('Using single image for all devices:', fallbackUrl);
+          // console.log('Using single image for all devices:', fallbackUrl);
           desktopUrl = fallbackUrl;
           tabletUrl = fallbackUrl;
           mobileUrl = fallbackUrl;
@@ -511,10 +511,10 @@ function HeroSection({
       }
     }
     
-    console.log('Final URLs:');
-    console.log('Desktop URL:', desktopUrl);
-    console.log('Tablet URL:', tabletUrl);
-    console.log('Mobile URL:', mobileUrl);
+    // console.log('Final URLs:');
+    // console.log('Desktop URL:', desktopUrl);
+    // console.log('Tablet URL:', tabletUrl);
+    // console.log('Mobile URL:', mobileUrl);
     
     if (desktopUrl) setDesktopImage(desktopUrl);
     if (tabletUrl) setTabletImage(tabletUrl);
