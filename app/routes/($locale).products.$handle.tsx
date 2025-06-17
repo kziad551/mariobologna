@@ -106,8 +106,6 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {handle} = params;
   const {storefront, env} = context;
   
-  // Initialize result at function scope to avoid "Cannot find name" error
-  let result: { metafields: any[] } = { metafields: [] };
   const cookies = request.headers.get('Cookie');
   let country: CountryCode = 'AE';
   if (cookies) {
@@ -216,7 +214,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {collection: youMayAlsoLikeProducts} = await storefront.query(
     OTHER_COLLECTION_QUERY,
     {
-      variables: {country, handle: 'recommended-products', first: 4},
+      variables: {country, handle: 'recommended-products', first: 5},
     },
   );
 
@@ -237,10 +235,10 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   // Filter out the current product and ensure products are from the same type
   let recommendations = similarProducts?.nodes
     .filter((p: any) => p.id !== product.id && p.productType === product.productType)
-    .slice(0, 4) || [];
+    .slice(0, 5) || [];
 
   // If we don't have enough recommendations, try Shopify's native recommendations
-  if (recommendations.length < 4) {
+  if (recommendations.length < 5) {
     const { productRecommendations } = await storefront.query(
       PRODUCT_RECOMMENDATIONS_QUERY,
       {
@@ -262,15 +260,13 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       ...recommendations,
       ...sameTypeRecommendations
         .filter((rec: any) => !recommendations.find((r: any) => r.id === rec.id))
-    ].slice(0, 4);
+    ].slice(0, 5);
   }
-
-  // Metafields are already fetched above
 
   return defer({
     product,
     variants,
-    metafields: result.metafields,
+    metafields: product.metafields,
     recommendations,
     youMayAlsoLikeProducts,
     combineProductsCollection,
@@ -362,22 +358,70 @@ export default function Product() {
   }, [product.collections, language]);
 
   useEffect(() => {
-    if (metafields) {
-      const careGuide: string = metafields.find(
-        (item: any) =>
-          item.key === (language === 'en' ? 'care_guide' : 'care_guide_ar'),
-      )?.value;
+    console.log('=== CLIENT-SIDE METAFIELDS DEBUG ===');
+    console.log('Raw metafields received:', metafields);
+    console.log('Metafields type:', typeof metafields);
+    console.log('Metafields length:', metafields ? metafields.length : 'null/undefined');
+    
+    // Filter out null/undefined metafields before processing
+    const validMetafields = metafields?.filter(Boolean) || [];
+    
+    if (validMetafields && validMetafields.length > 0) {
+      console.log('Valid metafields structure:', JSON.stringify(validMetafields, null, 2));
+      
+      // Log all available keys from valid metafields only
+      const allKeys = validMetafields.map((item: any) => item?.key).filter(Boolean);
+      console.log('All available metafield keys:', allKeys);
+      
+      // More flexible key matching for care guide
+      const careGuideKeys = language === 'en' 
+        ? [
+            'Care guide',        // Exact match from Shopify admin
+            'care_guide',        // snake_case version
+            'Care guide',        
+            'careGuide',         // camelCase
+            'care-guide'         // kebab-case
+          ]
+        : [
+            'Arabic Care Guide', // Exact match from Shopify admin
+            'care_guide_ar',
+            'arabic_care_guide', 
+            'Arabic care guide'
+          ];
+      
+      let careGuide: string = '';
+      console.log('Searching for care guide with keys:', careGuideKeys);
+      
+      for (const keyToTry of careGuideKeys) {
+        console.log(`Trying key: "${keyToTry}"`);
+        const found = validMetafields.find((item: any) => 
+          item?.key === keyToTry ||
+          item?.key?.toLowerCase() === keyToTry.toLowerCase() ||
+          item?.key?.toLowerCase().replace(/[_\s-]/g, '') === keyToTry.toLowerCase().replace(/[_\s-]/g, '')
+        );
+        
+        if (found?.value) {
+          careGuide = found.value;
+          console.log(`✅ Found care guide with key: "${found.key}" -> value: "${careGuide.substring(0, 50)}..."`);
+          break;
+        } else {
+          console.log(`❌ No match for key: "${keyToTry}"`);
+        }
+      }
+      
       if (careGuide) {
-        const array = careGuide.split('\n');
+        const array = careGuide.split('\n').filter(line => line.trim()); // Remove empty lines
         setCareGuide(array);
+        console.log('Set care guide array:', array);
       } else {
         setCareGuide([]);
+        console.log('No care guide found, setting empty array');
       }
 
       const title: string =
         language === 'en'
           ? product.title
-          : metafields.find((item: any) => item.key === 'arabic_title')?.value;
+          : validMetafields.find((item: any) => item?.key === 'arabic_title')?.value;
       if (title) {
         setProductTitle(title);
       } else {
@@ -387,23 +431,56 @@ export default function Product() {
       const description: string =
         language === 'en'
           ? product.descriptionHtml
-          : metafields.find((item: any) => item.key === 'arabic_description')
-              ?.value;
+          : validMetafields.find((item: any) => item?.key === 'arabic_description')?.value;
       if (description) {
         setProductDescription(description);
       } else {
         setProductDescription('');
       }
 
-      const code: string = metafields.find(
-        (item: any) => item.key === 'cegidcode',
-      )?.value;
+      // CEGID Code matching - starting with exact match from Shopify admin
+      const codeKeys = [
+        'CEGID Code',        // Exact match from Shopify admin
+        'cegidcode', 
+        'cegid_code', 
+        'cegid code', 
+        'CEGIDCode'
+      ];
+      let code: string = '';
+      
+      console.log('Searching for product code with keys:', codeKeys);
+      for (const keyToTry of codeKeys) {
+        console.log(`Trying code key: "${keyToTry}"`);
+        const found = validMetafields.find((item: any) => 
+          item?.key === keyToTry ||
+          item?.key?.toLowerCase() === keyToTry.toLowerCase() ||
+          item?.key?.toLowerCase().replace(/[_\s-]/g, '') === keyToTry.toLowerCase().replace(/[_\s-]/g, '')
+        );
+        
+        if (found?.value) {
+          code = found.value;
+          console.log(`✅ Found product code with key: "${found.key}" -> value: "${code}"`);
+          break;
+        } else {
+          console.log(`❌ No match for code key: "${keyToTry}"`);
+        }
+      }
+      
       if (code) {
         setProductCode(code);
+        console.log('Set product code:', code);
       } else {
         setProductCode('');
+        console.log('No cegidcode found, setting empty string');
       }
+    } else {
+      console.log('No valid metafields received or empty array');
+      setCareGuide([]);
+      setProductCode('');
+      setProductTitle(product.title);
+      setProductDescription(product.descriptionHtml);
     }
+    console.log('=== END METAFIELDS DEBUG ===');
   }, [metafields, language]);
 
   useEffect(() => {
@@ -1381,6 +1458,16 @@ const PRODUCT_FRAGMENT = `#graphql
         handle
         title
       }
+    }
+    metafields(identifiers: [
+      {namespace: "descriptors", key: "care_guide"},
+      {namespace: "custom", key: "care_guide_ar"},
+      {namespace: "custom", key: "arabic_title"},
+      {namespace: "custom", key: "arabic_description"},
+      {namespace: "custom", key: "cegidcode"}
+    ]) {
+      key
+      value
     }
     priceRange {
       minVariantPrice {

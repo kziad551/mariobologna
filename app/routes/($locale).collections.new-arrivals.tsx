@@ -108,9 +108,9 @@ export default function NewArrivalsPage() {
         <IoIosArrowForward
           className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
-        <NavLink to="/collections" className="text-sm hover:underline whitespace-nowrap">
+        <span className="text-sm text-neutral-N-30 whitespace-nowrap">
           {t('Collections')}
-        </NavLink>
+        </span>
         <IoIosArrowForward
           className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />

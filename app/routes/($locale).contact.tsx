@@ -73,7 +73,7 @@ const ContactUs = () => {
         <h5>Related Links</h5>
         <ul>
           <li><Link to="/about">About Mario Bologna</Link></li>
-          <li><Link to="/collections">Our Collections</Link></li>
+          <li><Link to="/collections/all">Our Collections</Link></li>
           <li><Link to="/stores">Store Locations</Link></li>
         </ul>
       </div>

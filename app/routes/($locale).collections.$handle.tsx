@@ -360,9 +360,9 @@ export default function Collection() {
         <IoIosArrowForward
           className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
-        <NavLink to="/collections" className="text-sm hover:underline whitespace-nowrap">
+        <span className="text-sm text-neutral-N-30 whitespace-nowrap">
           {t('Collections')}
-        </NavLink>
+        </span>
         <IoIosArrowForward
           className={`${direction === 'rtl' ? 'rotate-180' : ''} mx-2 flex-shrink-0`}
         />
@@ -877,7 +877,7 @@ function ProductsGrid({
 
   return (
     <div
-      className={`grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3 sm:gap-4 md:gap-6 lg:gap-4`}
+      className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-4`}
     >
       {elements}
     </div>
