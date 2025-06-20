@@ -370,35 +370,101 @@ export default function Collection() {
         window.sessionStorage.setItem('intentionalScroll', 'true');
       }
       
-      // Small delay to ensure DOM is updated
+      // Wait for layout to stabilize, especially important on desktop with sidebar
+      const scrollDelay = width >= 1280 ? 800 : 500; // Longer delay on desktop due to sidebar layout
+      
       const timeoutId = setTimeout(() => {
         const productsSection = document.getElementById('products');
         if (productsSection) {
           const headerHeight = 80;
           const elementRect = productsSection.getBoundingClientRect();
           const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
-          console.log('Scrolling after products loaded, position:', targetPosition);
+          console.log('Scrolling after products loaded, position:', targetPosition, 'width:', width);
           
           window.scrollTo({
             top: targetPosition,
             behavior: 'smooth'
           });
           
-          // Clear the intentional scroll flag after a delay to prevent interference
+          // Clear the intentional scroll flag after scroll completes
+          const clearDelay = width >= 1280 ? 1500 : 1000; // Longer delay on desktop
           setTimeout(() => {
             if (typeof window !== 'undefined' && window.sessionStorage) {
               window.sessionStorage.removeItem('intentionalScroll');
             }
             setShouldScrollToProducts(false);
-          }, 1000); // Wait for smooth scroll to complete
+          }, clearDelay);
         } else {
           setShouldScrollToProducts(false);
         }
-      }, 500); // Increased delay to ensure content is fully loaded
+      }, scrollDelay);
       
       return () => clearTimeout(timeoutId);
     }
-  }, [collection.products.nodes.length, shouldScrollToProducts, location.search]);
+  }, [collection.products.nodes.length, shouldScrollToProducts, location.search, width]);
+
+  // Restore scroll position when coming back from product page
+  useEffect(() => {
+    // Skip scroll restoration if we're intentionally scrolling to products
+    if (typeof window !== 'undefined' && window.location.hash === '#products') {
+      return;
+    }
+    
+    // Skip if we have a pending scroll to products
+    if (shouldScrollToProducts) {
+      return;
+    }
+    
+    // Skip if there's an intentional scroll happening
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const intentionalScroll = window.sessionStorage.getItem('intentionalScroll');
+      if (intentionalScroll === 'true') {
+        console.log('Skipping scroll restoration due to intentional scroll');
+        return;
+      }
+    }
+    
+    // Only attempt to restore if we have sessionStorage access
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      try {
+        const savedScrollData = window.sessionStorage.getItem('lastScrollPosition');
+        if (savedScrollData) {
+          interface ScrollPosition {
+            path: string;
+            position: number;
+          }
+          
+          const scrollData = JSON.parse(savedScrollData) as ScrollPosition;
+          
+          // Only restore if we're navigating back to the same collection/filter combo
+          if (scrollData.path === location.pathname + location.search && scrollData.position > 0) {
+            console.log('Restoring scroll position:', scrollData.position);
+            
+            // Use longer delay on desktop to ensure layout is stable and avoid conflicts
+            const restoreDelay = width >= 1280 ? 200 : 50;
+            
+            setTimeout(() => {
+              // Double-check that no intentional scroll is happening
+              const intentionalScroll = window.sessionStorage?.getItem('intentionalScroll');
+              if (intentionalScroll === 'true') {
+                console.log('Aborting scroll restoration - intentional scroll detected');
+                return;
+              }
+              
+              window.scrollTo({
+                top: scrollData.position,
+                behavior: 'auto' // Don't use smooth scrolling for restoration
+              });
+              // Clear the saved position after restoration
+              window.sessionStorage.removeItem('lastScrollPosition');
+            }, restoreDelay);
+          }
+        }
+      } catch (e) {
+        console.error('Error restoring scroll position:', e);
+      }
+    }
+  }, [location.pathname, location.search, shouldScrollToProducts, width]);
 
   return (
     <div className="collection">
@@ -821,59 +887,6 @@ function ProductsGrid({
     hasNextPage,
     hasPreviousPage,
   ]);
-
-  // Restore scroll position when coming back from product page
-  useEffect(() => {
-    // Skip scroll restoration if we're intentionally scrolling to products
-    if (typeof window !== 'undefined' && window.location.hash === '#products') {
-      return;
-    }
-    
-    // Skip if we have a pending scroll to products
-    if (shouldScrollToProducts) {
-      return;
-    }
-    
-    // Skip if there's an intentional scroll happening
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const intentionalScroll = window.sessionStorage.getItem('intentionalScroll');
-      if (intentionalScroll === 'true') {
-        console.log('Skipping scroll restoration due to intentional scroll');
-        return;
-      }
-    }
-    
-    // Only attempt to restore if we have sessionStorage access
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      try {
-        const savedScrollData = window.sessionStorage.getItem('lastScrollPosition');
-        if (savedScrollData) {
-          interface ScrollPosition {
-            path: string;
-            position: number;
-          }
-          
-          const scrollData = JSON.parse(savedScrollData) as ScrollPosition;
-          
-          // Only restore if we're navigating back to the same collection/filter combo
-          if (scrollData.path === location.pathname + location.search && scrollData.position > 0) {
-            console.log('Restoring scroll position:', scrollData.position);
-            // Delay scroll restoration slightly to ensure DOM is ready
-            setTimeout(() => {
-              window.scrollTo({
-                top: scrollData.position,
-                behavior: 'auto' // Don't use smooth scrolling for restoration
-              });
-              // Clear the saved position after restoration
-              window.sessionStorage.removeItem('lastScrollPosition');
-            }, 50); // Reduced delay
-          }
-        }
-      } catch (e) {
-        console.error('Error restoring scroll position:', e);
-      }
-    }
-  }, [location.pathname, location.search, shouldScrollToProducts]);
 
   // Reset metafieldsMap when search params change (filter change)
   useEffect(() => {
