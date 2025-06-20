@@ -429,42 +429,38 @@ function HeroSection({
     // Log all field keys to see what's available
     // console.log('Available field keys:', metaobject.fields.map(f => f.key));
     
-    // Try different possible field key variations
-    const possibleDesktopKeys = ['desktop', 'pc', 'Desktop', 'PC', 'pc_image', 'desktop_image', 'image'];
-    const possibleTabletKeys = ['tablet', 'Tablet', 'tablet_image', 'ipad'];
-    const possibleMobileKeys = ['mobile', 'Mobile', 'mobile_image', 'phone'];
-    
-    // Find the desktop, tablet, and mobile image fields
-    const desktopField = metaobject.fields.find(
-      (field) => possibleDesktopKeys.includes(field.key)
-    );
-    const tabletField = metaobject.fields.find(
-      (field) => possibleTabletKeys.includes(field.key)
-    );
-    const mobileField = metaobject.fields.find(
-      (field) => possibleMobileKeys.includes(field.key)
-    );
-    
-    // console.log('Desktop field found:', desktopField);
-    // console.log('Tablet field found:', tabletField);
-    // console.log('Mobile field found:', mobileField);
-    
     // Helper function to extract image URL from a field
     const extractImageUrl = (field: any, fieldName: string): string | undefined => {
-      if (!field) return undefined;
+      if (!field) {
+        // console.log(`No field provided for ${fieldName}`);
+        return undefined;
+      }
       
       // console.log(`Extracting ${fieldName} image from field:`, field);
+      // console.log(`Field type: ${field.type}, Field key: ${field.key}`);
       
-      // Try reference.image.url
+      // Try reference.image.url (most common for file/media fields in Shopify)
       if (field.reference?.image?.url) {
         // console.log(`Found ${fieldName} URL in reference.image.url:`, field.reference.image.url);
         return field.reference.image.url;
       }
       
-      // Try references.nodes[0].image.url
+      // Try direct reference.url (sometimes the structure is simpler)
+      if (field.reference?.url) {
+        // console.log(`Found ${fieldName} URL in reference.url:`, field.reference.url);
+        return field.reference.url;
+      }
+      
+      // Try references.nodes[0].image.url (for multi-file fields)
       if (field.references?.nodes?.[0]?.image?.url) {
         // console.log(`Found ${fieldName} URL in references.nodes[0].image.url:`, field.references.nodes[0].image.url);
         return field.references.nodes[0].image.url;
+      }
+      
+      // Try references.nodes[0].url (for multi-file fields with simpler structure)
+      if (field.references?.nodes?.[0]?.url) {
+        // console.log(`Found ${fieldName} URL in references.nodes[0].url:`, field.references.nodes[0].url);
+        return field.references.nodes[0].url;
       }
       
       // Try parsing value as JSON
@@ -491,12 +487,117 @@ function HeroSection({
       return undefined;
     };
     
-    // Extract URLs using the helper function
-    let desktopUrl = extractImageUrl(desktopField, 'desktop');
-    let tabletUrl = extractImageUrl(tabletField, 'tablet');
-    let mobileUrl = extractImageUrl(mobileField, 'mobile');
+    let desktopUrl, tabletUrl, mobileUrl;
     
-    // FALLBACK: If no separate fields found, use the single 'image' field for all devices
+    if (language === 'ar') {
+      // For Arabic language, first try Arabic-specific fields
+      const desktopArabicField = metaobject.fields.find(
+        (field) => field.key === 'Desktop_arabic' || field.key === 'desktop_arabic'
+      );
+      const tabletArabicField = metaobject.fields.find(
+        (field) => field.key === 'Tablet_arabic' || field.key === 'tablet_arabic'
+      );
+      const mobileArabicField = metaobject.fields.find(
+        (field) => field.key === 'Mobile_arabic' || field.key === 'mobile_arabic'
+      );
+      
+      // Try to extract URLs from Arabic fields first
+      desktopUrl = extractImageUrl(desktopArabicField, 'desktop_arabic');
+      tabletUrl = extractImageUrl(tabletArabicField, 'tablet_arabic');
+      mobileUrl = extractImageUrl(mobileArabicField, 'mobile_arabic');
+      
+      // console.log('Arabic fields found:', {
+      //   desktop: !!desktopArabicField,
+      //   tablet: !!tabletArabicField,
+      //   mobile: !!mobileArabicField
+      // });
+      // console.log('Arabic URLs extracted:', {
+      //   desktopUrl,
+      //   tabletUrl,
+      //   mobileUrl
+      // });
+      
+      // If Arabic images not found, fall back to English fields
+      if (!desktopUrl) {
+        const desktopField = metaobject.fields.find(
+          (field) => ['Desktop', 'desktop', 'pc', 'PC', 'pc_image', 'desktop_image'].includes(field.key)
+        );
+        desktopUrl = extractImageUrl(desktopField, 'desktop_fallback');
+      }
+      
+      if (!tabletUrl) {
+        const tabletField = metaobject.fields.find(
+          (field) => ['tablet', 'Tablet', 'tablet_image', 'ipad'].includes(field.key)
+        );
+        tabletUrl = extractImageUrl(tabletField, 'tablet_fallback');
+      }
+      
+      if (!mobileUrl) {
+        const mobileField = metaobject.fields.find(
+          (field) => ['mobile', 'Mobile', 'mobile_image', 'phone'].includes(field.key)
+        );
+        mobileUrl = extractImageUrl(mobileField, 'mobile_fallback');
+      }
+    } else {
+      // For English/other languages, use default fields directly
+      // console.log('Processing English/default language fields');
+      
+      // Find the Desktop field with multiple attempts
+      let desktopField = metaobject.fields.find(field => field.key === 'Desktop');
+      if (!desktopField) {
+        desktopField = metaobject.fields.find(field => ['desktop', 'pc', 'PC', 'pc_image', 'desktop_image'].includes(field.key));
+      }
+      
+      // Find other fields
+      const tabletField = metaobject.fields.find(field => field.key === 'Tablet') ||
+                         metaobject.fields.find(field => ['tablet', 'tablet_image', 'ipad'].includes(field.key));
+      
+      const mobileField = metaobject.fields.find(field => field.key === 'Mobile') ||
+                         metaobject.fields.find(field => ['mobile', 'mobile_image', 'phone'].includes(field.key));
+      
+      // console.log('Found desktop field:', desktopField);
+      // console.log('Found tablet field:', tabletField);
+      // console.log('Found mobile field:', mobileField);
+      
+      // Extract URLs with enhanced Desktop field handling
+      if (desktopField) {
+        // Try multiple extraction methods specifically for Desktop field
+        desktopUrl = desktopField.reference?.image?.url ||
+                    (desktopField.reference as any)?.url ||
+                    desktopField.references?.nodes?.[0]?.image?.url ||
+                    (desktopField.references?.nodes?.[0] as any)?.url ||
+                    (desktopField.value && typeof desktopField.value === 'string' && desktopField.value.includes('http') ? desktopField.value : undefined);
+        
+        // Try parsing JSON value if no direct URL found
+        if (!desktopUrl && desktopField.value) {
+          try {
+            const parsed = JSON.parse(desktopField.value) as any;
+            desktopUrl = parsed?.url || parsed?.src;
+          } catch (e) {
+            // Silent fallback
+          }
+        }
+        
+        // Temporary debug for Desktop field
+        console.log('Desktop field found:', !!desktopField, 'Desktop URL extracted:', desktopUrl);
+      } else {
+        console.log('No Desktop field found in metaobject fields');
+      }
+      
+      // If no desktop field found, use the 'image' field as desktop fallback
+      if (!desktopUrl) {
+        const imageField = metaobject.fields.find(f => f.key === 'image');
+        if (imageField) {
+          desktopUrl = extractImageUrl(imageField, 'image_as_desktop');
+          console.log('Using image field as desktop fallback:', desktopUrl);
+        }
+      }
+      
+      tabletUrl = extractImageUrl(tabletField, 'tablet');
+      mobileUrl = extractImageUrl(mobileField, 'mobile');
+    }
+    
+    // FINAL FALLBACK: If no separate fields found, use the single 'image' field for all devices
     if (!desktopUrl && !tabletUrl && !mobileUrl) {
       // console.log('No separate device fields found, looking for single image field...');
       const imageField = metaobject.fields.find(field => field.key === 'image');
@@ -511,7 +612,7 @@ function HeroSection({
       }
     }
     
-    // console.log('Final URLs:');
+    // console.log('Final URLs for language:', language);
     // console.log('Desktop URL:', desktopUrl);
     // console.log('Tablet URL:', tabletUrl);
     // console.log('Mobile URL:', mobileUrl);
@@ -519,7 +620,7 @@ function HeroSection({
     if (desktopUrl) setDesktopImage(desktopUrl);
     if (tabletUrl) setTabletImage(tabletUrl);
     if (mobileUrl) setMobileImage(mobileUrl);
-  }, [metaobject]);
+  }, [metaobject, language]);
 
   return (
     <div className="relative w-full">

@@ -306,6 +306,8 @@ export default function Collection() {
   const {setCurrentPage, language, direction} = useCustomContext();
   const {t} = useTranslation();
   const {width} = useWindowDimensions();
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     handle,
     collection,
@@ -316,7 +318,7 @@ export default function Collection() {
   } = useLoaderData<typeof loader>();
   const {ref, inView} = useInView();
   const [openDropdown, setOpenDropdown] = useState<{[x: string]: boolean}>({});
-  const [openFilter, setOpenFilter] = useState<boolean>(true);
+  const [openFilter, setOpenFilter] = useState<boolean>(width >= 1280);
   const [selectedOptions, setSelectedOptions] = useState<{
     [x: string]: {[y: string]: boolean};
   }>({});
@@ -328,6 +330,7 @@ export default function Collection() {
     collection.products.nodes.length,
   );
   const [section, setSection] = useState('');
+  const [shouldScrollToProducts, setShouldScrollToProducts] = useState(false);
 
   useEffect(() => {
     if (['women', 'men', 'kids'].includes(handle)) {
@@ -351,6 +354,52 @@ export default function Collection() {
     setFilteredLength(collection.filteredProducts.nodes.length);
   }, [appliedFilters]);
 
+  // Update filter display based on screen size
+  useEffect(() => {
+    setOpenFilter(width >= 1280); // Use sidebar filter only on large desktop (xl+), mobile-style on tablet and iPad
+  }, [width]);
+
+  // Handle scroll to products when filtered products change
+  useEffect(() => {
+    if (shouldScrollToProducts && collection.products.nodes.length > 0) {
+      console.log('Starting intentional scroll to products...');
+      
+      // Clear any existing scroll restoration data immediately
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        window.sessionStorage.removeItem('lastScrollPosition');
+        window.sessionStorage.setItem('intentionalScroll', 'true');
+      }
+      
+      // Small delay to ensure DOM is updated
+      const timeoutId = setTimeout(() => {
+        const productsSection = document.getElementById('products');
+        if (productsSection) {
+          const headerHeight = 80;
+          const elementRect = productsSection.getBoundingClientRect();
+          const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
+          console.log('Scrolling after products loaded, position:', targetPosition);
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Clear the intentional scroll flag after a delay to prevent interference
+          setTimeout(() => {
+            if (typeof window !== 'undefined' && window.sessionStorage) {
+              window.sessionStorage.removeItem('intentionalScroll');
+            }
+            setShouldScrollToProducts(false);
+          }, 1000); // Wait for smooth scroll to complete
+        } else {
+          setShouldScrollToProducts(false);
+        }
+      }, 500); // Increased delay to ensure content is fully loaded
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [collection.products.nodes.length, shouldScrollToProducts, location.search]);
+
   return (
     <div className="collection">
       <div className="flex w-full items-center mt-3 mb-4 px-4 ss:px-8 text-neutral-N-30 overflow-x-auto">
@@ -372,58 +421,86 @@ export default function Collection() {
       </div>
       {['Men', 'Women', 'Kids'].includes(collection.title) ? (
         <div
-          className={`mt-4 lg:mt-0 px-4 ss:px-8 grid grid-cols-1 ss:grid-cols-2 ${handle !== 'kids' ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-2 md:gap-4`}
+          className={`mt-4 lg:mt-0 px-4 ss:px-8 grid grid-cols-1 ss:grid-cols-2 ${handle !== 'kids' ? 'md:grid-cols-3 xl:grid-cols-4' : 'xl:grid-cols-2'} gap-2 md:gap-4`}
         >
-          <Link
-            to={`/collections/${collection.handle}?filter.productType="Footwear"`}
-            className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+          <div
+            className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
             style={{
               backgroundImage: section
                 ? `url('/images/${section}/shoes.jpg')`
                 : '',
             }}
+            onClick={() => {
+              console.log('Footwear category box clicked - setting scroll flag');
+              setShouldScrollToProducts(true);
+              navigate(`/collections/${collection.handle}?filter.productType="Footwear"`, {
+                replace: true,
+                preventScrollReset: true,
+              });
+            }}
           >
             <p className="p-2 text-xs ss:text-base md:p-4">{t('Footwear')}</p>
-          </Link>
+          </div>
           {handle !== 'kids' ? (
             <>
-              <Link
-                to={`/collections/${collection.handle}?filter.productType="Clothes"`}
-                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+              <div
+                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
                 style={{
                   backgroundImage: section
                     ? `url('/images/${section}/clothes.jpg')`
                     : '',
                 }}
+                onClick={() => {
+                  console.log('Clothes category box clicked - setting scroll flag');
+                  setShouldScrollToProducts(true);
+                  navigate(`/collections/${collection.handle}?filter.productType="Clothes"`, {
+                    replace: true,
+                    preventScrollReset: true,
+                  });
+                }}
               >
                 <p className="p-2 text-xs ss:text-base md:p-4">
                   {t('Clothes')}
                 </p>
-              </Link>
-              <Link
-                to={`/collections/${collection.handle}?filter.productType="Bags"`}
-                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+              </div>
+              <div
+                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
                 style={{
                   backgroundImage: section
                     ? `url('/images/${section}/bags.jpg')`
                     : '',
                 }}
+                onClick={() => {
+                  console.log('Bags category box clicked - setting scroll flag');
+                  setShouldScrollToProducts(true);
+                  navigate(`/collections/${collection.handle}?filter.productType="Bags"`, {
+                    replace: true,
+                    preventScrollReset: true,
+                  });
+                }}
               >
                 <p className="p-2 text-xs ss:text-base md:p-4">{t('Bags')}</p>
-              </Link>
-              <Link
-                to={`/collections/${collection.handle}?filter.productType="Accessories"`}
-                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+              </div>
+              <div
+                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
                 style={{
                   backgroundImage: section
                     ? `url('/images/${section}/accessories.jpg')`
                     : '',
                 }}
+                onClick={() => {
+                  console.log('Accessories category box clicked - setting scroll flag');
+                  setShouldScrollToProducts(true);
+                  navigate(`/collections/${collection.handle}?filter.productType="Accessories"`, {
+                    replace: true,
+                    preventScrollReset: true,
+                  });
+                }}
               >
                 <p className="p-2 text-xs ss:text-base md:p-4">
                   {t('Accessories')}
                 </p>
-              </Link>
+              </div>
             </>
           ) : (
             <></>
@@ -604,75 +681,78 @@ export default function Collection() {
         </AnimatePresence>
       </div> */}
       {collection.products.filters.length > 0 ? (
-        <SortFilter
-          filters={allFilters as Filter[]}
-          appliedFilters={appliedFilters as any}
-          isOpen={openFilter}
-          setIsOpen={setOpenFilter}
-          t={t}
-          direction={direction}
-          filteredLength={filteredLength}
-          totalLength={totalLength}
-          handle={handle}
-        >
-          <Pagination connection={collection.products}>
-            {({
-              nodes,
-              isLoading,
-              PreviousLink,
-              NextLink,
-              previousPageUrl,
-              nextPageUrl,
-              hasPreviousPage,
-              hasNextPage,
-              state,
-            }) => (
-              <>
-                <div
-                  className={`${hasPreviousPage ? 'mb-6' : ''} flex items-center justify-center`}
-                >
-                  <Button
-                    ref={ref}
-                    as={PreviousLink}
-                    variant="secondary"
-                    width="full"
+        <div id="products">
+          <SortFilter
+            filters={allFilters as Filter[]}
+            appliedFilters={appliedFilters as any}
+            isOpen={openFilter}
+            setIsOpen={setOpenFilter}
+            t={t}
+            direction={direction}
+            filteredLength={filteredLength}
+            totalLength={totalLength}
+            handle={handle}
+          >
+            <Pagination connection={collection.products}>
+              {({
+                nodes,
+                isLoading,
+                PreviousLink,
+                NextLink,
+                previousPageUrl,
+                nextPageUrl,
+                hasPreviousPage,
+                hasNextPage,
+                state,
+              }) => (
+                <>
+                  <div
+                    className={`${hasPreviousPage ? 'mb-6' : ''} flex items-center justify-center`}
                   >
-                    {isLoading ? t('Loading...') : t('Load previous')}
-                  </Button>
-                </div>
-                {nodes.length > 0 ? (
-                  <ProductsGrid
-                    handle={section}
-                    t={t}
-                    direction={direction}
-                    products={nodes as ProductCardFragment[]}
-                    openFilter={openFilter}
-                    width={width}
-                    inView={inView}
-                    hasNextPage={hasNextPage}
-                    hasPreviousPage={hasPreviousPage}
-                    previousPageUrl={previousPageUrl}
-                    nextPageUrl={nextPageUrl}
-                    state={state}
-                    lookProducts={lookCollection?.products.nodes}
-                  />
-                ) : (
-                  <p>{t('No Products available yet')}</p>
-                )}
-                <div className="flex items-center justify-center mt-6">
-                  <Button
-                    ref={ref}
-                    as={NextLink}
-                    variant="secondary"
-                    width="full"
-                  >
-                    {isLoading ? t('Loading...') : t('Load more products')}
-                  </Button>
-                </div>
-              </>
-            )}
-          </Pagination>
-        </SortFilter>
+                    <Button
+                      ref={ref}
+                      as={PreviousLink}
+                      variant="secondary"
+                      width="full"
+                    >
+                      {isLoading ? t('Loading...') : t('Load previous')}
+                    </Button>
+                  </div>
+                  {nodes.length > 0 ? (
+                    <ProductsGrid
+                      handle={section}
+                      t={t}
+                      direction={direction}
+                      products={nodes as ProductCardFragment[]}
+                      openFilter={openFilter}
+                      width={width}
+                      inView={inView}
+                      hasNextPage={hasNextPage}
+                      hasPreviousPage={hasPreviousPage}
+                      previousPageUrl={previousPageUrl}
+                      nextPageUrl={nextPageUrl}
+                      state={state}
+                      lookProducts={lookCollection?.products.nodes}
+                      shouldScrollToProducts={shouldScrollToProducts}
+                    />
+                  ) : (
+                    <p>{t('No Products available yet')}</p>
+                  )}
+                  <div className="flex items-center justify-center mt-6">
+                    <Button
+                      ref={ref}
+                      as={NextLink}
+                      variant="secondary"
+                      width="full"
+                    >
+                      {isLoading ? t('Loading...') : t('Load more products')}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </Pagination>
+          </SortFilter>
+        </div>
       ) : (
         <div className="px-4 ss:px-8 pt-6">
           <h3 className="font-semibold text-2xl xs:text-4xl">
@@ -698,6 +778,7 @@ function ProductsGrid({
   hasPreviousPage,
   state,
   lookProducts = [],
+  shouldScrollToProducts,
 }: {
   handle: string;
   t: TFunction<'translation', undefined>;
@@ -712,6 +793,7 @@ function ProductsGrid({
   hasPreviousPage: boolean;
   state: any;
   lookProducts?: ProductCardFragment[];
+  shouldScrollToProducts: boolean;
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -742,6 +824,25 @@ function ProductsGrid({
 
   // Restore scroll position when coming back from product page
   useEffect(() => {
+    // Skip scroll restoration if we're intentionally scrolling to products
+    if (typeof window !== 'undefined' && window.location.hash === '#products') {
+      return;
+    }
+    
+    // Skip if we have a pending scroll to products
+    if (shouldScrollToProducts) {
+      return;
+    }
+    
+    // Skip if there's an intentional scroll happening
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const intentionalScroll = window.sessionStorage.getItem('intentionalScroll');
+      if (intentionalScroll === 'true') {
+        console.log('Skipping scroll restoration due to intentional scroll');
+        return;
+      }
+    }
+    
     // Only attempt to restore if we have sessionStorage access
     if (typeof window !== 'undefined' && window.sessionStorage) {
       try {
@@ -756,6 +857,7 @@ function ProductsGrid({
           
           // Only restore if we're navigating back to the same collection/filter combo
           if (scrollData.path === location.pathname + location.search && scrollData.position > 0) {
+            console.log('Restoring scroll position:', scrollData.position);
             // Delay scroll restoration slightly to ensure DOM is ready
             setTimeout(() => {
               window.scrollTo({
@@ -764,14 +866,25 @@ function ProductsGrid({
               });
               // Clear the saved position after restoration
               window.sessionStorage.removeItem('lastScrollPosition');
-            }, 10);
+            }, 50); // Reduced delay
           }
         }
       } catch (e) {
         console.error('Error restoring scroll position:', e);
       }
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, shouldScrollToProducts]);
+
+  // Reset metafieldsMap when search params change (filter change)
+  useEffect(() => {
+    // Skip if we're navigating to products section - let the main scroll handler deal with it
+    if (location.hash === '#products') {
+      return;
+    }
+    
+    // Reset metafields when the URL search params change (filter change)
+    setMetafieldsMap({});
+  }, [location.search, location.hash]);
 
   const [modulo, setModulo] = useState(openFilter ? 6 : 8);
   const [metafieldsMap, setMetafieldsMap] = useState<{[id: string]: any}>({});
@@ -780,12 +893,6 @@ function ProductsGrid({
   useEffect(() => {
     setModulo(openFilter ? 6 : 8);
   }, [openFilter]);
-
-  // Reset metafieldsMap when search params change (filter change)
-  useEffect(() => {
-    // Reset metafields when the URL search params change (filter change)
-    setMetafieldsMap({});
-  }, [location.search]);
 
   useEffect(() => {
     const fetchMetafields = async () => {
@@ -877,7 +984,11 @@ function ProductsGrid({
 
   return (
     <div
-      className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-4`}
+      className={`grid gap-3 sm:gap-4 md:gap-6 lg:gap-4 ${
+        openFilter 
+          ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4' // When filter sidebar is open (large desktop), show fewer columns
+          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-5' // When filter is mobile-style (tablet/iPad), show 3 columns on tablet/iPad
+      }`}
     >
       {elements}
     </div>

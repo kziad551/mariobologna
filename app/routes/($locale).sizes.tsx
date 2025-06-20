@@ -202,7 +202,7 @@ const SizeCharts = () => {
         </div>
         {guide ? (
           <div
-            className={`mt-8 grid grid-cols-2 ss:grid-cols-2 ${guide !== 'kids' ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-2 sm:gap-4`}
+            className={`mt-8 grid grid-cols-2 ss:grid-cols-2 ${guide !== 'kids' ? 'md:grid-cols-3 xl:grid-cols-4' : 'xl:grid-cols-2'} gap-2 sm:gap-4`}
           >
             <Link
               to={`/sizes?guide=${guide}&section=Footwear#size_details`}
