@@ -15,6 +15,7 @@ export function ProductsSection({
   products = [],
   containerClassName,
   showViewAll = true,
+  twoRows = false,
   children,
 }: {
   t: TFunction<'translation', undefined>;
@@ -26,6 +27,7 @@ export function ProductsSection({
   products?: ProductCardFragment[];
   containerClassName?: string;
   showViewAll?: boolean;
+  twoRows?: boolean;
   children?: React.ReactNode;
 }) {
   // Determine the correct link path
@@ -48,7 +50,7 @@ export function ProductsSection({
           <></>
         )}
       </div>
-      <Products products={products} width={width} t={t} direction={direction} />
+      <Products products={products} width={width} t={t} direction={direction} twoRows={twoRows} />
       {children}
     </div>
   );
@@ -59,11 +61,13 @@ function Products({
   width,
   t,
   direction,
+  twoRows = false,
 }: {
   products: ProductCardFragment[];
   width: number;
   t: TFunction<'translation', undefined>;
   direction: 'ltr' | 'rtl';
+  twoRows?: boolean;
 }) {
   const [metafieldsMap, setMetafieldsMap] = useState<{[id: string]: any}>({});
 
@@ -105,10 +109,18 @@ function Products({
     fetchMetafields();
   }, [products]); // Re-fetch when `products` changes
 
+  // When twoRows is true, show enough products to fill 2 rows based on screen size
+  // Mobile: 2 cols × 2 rows = 4 products, Tablet: 4 cols × 2 rows = 8 products, Desktop: 5 cols × 2 rows = 10 products
+  const displayProducts = twoRows ? products.slice(0, 10) : products;
+
   return (
     <div className="">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-4">
-        {products.map((product, index) => {
+      <div className={`grid gap-3 sm:gap-4 md:gap-6 lg:gap-4 ${
+        twoRows 
+          ? 'grid-cols-2 sm:grid-cols-4 md:grid-cols-4 xl:grid-cols-5' 
+          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-5'
+      }`}>
+        {displayProducts.map((product, index) => {
           return width >= 640 ? (
             <Product
               key={index}

@@ -226,7 +226,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     {
       variables: {
         query: productTypeQuery,
-        first: 8,
+        first: 15,
         country,
       },
     },
@@ -234,33 +234,33 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 
   // Filter out the current product and ensure products are from the same type
   let recommendations = similarProducts?.nodes
-    .filter((p: any) => p.id !== product.id && p.productType === product.productType)
-    .slice(0, 5) || [];
+    ?.filter((p: any) => p.id !== product.id && p.productType === product.productType)
+    ?.slice(0, 10) || [];
 
   // If we don't have enough recommendations, try Shopify's native recommendations
-  if (recommendations.length < 5) {
+  if (recommendations.length < 10) {
     const { productRecommendations } = await storefront.query(
       PRODUCT_RECOMMENDATIONS_QUERY,
       {
         variables: {
           productId: product.id,
-          first: 8,
+          first: 15,
           country: storefront.i18n.country,
         },
       },
     );
 
     // Filter recommendations to only include products from the same category
-    const sameTypeRecommendations = productRecommendations.filter(
+    const sameTypeRecommendations = productRecommendations?.filter(
        (rec: { productType: any; }) => rec.productType && rec.productType === product.productType,
-    );
+    ) || [];
 
     // Add filtered recommendations to our list, avoiding duplicates
     recommendations = [
       ...recommendations,
       ...sameTypeRecommendations
         .filter((rec: any) => !recommendations.find((r: any) => r.id === rec.id))
-    ].slice(0, 5);
+    ].slice(0, 10);
   }
 
   return defer({
@@ -721,6 +721,7 @@ export default function Product() {
         height={height}
         products={recommendations}
         containerClassName="mx-4 sm:mx-8"
+        twoRows={true}
       >
         {recommendations.length === 0 && (
           <p className="text-sm text-neutral-500 mt-4">
@@ -729,7 +730,8 @@ export default function Product() {
         )}
       </ProductsSection>
       
-      {youMayAlsoLikeProducts &&
+      {/* YOU MAY ALSO LIKE SECTION - HIDDEN AS REQUESTED */}
+      {/* {youMayAlsoLikeProducts &&
       youMayAlsoLikeProducts.products.nodes.length > 0 ? (
         <ProductsSection
           t={t}
@@ -743,7 +745,7 @@ export default function Product() {
         />
       ) : (
         <></>
-      )}
+      )} */}
     </div>
   );
 }

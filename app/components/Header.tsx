@@ -433,12 +433,14 @@ export function HeaderMenu({
           menu.items.map((item) => {
             if (!item.url) return null;
 
-            const url =
-              item.url.includes('myshopify.com') ||
+            // Clean URL construction - remove hash fragments first
+            const cleanUrl = item.url.includes('myshopify.com') ||
               item.url.includes(publicStoreDomain) ||
               item.url.includes(primaryDomainUrl)
                 ? new URL(item.url).pathname
-                : item.url;
+                : item.url.split('#')[0]; // Remove hash fragment from URL
+
+            const finalUrl = item.title !== 'Designers' ? cleanUrl : '/designers';
 
             return (
               <button
@@ -448,11 +450,11 @@ export function HeaderMenu({
                   handleOpenSubMenu(
                     e as any,
                     item,
-                    item.title !== 'Designers' ? url : '/designers'
+                    finalUrl
                   )
                 }
                 onMouseLeave={() => setOpenMegaMenu({})}
-                onClick={() => handleNavigationClick(item.title !== 'Designers' ? url : '/designers')}
+                onClick={() => handleNavigationClick(finalUrl)}
               >
                 {t(`${item.title}`)}
               </button>
@@ -472,8 +474,10 @@ export function HeaderMenu({
             <div className="flex gap-8 w-full items-stretch justify-start">
               {subMenuItems.length > 0 &&
                 subMenuItems.map((item, index) => {
-                  const URL = (item.url || '').split('?')[1]; 
-                  const fullURL = (customURL || '') + '?' + (URL || '');
+                  // Clean URL construction - remove hash fragments
+                  const cleanItemUrl = (item.url || '').split('#')[0]; // Remove hash fragment
+                  const URL = cleanItemUrl.split('?')[1]; 
+                  const fullURL = (customURL || '').split('#')[0] + '?' + (URL || ''); // Remove hash from customURL too
                   const designerHandle = (item as any).handle;
                   const designerLink = designerHandle ? `/products?designer=${designerHandle}` : '/designers';
 
@@ -498,14 +502,16 @@ export function HeaderMenu({
                         className={`${selectedMegaMenu === 'Designers' ? 'w-full' : 'w-max'} flex flex-col flex-wrap max-h-67.5 items-start gap-y-4 gap-x-8`}
                       >
                         {item.items && item.items.map((sub_item, index) => {
-                          const subItemURL = (sub_item.url || '').split('?')[1];
+                          // Clean sub-item URL construction - remove hash fragments
+                          const cleanSubItemUrl = (sub_item.url || '').split('#')[0]; // Remove hash fragment
+                          const subItemURL = cleanSubItemUrl.split('?')[1];
                           let subItemFullURL = '';
                           
                           if (selectedMegaMenu === 'Designers') {
                             const designerName = sub_item.title.toLowerCase().replace(/ /g, '+');
                             subItemFullURL = `/products?designer=${designerName}`;
                           } else {
-                            subItemFullURL = (customURL || '') + '?' + (subItemURL || '');
+                            subItemFullURL = (customURL || '').split('#')[0] + '?' + (subItemURL || ''); // Remove hash from customURL
                           }
 
                           return (
