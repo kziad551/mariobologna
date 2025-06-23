@@ -283,6 +283,8 @@ export function HeaderMenu({
   primaryDomainUrl: string;
 }) {
   const {publicStoreDomain} = useRootLoaderData();
+  const navigate = useNavigate();
+  const {width} = useWindowDimensions();
   const [customURL, setCustomURL] = useState('');
   const [openMegaMenu, setOpenMegaMenu] = useState<{[x: string]: boolean}>({});
   const [selectedMegaMenu, setSelectedMegaMenu] = useState('');
@@ -311,6 +313,89 @@ export function HeaderMenu({
       setCustomURL(url);
       setOpenMegaMenu({[item.title]: true});
     }
+  };
+
+  const handleNavigationClick = (url: string) => {
+    console.log('Navigation menu item clicked - navigating with scroll handling');
+    
+    // Clear any existing scroll restoration data
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem('lastScrollPosition');
+      window.sessionStorage.setItem('intentionalScroll', 'true');
+    }
+    
+    navigate(url, {
+      replace: true,
+      preventScrollReset: true,
+    });
+    
+    // Handle scroll to products section
+    const scrollDelay = width >= 1280 ? 800 : 500;
+    
+    setTimeout(() => {
+      const productsSection = document.getElementById('products');
+      if (productsSection) {
+        const headerHeight = 80;
+        const elementRect = productsSection.getBoundingClientRect();
+        const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
+        console.log('Menu navigation: scrolling to products section, position:', targetPosition);
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+        
+        // Clear the intentional scroll flag after scroll completes
+        const clearDelay = width >= 1280 ? 1500 : 1000;
+        setTimeout(() => {
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.removeItem('intentionalScroll');
+          }
+        }, clearDelay);
+      }
+    }, scrollDelay);
+  };
+
+  const handleSubMenuClick = (url: string) => {
+    console.log('Submenu item clicked - navigating with scroll handling');
+    setOpenMegaMenu({});
+    
+    // Clear any existing scroll restoration data
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem('lastScrollPosition');
+      window.sessionStorage.setItem('intentionalScroll', 'true');
+    }
+    
+    navigate(url, {
+      replace: true,
+      preventScrollReset: true,
+    });
+    
+    // Handle scroll to products section
+    const scrollDelay = width >= 1280 ? 800 : 500;
+    
+    setTimeout(() => {
+      const productsSection = document.getElementById('products');
+      if (productsSection) {
+        const headerHeight = 80;
+        const elementRect = productsSection.getBoundingClientRect();
+        const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
+        console.log('Submenu navigation: scrolling to products section, position:', targetPosition);
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+        
+        // Clear the intentional scroll flag after scroll completes
+        const clearDelay = width >= 1280 ? 1500 : 1000;
+        setTimeout(() => {
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.removeItem('intentionalScroll');
+          }
+        }, clearDelay);
+      }
+    }, scrollDelay);
   };
 
   const rightSections: {
@@ -356,24 +441,21 @@ export function HeaderMenu({
                 : item.url;
 
             return (
-              <NavLink
-                className={({isActive, isPending}) =>
-                  `${isActive ? 'text-primary-P-40 after:h-1 after:bg-primary-P-40 after:absolute after:w-full after:bottom-0 after:rounded-t-xl relative' : ''} ${isPending ? 'text-neutral-N-80' : ''} text-nowrap transition-all px-6 py-3 flex items-center justify-center text-neutral-N-30 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87`
-                }
-                end
+              <button
+                className={`text-nowrap transition-all px-6 py-3 flex items-center justify-center text-neutral-N-30 hover:no-underline hover:bg-neutral-N-92 active:bg-neutral-N-87`}
                 key={item.id}
                 onMouseEnter={(e) =>
                   handleOpenSubMenu(
-                    e,
+                    e as any,
                     item,
                     item.title !== 'Designers' ? url : '/designers'
                   )
                 }
                 onMouseLeave={() => setOpenMegaMenu({})}
-                to={item.title !== 'Designers' ? url : '/designers'}
+                onClick={() => handleNavigationClick(item.title !== 'Designers' ? url : '/designers')}
               >
                 {t(`${item.title}`)}
-              </NavLink>
+              </button>
             );
           })}
       </nav>
@@ -391,7 +473,7 @@ export function HeaderMenu({
               {subMenuItems.length > 0 &&
                 subMenuItems.map((item, index) => {
                   const URL = (item.url || '').split('?')[1]; 
-                  const fullURL = (customURL || '') + '?' + (URL || '') + '#filtering_section';
+                  const fullURL = (customURL || '') + '?' + (URL || '');
                   const designerHandle = (item as any).handle;
                   const designerLink = designerHandle ? `/products?designer=${designerHandle}` : '/designers';
 
@@ -400,19 +482,18 @@ export function HeaderMenu({
                       key={index}
                       className="flex-1 flex flex-col items-start gap-4"
                     >
-                      <NavLink
-                        to={
+                      <button
+                        onClick={() => handleSubMenuClick(
                           selectedMegaMenu === 'Designers'
                             ? item.title === 'All Designers'
                               ? '/designers'
                               : designerLink
                             : fullURL
-                        }
-                        className={`${item.title === 'All Designers' ? 'self-center font-semibold' : 'font-semibold'} text-base font-medium hover:underline`}
-                        onClick={() => setOpenMegaMenu({})}
+                        )}
+                        className={`${item.title === 'All Designers' ? 'self-center font-semibold' : 'font-semibold'} text-base font-medium hover:underline cursor-pointer bg-transparent border-none text-left`}
                       >
                         {t(item.title)}
-                      </NavLink>
+                      </button>
                       <div
                         className={`${selectedMegaMenu === 'Designers' ? 'w-full' : 'w-max'} flex flex-col flex-wrap max-h-67.5 items-start gap-y-4 gap-x-8`}
                       >
@@ -425,19 +506,17 @@ export function HeaderMenu({
                             subItemFullURL = `/products?designer=${designerName}`;
                           } else {
                             subItemFullURL = (customURL || '') + '?' + (subItemURL || '');
-                            subItemFullURL += '#filtering_section';
                           }
 
                           return (
-                            <NavLink
+                            <button
                               key={index}
-                              to={subItemFullURL}
-                              className="text-sm hover:underline"
+                              onClick={() => handleSubMenuClick(subItemFullURL)}
+                              className="text-sm hover:underline cursor-pointer bg-transparent border-none text-left"
                               data-discover="true"
-                              onClick={() => setOpenMegaMenu({})}
                             >
                               {t(sub_item.title)}
-                            </NavLink>
+                            </button>
                           );
                         })}
                       </div>
@@ -453,13 +532,15 @@ export function HeaderMenu({
                   className="w-70 h-60 rounded object-cover object-center"
                 />
                 <h2 className='text-sm'>{rightSections[selectedMegaMenu].label}</h2>
-                <NavLink
-                  to={rightSections[selectedMegaMenu].linkShop}
-                  onClick={() => setOpenMegaMenu({})}
-                  className="bg-primary-P-40 text-white border text-sm py-2.5 px-6 border-primary-P-40 rounded-md"
+                <button
+                  onClick={() => {
+                    setOpenMegaMenu({});
+                    handleNavigationClick(rightSections[selectedMegaMenu].linkShop);
+                  }}
+                  className="bg-primary-P-40 text-white border text-sm py-2.5 px-6 border-primary-P-40 rounded-md cursor-pointer"
                 >
                   {t('Shop Now')}
-                </NavLink>
+                </button>
               </div>
             )}
           </motion.div>

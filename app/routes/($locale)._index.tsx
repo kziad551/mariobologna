@@ -667,8 +667,8 @@ function HeroSection({
         </div>
       )}
       
-      {/* Overlay gradient for better text readability */}
-      <div className="absolute inset-0 bg-black/20 lg:bg-black/10"></div>
+      {/* Overlay gradient for better text readability - only on desktop */}
+      <div className="absolute inset-0 bg-transparent lg:bg-black/10"></div>
       
       <div className="absolute bottom-8 left-0 right-0 flex justify-center pb-8">
         <NavLink
