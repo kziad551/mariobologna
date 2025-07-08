@@ -34,8 +34,8 @@ import {Image} from '@shopify/hydrogen/customer-account-api-types';
 export const meta: MetaFunction = () => {
   return [
     { title: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
-    { name: 'description', content: 'Mario Bologna Dubai offers luxury fashion brands, designer clothes & accessories for men, women & kids. Premium Italian fashion with fast UAE delivery.' },
-    { name: 'keywords', content: 'Mario Bologna luxury fashion brands in Dubai, luxury fashion brands Dubai, premium fashion Dubai, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands Dubai, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai, House of brands' },
+    { name: 'description', content: 'Mario Bologna Dubai offers luxury fashion brands, designer clothes &amp; accessories for men, women &amp; kids. Premium Italian fashion with fast UAE delivery.' },
+    { name: 'keywords', content: 'Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium fashion Dubai, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands Dubai, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai' },
     { property: 'og:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion & Accessories' },
     { property: 'og:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.' },
     { property: 'og:type', content: 'website' },
@@ -171,9 +171,6 @@ export default function Homepage() {
 
   return (
     <div className="home" style={{direction}}>
-      {/* SEO H1 - Hidden from users but visible to search engines */}
-      <h1 className="absolute -top-96 left-0 opacity-0 pointer-events-none">Mario Bologna - Luxury Fashion Brands in Dubai | Premium Designer Fashion</h1>
-      
       <HeroSection
         t={t}
         direction={direction}
@@ -220,29 +217,26 @@ export default function Homepage() {
       </div>
       
       {/* SEO Content - Hidden from users but visible to search engines */}
-      <div className="absolute -top-96 left-0 opacity-0 pointer-events-none">
+      <div style={{display: 'none'}}>
         <section>
-          <h2>Dubai's Premier Luxury Fashion Brands Experience - Summer 2025</h2>
+          <h1>Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion Destination UAE</h1>
+          <h2>Dubai's Premier Luxury Brands Experience - Summer 2025</h2>
           <p>
-            <Link to="/aboutus" title="About Mario Bologna - Luxury Fashion Brands in Dubai">About Mario Bologna - Luxury Fashion Brands in Dubai</Link> Welcome to Mario Bologna - Luxury Fashion Brands in Dubai, where the world's most prestigious 
-            luxury brands meet Dubai's sophisticated fashion scene. Step into Summer 2025 with our exclusive luxury brands collection, featuring the finest Italian designers and international luxury brands.
+            <a href="/aboutus" title="About Mario Bologna - Luxury Fashion Brands in Dubai">About Mario Bologna - Luxury Fashion Brands in Dubai</a> Welcome to Mario Bologna - Luxury Fashion Brands in Dubai, where the world's most prestigious 
+            luxury brands meet Dubai's sophisticated fashion scene. Step into Summer 2025 with our exclusive luxury brands collection, featuring the finest <a href="https://www.vogue.com/article/italian-fashion-designers" target="_blank" rel="noopener noreferrer" title="Italian Fashion Designers - Vogue">Italian designers</a> and international luxury brands.
             Mario Bologna - Luxury Fashion Brands in Dubai offers an unparalleled selection of luxury brands for discerning customers who appreciate the finest things in life.
-            Explore our curated luxury brands collections for <Link to="/collections/women" title="Women's Luxury Fashion Dubai">women</Link>, <Link to="/collections/men" title="Men's Designer Fashion Dubai">men</Link>, and <Link to="/collections/kids" title="Kids Luxury Clothing Dubai">kids</Link>, designed for Dubai's vibrant lifestyle and refined taste.
+            Explore our curated luxury brands collections for <a href="/collections/women" title="Women's Luxury Fashion Dubai">women</a>, <a href="/collections/men" title="Men's Designer Fashion Dubai">men</a>, and <a href="/collections/kids" title="Kids Luxury Clothing Dubai">kids</a>, designed for Dubai's vibrant lifestyle and refined taste.
             Premium fabrics, exquisite craftsmanship, and exclusive luxury brands define our summer collection.
-            Fast delivery of luxury brands across Dubai, Abu Dhabi, Riyadh, and the entire GCC region.
-            Discover our prestigious luxury brands portfolio including Baldinini, Peserico, Cromia, Jijil, Mario Cerutti, Claudia Rossi and many more exclusive luxury brands! 
+            Fast delivery of luxury brands across <a href="https://www.visitdubai.com/" target="_blank" rel="noopener noreferrer" title="Visit Dubai Official Website">Dubai</a>, Abu Dhabi, Riyadh, and the entire GCC region.
+            Discover our prestigious luxury brands portfolio including <a href="https://www.baldinini.it/" target="_blank" rel="noopener noreferrer" title="Baldinini Official Website">Baldinini</a>, <a href="https://www.peserico.it/" target="_blank" rel="noopener noreferrer" title="Peserico Official Website">Peserico</a>, <a href="https://www.cromia.it/" target="_blank" rel="noopener noreferrer" title="Cromia Official Website">Cromia</a>, Jijil, Mario Cerutti, Claudia Rossi and many more exclusive luxury brands! 
             From designer high heels to comfortable luxury footwear, Mario Bologna - Luxury Fashion Brands in Dubai has the most coveted luxury brands collection for you.
-            <Link to="/new-arrivals" title="New Arrivals - Mario Bologna Dubai">Shop luxury brands</Link>. Experience excellence. Own the finest.
+            <a href="/new-arrivals" title="New Arrivals - Mario Bologna Dubai">Shop luxury brands</a>. Experience excellence. Own the finest.
           </p>
-          <nav>
-            <Link to="/collections/women">Women's Fashion</Link>
-            <Link to="/collections/men">Men's Fashion</Link>
-            <Link to="/collections/kids">Kids Fashion</Link>
-            <Link to="/new-arrivals">New Arrivals</Link>
-            <Link to="/best-selling">Best Selling</Link>
-            <Link to="/aboutus">About Us</Link>
-            <Link to="/stores">Store Locations</Link>
-          </nav>
+          <p>
+            SEO Keywords: Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium luxury brands UAE, designer luxury brands Dubai, 
+            high-end luxury brands Dubai, exclusive luxury brands Dubai, Italian luxury brands Dubai, luxury brands store Dubai, 
+            luxury brands shopping Dubai, premium fashion brands Dubai, elite luxury brands UAE, luxury brands boutique Dubai
+          </p>
         </section>
 
         <section>
