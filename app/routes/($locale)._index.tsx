@@ -33,22 +33,43 @@ import {Image} from '@shopify/hydrogen/customer-account-api-types';
 
 export const meta: MetaFunction = () => {
   return [
+    // English Meta Tags
     { title: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
     { name: 'description', content: 'Mario Bologna Dubai offers luxury fashion brands, designer clothes &amp; accessories for men, women &amp; kids. Premium Italian fashion with fast UAE delivery.' },
     { name: 'keywords', content: 'Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium fashion Dubai, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands Dubai, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai' },
+    
+    // Arabic Meta Tags
+    { title: 'ماريو بولونيا - الماركات الفاخرة في دبي | أزياء إيطالية راقية', lang: 'ar' },
+    { name: 'description', content: 'ماريو بولونيا دبي يقدم أرقى الماركات الفاخرة والأزياء الإيطالية المصممة للرجال والنساء والأطفال. مجموعات فاخرة مع توصيل سريع في الإمارات والسعودية.', lang: 'ar' },
+    { name: 'keywords', content: 'ماريو بولونيا الماركات الفاخرة دبي، الماركات الفاخرة دبي، أزياء فاخرة دبي، الماركات الإيطالية الفاخرة، ملابس مصممة دبي، أزياء راقية دبي، الماركات الفاخرة الإمارات، تسوق فاخر دبي، متجر الماركات الفاخرة دبي، بوتيك فاخر دبي، الماركات الإيطالية المصممة دبي، الماركات الحصرية دبي، اكسسوارات فاخرة دبي، مصمم راقي دبي، دار أزياء فاخرة دبي، الماركات النخبة دبي، أزياء نسائية فاخرة، أزياء رجالية راقية، ملابس أطفال فاخرة، فساتين مصممة، أحذية فاخرة، حقائب مصممة، الأزياء الإيطالية، الموضة الراقية، التسوق الفاخر', lang: 'ar' },
+    
+    // Open Graph Tags - English
     { property: 'og:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion & Accessories' },
     { property: 'og:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.' },
     { property: 'og:type', content: 'website' },
     { property: 'og:site_name', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
     { property: 'og:locale', content: 'en_US' },
+    { property: 'og:locale:alternate', content: 'ar_AE' },
     { property: 'og:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
     { property: 'og:image:width', content: '1200' },
     { property: 'og:image:height', content: '630' },
     { property: 'og:url', content: 'https://mariobologna.com' },
+    
+    // Open Graph Tags - Arabic
+    { property: 'og:title', content: 'ماريو بولونيا - الماركات الفاخرة في دبي | أزياء إيطالية راقية ومجموعات حصرية', lang: 'ar' },
+    { property: 'og:description', content: 'ماريو بولونيا - الماركات الفاخرة في دبي يضم مجموعات المصممين الإيطاليين الحصرية. أزياء فاخرة واكسسوارات راقية للعملاء المميزين في الإمارات والسعودية.', lang: 'ar' },
+    
+    // Twitter Meta Tags - English
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion' },
     { name: 'twitter:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai. Premium Italian fashion collections with fast UAE delivery.' },
     { name: 'twitter:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
+    
+    // Twitter Meta Tags - Arabic
+    { name: 'twitter:title', content: 'ماريو بولونيا - الماركات الفاخرة في دبي | أزياء إيطالية راقية', lang: 'ar' },
+    { name: 'twitter:description', content: 'ماريو بولونيا - الماركات الفاخرة في دبي. مجموعات الأزياء الإيطالية الراقية مع توصيل سريع في الإمارات.', lang: 'ar' },
+    
+    // Additional SEO Meta Tags
     { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
     { name: 'author', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
     { name: 'publisher', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
@@ -56,6 +77,23 @@ export const meta: MetaFunction = () => {
     { name: 'geo.placename', content: 'Dubai' },
     { name: 'geo.position', content: '25.2048;55.2708' },
     { name: 'ICBM', content: '25.2048, 55.2708' },
+    
+    // Additional Arabic SEO Meta Tags
+    { name: 'author', content: 'ماريو بولونيا - الماركات الفاخرة في دبي', lang: 'ar' },
+    { name: 'publisher', content: 'ماريو بولونيا - الماركات الفاخرة في دبي', lang: 'ar' },
+    { name: 'geo.placename', content: 'دبي', lang: 'ar' },
+    
+    // Enhanced Keywords for specific categories
+    { name: 'keywords', content: 'luxury fashion Dubai, designer brands UAE, Italian fashion Dubai, premium shopping Dubai, luxury boutique Dubai, high-end fashion UAE, designer clothes Dubai, luxury accessories Dubai, fashion store Dubai, premium brands UAE, luxury shopping experience Dubai, designer fashion UAE, upscale fashion Dubai, luxury retail Dubai, exclusive brands Dubai, fashion boutique UAE, designer outlet Dubai, luxury fashion house Dubai, premium fashion store UAE, luxury brand collection Dubai' },
+    { name: 'keywords', content: 'أزياء فاخرة دبي، ماركات مصممة الإمارات، الأزياء الإيطالية دبي، تسوق راقي دبي، بوتيك فاخر دبي، أزياء راقية الإمارات، ملابس مصممة دبي، اكسسوارات فاخرة دبي، متجر أزياء دبي، ماركات راقية الإمارات، تجربة تسوق فاخرة دبي، أزياء مصممة الإمارات، موضة راقية دبي، بيع بالتجزئة الفاخر دبي، ماركات حصرية دبي، بوتيك أزياء الإمارات، منفذ مصمم دبي، دار أزياء فاخرة دبي، متجر أزياء راقي الإمارات، مجموعة الماركات الفاخرة دبي', lang: 'ar' },
+    
+    // Hreflang alternatives
+    { name: 'alternate', content: 'ar', hrefLang: 'ar' },
+    { name: 'alternate', content: 'en', hrefLang: 'en' },
+    { name: 'alternate', content: 'ar-AE', hrefLang: 'ar-AE' },
+    { name: 'alternate', content: 'en-AE', hrefLang: 'en-AE' },
+    { name: 'alternate', content: 'ar-SA', hrefLang: 'ar-SA' },
+    { name: 'alternate', content: 'en-SA', hrefLang: 'en-SA' },
   ];
 };
 
