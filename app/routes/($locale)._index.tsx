@@ -208,7 +208,7 @@ export default function Homepage() {
   }, []);
 
   return (
-    <div className="home" style={{direction}}>
+    <div className="home dir-aware">
       <HeroSection
         t={t}
         direction={direction}
@@ -661,46 +661,51 @@ function HeroSection({
   }, [metaobject, language]);
 
   return (
-    <div className="relative w-full">
-      {/* Mobile Image - visible only on mobile screens */}
-      {mobileImage && (
-        <img
-          src={mobileImage}
-          alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
-          className="w-full h-full object-cover block sm:hidden"
-          loading="eager"
-          width="414"
-          height="500"
-        />
-      )}
-      
-      {/* Tablet Image - visible only on tablet screens */}
-      {tabletImage && (
-        <img
-          src={tabletImage}
-          alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
-          className="w-full h-full object-cover hidden sm:block lg:hidden"
-          loading="eager"
-          width="768"
-          height="600"
-        />
-      )}
-      
-      {/* Desktop Image - visible only on desktop screens */}
-      {desktopImage && (
-        <img
-          src={desktopImage}
-          alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
-          className="w-full h-full object-cover hidden lg:block"
-          loading="eager"
-          width="1920"
-          height="1080"
-        />
+    <div className="relative w-full hero-image-container">
+      {/* Responsive hero image with proper srcset */}
+      {(mobileImage || tabletImage || desktopImage) && (
+        <picture>
+          {/* Mobile image */}
+          {mobileImage && (
+            <source
+              media="(max-width: 639px)"
+              srcSet={`${mobileImage}?width=414 414w, ${mobileImage}?width=828 828w`}
+              sizes="100vw"
+            />
+          )}
+          
+          {/* Tablet image */}
+          {tabletImage && (
+            <source
+              media="(min-width: 640px) and (max-width: 1023px)"
+              srcSet={`${tabletImage}?width=768 768w, ${tabletImage}?width=1536 1536w`}
+              sizes="100vw"
+            />
+          )}
+          
+          {/* Desktop image */}
+          {desktopImage && (
+            <source
+              media="(min-width: 1024px)"
+              srcSet={`${desktopImage}?width=1024 1024w, ${desktopImage}?width=1920 1920w, ${desktopImage}?width=2560 2560w`}
+              sizes="100vw"
+            />
+          )}
+          
+          <img
+            src={desktopImage || tabletImage || mobileImage}
+            alt="Mario Bologna - Luxury Fashion Brands in Dubai | Premium Italian Fashion Collections Summer 2025"
+            className="w-full h-auto object-cover"
+            loading="eager"
+            decoding="async"
+            style={{aspectRatio: 'var(--hero-aspect-ratio, auto)'}}
+          />
+        </picture>
       )}
       
       {/* Fallback if no images are loaded */}
       {!desktopImage && !tabletImage && !mobileImage && (
-        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+        <div className="w-full aspect-video bg-gray-200 flex items-center justify-center">
           <p>Loading Mario Bologna luxury fashion brands hero image...</p>
         </div>
       )}
@@ -938,51 +943,81 @@ function Shops({
     <div className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
       <NavLink
         to="/collections/men"
-        className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/men.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
+        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5]"
         title="Men's Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Men's Luxury Designer Fashion Collection Dubai"
       >
-        <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
-          <span className="font-rangga text-center leading-tight">{t('Shop Men')}</span>
+        <picture>
+          <source
+            media="(min-width: 1024px)"
+            srcSet="/images/shops/men.png?width=400 400w, /images/shops/men.png?width=800 800w"
+            sizes="(min-width: 1280px) 400px, 33vw"
+          />
+          <img
+            src="/images/shops/men.png"
+            alt="Men's Luxury Fashion Dubai - Designer Suits, Shirts & Accessories at Mario Bologna"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+          <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
+            {t('Shop Men')}
+          </span>
         </div>
-        <img 
-          src="/images/shops/men.png" 
-          alt="Men's Luxury Fashion Dubai - Designer Suits, Shirts & Accessories at Mario Bologna"
-          className="sr-only"
-          loading="lazy"
-        />
       </NavLink>
       <NavLink
         to="/collections/women"
-        className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/women.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
+        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5]"
         title="Women's Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Women's Luxury Designer Fashion Collection Dubai"
       >
-        <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
-          <span className="font-rangga text-center leading-tight">{t('Shop Women')}</span>
+        <picture>
+          <source
+            media="(min-width: 1024px)"
+            srcSet="/images/shops/women.png?width=400 400w, /images/shops/women.png?width=800 800w"
+            sizes="(min-width: 1280px) 400px, 33vw"
+          />
+          <img
+            src="/images/shops/women.png"
+            alt="Women's Luxury Fashion Dubai - Designer Dresses, Bags & Shoes at Mario Bologna"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+          <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
+            {t('Shop Women')}
+          </span>
         </div>
-        <img 
-          src="/images/shops/women.png" 
-          alt="Women's Luxury Fashion Dubai - Designer Dresses, Bags & Shoes at Mario Bologna"
-          className="sr-only"
-          loading="lazy"
-        />
       </NavLink>
       <NavLink
         to="/collections/kids"
-        className="group relative flex items-center justify-center flex-grow w-full min-h-62 xs:min-h-96 lg:min-h-160 bg-[url('/images/shops/kids.png')] bg-cover bg-center bg-no-repeat border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors"
+        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5]"
         title="Kids Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Kids Luxury Designer Fashion Collection Dubai"
       >
-        <div className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl flex flex-col items-center justify-center transition-colors px-2">
-          <span className="font-rangga text-center leading-tight">{t('Shop Kids')}</span>
+        <picture>
+          <source
+            media="(min-width: 1024px)"
+            srcSet="/images/shops/kids.png?width=400 400w, /images/shops/kids.png?width=800 800w"
+            sizes="(min-width: 1280px) 400px, 33vw"
+          />
+          <img
+            src="/images/shops/kids.png"
+            alt="Kids Luxury Fashion Dubai - Designer Children's Clothing at Mario Bologna"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+          <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
+            {t('Shop Kids')}
+          </span>
         </div>
-        <img 
-          src="/images/shops/kids.png" 
-          alt="Kids Luxury Fashion Dubai - Designer Children's Clothing at Mario Bologna"
-          className="sr-only"
-          loading="lazy"
-        />
       </NavLink>
     </div>
   );

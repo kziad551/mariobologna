@@ -90,9 +90,10 @@ function CompareCombine() {
   return (
     <div className="compare-combine px-8 py-14">
       <div
-        className="grid"
+        className="grid dir-aware"
         style={{
-          gridTemplateColumns: `repeat(${compareProducts.length + 1}, minmax(70px, 1fr))`,
+          '--grid-columns': compareProducts.length + 1,
+          gridTemplateColumns: `repeat(var(--grid-columns), minmax(70px, 1fr))`,
         }}
       >
         <h1 className="text-base xs:text-lg sm:text-2xl">

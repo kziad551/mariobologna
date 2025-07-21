@@ -49,7 +49,7 @@ const PopupContainer = ({
             exit={{
               scale: 0,
             }}
-            className={`${innerContainerStyle ? innerContainerStyle : 'mx-5 my-auto'} relative scrollbar-none overflow-auto w-fit h-fit max-h-screen inset-0 flex flex-col items-center justify-center ss:m-auto`}
+            className={`${innerContainerStyle ? innerContainerStyle : 'mx-5 my-auto'} relative scrollbar-none overflow-auto w-fit h-fit max-h-screen inset-0 flex flex-col items-center justify-center ss:m-auto dir-aware`}
           >
             {children}
           </motion.div>

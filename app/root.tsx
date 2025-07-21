@@ -361,9 +361,21 @@ export default function App() {
     nullSortOrder: -1,
   };
 
+  // Get direction from URL or cookie
+  const getDirection = () => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      const locale = url.pathname.split('/')[1];
+      return locale === 'ar' ? 'rtl' : 'ltr';
+    }
+    return 'ltr';
+  };
+
+  const direction = getDirection();
+
   return (
     <HelmetProvider>
-      <html lang="en">
+      <html lang="en" dir={direction} className="dir-aware">
         <head>
           <Helmet>
             {/* Google Tag Manager */}

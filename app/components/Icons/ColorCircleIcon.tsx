@@ -113,7 +113,7 @@ const ColorCircleIcon = ({
       style={{
         width: dimensions,
         height: dimensions
-      }}
+      } as React.CSSProperties}
     >
       <svg
         width={isSelected ? selectedDimensions : dimensions}
