@@ -278,8 +278,8 @@ export default function Homepage() {
         </section>
 
         <section>
-          <h2>New Arrivals Section - Mario Bologna Luxury Fashion Brands in Dubai</h2>
-          <h3>Just In: Summer Icons You'll Love from Luxury Fashion Brands in Dubai</h3>
+          <h4>New Arrivals Section - Mario Bologna Luxury Fashion Brands in Dubai</h4>
+          <h5>Just In: Summer Icons You'll Love from Luxury Fashion Brands in Dubai</h5>
           <p>
             Discover fresh drops from top <a href="https://www.fashionhistory.it/" target="_blank" rel="noopener noreferrer" title="European Fashion History">European designers</a>, curated for the modern Middle East
             lifestyle at Mario Bologna - Luxury Fashion Brands in Dubai.
@@ -328,7 +328,7 @@ export default function Homepage() {
         </section>
 
         <section>
-          <h2>Shop Kids' Collection</h2>
+          <h5>Shop Kids' Collection</h5>
           <h3>Stylish Little Looks for Big Summer Moments</h3>
           <p>
             Let your kids shine with House of Brands Mario Bologna's premium children's collection,
@@ -383,7 +383,7 @@ export default function Homepage() {
         </section>
 
         <section lang="ar" dir="rtl">
-          <h2>قسم الرجال – صيف 2025</h2>
+          <h6>قسم الرجال – صيف 2025</h6>
           <h3>ستايل فاخر لكل مناسبة</h3>
           <p>
             لأنك تحسن الإختيار، قدّمنا لك تشكيلة راقية رجال صيف 2025 من ماريو بولونيا. 
@@ -403,7 +403,7 @@ export default function Homepage() {
         </section>
 
         <section lang="ar" dir="rtl">
-          <h2>قسم الأطفال – صيف 2025</h2>
+          <h5>قسم الأطفال – صيف 2025</h5>
           <h3>إطلالات أنيقة للحظات الصيفية الجميلة</h3>
           <p>
             إطلبي اليوم واستلمي الطلب بتوصيل سريع في دبي خلال أيام قليلة. نوفر لكِ تجربة تسوق راقية وسريعة بدون تعب.
