@@ -852,7 +852,7 @@ function ProductImage({
             <Image
               data={image}
               alt={image.altText || 'Product Image'}
-              aspectRatio="1/1"
+            
               className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-contain object-center rounded-none"
               sizes="auto"
             />
@@ -869,8 +869,8 @@ function ProductImage({
             <Image
               data={productPreviewVideo}
               alt={productPreviewVideo.altText || 'Product Image'}
-              aspectRatio="1/1"
-              className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-cover object-top rounded-none"
+           
+              className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-contain object-center rounded-none"
               sizes="auto"
             />
           </button>
@@ -919,7 +919,7 @@ function ProductImage({
           <Image
             data={selectedImage}
             alt={selectedImage.altText || 'Variant Product Image'}
-            aspectRatio="1/1"
+         
             className="w-auto max-h-50 xs:max-h-65 sm:max-h-170 bg-white object-contain object-center"
             sizes="auto"
           />

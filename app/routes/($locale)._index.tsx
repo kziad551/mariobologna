@@ -943,7 +943,7 @@ function Shops({
     <div className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
       <NavLink
         to="/collections/men"
-        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5]"
+        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5] bg-transparent"
         title="Men's Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Men's Luxury Designer Fashion Collection Dubai"
       >
@@ -961,7 +961,7 @@ function Shops({
             decoding="async"
           />
         </picture>
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+        <div className="absolute inset-0 flex items-center justify-center group-hover:bg-black/30 transition-colors">
           <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
             {t('Shop Men')}
           </span>
@@ -969,7 +969,7 @@ function Shops({
       </NavLink>
       <NavLink
         to="/collections/women"
-        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5]"
+        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5] bg-transparent"
         title="Women's Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Women's Luxury Designer Fashion Collection Dubai"
       >
@@ -987,7 +987,7 @@ function Shops({
             decoding="async"
           />
         </picture>
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+        <div className="absolute inset-0 flex items-center justify-center  group-hover:bg-black/30 transition-colors">
           <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
             {t('Shop Women')}
           </span>
@@ -995,7 +995,7 @@ function Shops({
       </NavLink>
       <NavLink
         to="/collections/kids"
-        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5]"
+        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5] bg-transparent"
         title="Kids Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
         aria-label="Shop Kids Luxury Designer Fashion Collection Dubai"
       >
@@ -1013,7 +1013,7 @@ function Shops({
             decoding="async"
           />
         </picture>
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+        <div className="absolute inset-0 flex items-center justify-center  group-hover:bg-black/30 transition-colors">
           <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
             {t('Shop Kids')}
           </span>
