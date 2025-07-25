@@ -843,17 +843,16 @@ function ProductImage({
               setSelectedImage(image);
               setCurrentIndex(filteredImages.indexOf(image));
             }}
-            className={`overflow-hidden border ${
+            className={`border ${
               typeof selectedImage !== 'string' && selectedImage.id === image.id 
                 ? 'border-primary-P-40' 
                 : 'border-neutral-N-50'
-            } w-9 min-h-7 xs:w-18 xs:min-h-14 sm:w-35.5 sm:min-h-26 bg-white rounded-sm hover:border-neutral-N-10 transition-colors`}
+            } flex items-center justify-center w-12 h-12 xs:w-20 xs:h-20 sm:w-24 sm:h-24 bg-white rounded-sm hover:border-neutral-N-10 transition-colors p-1`}
           >
             <Image
               data={image}
               alt={image.altText || 'Product Image'}
-            
-              className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-contain object-center rounded-none"
+              className="w-full h-full object-contain object-center rounded-none"
               sizes="auto"
             />
           </button>
@@ -862,15 +861,15 @@ function ProductImage({
           <button
             onClick={() => {
               setSelectedImage(productVideo);
+              
               setCurrentIndex(filteredImages.length);
             }}
-            className={`overflow-hidden border ${typeof selectedImage === 'string' ? 'border-primary-P-40' : 'border-neutral-N-50'} w-9 min-h-7 xs:w-18 xs:min-h-14 sm:w-35.5 sm:min-h-26 bg-white rounded-sm hover:border-neutral-N-10 transition-colors`}
+            className={`flex items-center justify-center border ${typeof selectedImage === 'string' ? 'border-primary-P-40' : 'border-neutral-N-50'} w-12 h-12 xs:w-20 xs:h-20 sm:w-24 sm:h-24 bg-white rounded-sm hover:border-neutral-N-10 transition-colors p-1`}
           >
             <Image
               data={productPreviewVideo}
               alt={productPreviewVideo.altText || 'Product Image'}
-           
-              className="w-auto max-h-7 xs:max-h-14 sm:max-h-26 object-contain object-center rounded-none"
+              className="w-full h-full object-contain object-center rounded-none"
               sizes="auto"
             />
           </button>

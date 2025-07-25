@@ -145,15 +145,14 @@ const MobileProduct = ({
         {currentImage ? (
           <Image
             data={currentImage}
-            aspectRatio="1/1"
-            className="w-full h-39.5 object-contain mx-auto"
+            className="w-full object-contain object-center mx-auto"
             sizes="auto"
             loading="lazy"
           />
         ) : (
           <img
             src="/no_image.png"
-            className="w-full h-39.5 object-contain mx-auto"
+            className="w-full object-contain object-center mx-auto"
           />
         )}
       </div>
