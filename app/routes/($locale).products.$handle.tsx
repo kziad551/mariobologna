@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import {defer, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {
   Link,
@@ -781,6 +781,7 @@ function ProductImage({
   
   // Track the current index for the mobile swiper
   const [currentIndex, setCurrentIndex] = useState(0);
+  const thumbnailScrollRef = useRef<HTMLDivElement>(null);
   
   // Filter images based on selected color
   const filteredImages = selectedColor 
@@ -799,6 +800,74 @@ function ProductImage({
       altText: productPreviewVideo.altText || 'Product Video',
     } as any);
   }
+
+  // Function to scroll thumbnail gallery down
+  const scrollThumbnailsDown = () => {
+    if (thumbnailScrollRef.current) {
+      const container = thumbnailScrollRef.current;
+      const scrollAmount = container.clientHeight * 0.8; // Scroll 80% of visible height
+      container.scrollTo({
+        top: container.scrollTop + scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // State to track if the thumbnail scroll is currently at the bottom.  When it is at the
+  // bottom of the scrollable area we show an "up" arrow instead of "down" and clicking
+  // the button will return the user to the top.  Otherwise the arrow points down and
+  // clicking will scroll to the bottom of the list.
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  // Watch the thumbnail scroll container and update the isAtBottom flag whenever the user
+  // scrolls.  This also runs on mount to initialize the state.  We include
+  // `filteredImages.length` in the dependency array so the effect re‑runs when the list of
+  // thumbnails changes (for example when selecting a different color).
+  useEffect(() => {
+    const container = thumbnailScrollRef.current;
+    if (!container) return;
+    const onScroll = () => {
+      // Determine if the user has scrolled to the bottom (allowing a small tolerance).
+      const atBottom =
+        container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+      setIsAtBottom(atBottom);
+    };
+    container.addEventListener('scroll', onScroll);
+    // Call once on mount to set the initial direction state.
+    onScroll();
+    return () => {
+      container.removeEventListener('scroll', onScroll);
+    };
+  }, [filteredImages.length]);
+
+  // Click handler for the thumbnail scroll indicator.  If the user is not at the bottom
+  // then scroll to the end of the list; otherwise scroll back to the top.  Scrolling is
+  // animated to provide visual feedback.
+  const handleThumbnailScroll = () => {
+    const container = thumbnailScrollRef.current;
+    if (!container) return;
+    if (!isAtBottom) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+    } else {
+      container.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  // Determine if we are in a mobile viewport.  We'll hide the scroll indicator on
+  // larger screens.  Tailwind's `sm` breakpoint is 640px so we use a slightly larger
+  // threshold to approximate mobile devices.
+  const {width} = useWindowDimensions();
+  const isMobile = width < 768;
+
+  // Compute the total number of thumbnail boxes (images plus video preview if present).
+  const totalThumbnails =
+    filteredImages.length + (productVideo && productPreviewVideo ? 1 : 0);
 
   useEffect(() => {
     setSelectedImage(variantImage);
@@ -835,57 +904,131 @@ function ProductImage({
         </button>
       )}
       {/* Desktop vertical thumbnail gallery - hidden on very small screens */}
-      <div className="hidden xs:flex min-w-fit max-h-50 xs:max-h-65 sm:max-h-170 flex-col gap-4 scrollbar-none overflow-auto">
-        {filteredImages.map((image) => (
-          <button
-            key={image.id}
-            onClick={() => {
-              setSelectedImage(image);
-              setCurrentIndex(filteredImages.indexOf(image));
-            }}
-            className={`border ${
-              typeof selectedImage !== 'string' && selectedImage.id === image.id 
-                ? 'border-primary-P-40' 
-                : 'border-neutral-N-50'
-            } flex items-center justify-center w-12 h-12 xs:w-20 xs:h-20 sm:w-24 sm:h-24 bg-white rounded-sm hover:border-neutral-N-10 transition-colors p-1`}
-          >
-            <Image
-              data={image}
-              alt={image.altText || 'Product Image'}
-              className="w-full h-full object-contain object-center rounded-none"
-              sizes="auto"
-            />
-          </button>
+      <div ref={thumbnailScrollRef} className="hidden xs:flex min-w-fit max-h-50 xs:max-h-65 sm:max-h-170 flex-col gap-4 scrollbar-none overflow-auto relative">
+        {filteredImages.map((image, index) => (
+          <div key={image.id} className="relative">
+            <button
+              onClick={() => {
+                setSelectedImage(image);
+                setCurrentIndex(filteredImages.indexOf(image));
+              }}
+              className={`border ${
+                typeof selectedImage !== 'string' && selectedImage.id === image.id
+                  ? 'border-primary-P-40'
+                  : 'border-neutral-N-50'
+              } flex items-center justify-center w-12 h-12 xs:w-20 xs:h-20 sm:w-24 sm:h-24 bg-white rounded-md hover:border-neutral-N-10 transition-colors p-1 box-border overflow-hidden`}
+            >
+              <Image
+                data={image}
+                alt={image.altText || 'Product Image'}
+                className="w-full h-full object-contain object-center rounded-none"
+                sizes="auto"
+              />
+            </button>
+            {/* Show the up arrow on the last image when scrolled to the bottom and there is no video */}
+            {isMobile &&
+              isAtBottom &&
+              totalThumbnails > 3 &&
+              !productVideo &&
+              index === filteredImages.length - 1 && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                  <button
+                    onClick={handleThumbnailScroll}
+                    className="bg-white/80 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center hover:bg-white hover:text-black pointer-events-auto shadow-md border border-gray-300"
+                    aria-label="Scroll back to top"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      {/* Up arrow: points from bottom left to top middle to bottom right */}
+                      <polyline points="6,15 12,9 18,15"></polyline>
+                    </svg>
+                  </button>
+                </div>
+              )}
+          </div>
         ))}
         {productVideo && productPreviewVideo ? (
-          <button
-            onClick={() => {
-              setSelectedImage(productVideo);
-              
-              setCurrentIndex(filteredImages.length);
-            }}
-            className={`flex items-center justify-center border ${typeof selectedImage === 'string' ? 'border-primary-P-40' : 'border-neutral-N-50'} w-12 h-12 xs:w-20 xs:h-20 sm:w-24 sm:h-24 bg-white rounded-sm hover:border-neutral-N-10 transition-colors p-1`}
-          >
-            <Image
-              data={productPreviewVideo}
-              alt={productPreviewVideo.altText || 'Product Image'}
-              className="w-full h-full object-contain object-center rounded-none"
-              sizes="auto"
-            />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => {
+                setSelectedImage(productVideo);
+                setCurrentIndex(filteredImages.length);
+              }}
+              className={`flex items-center justify-center border ${
+                typeof selectedImage === 'string' ? 'border-primary-P-40' : 'border-neutral-N-50'
+              } w-12 h-12 xs:w-20 xs:h-20 sm:w-24 sm:h-24 bg-white rounded-md hover:border-neutral-N-10 transition-colors p-1 box-border overflow-hidden`}
+            >
+              <Image
+                data={productPreviewVideo}
+                alt={productPreviewVideo?.altText || 'Product Image'}
+                className="w-full h-full object-contain object-center rounded-none"
+                sizes="auto"
+              />
+            </button>
+            {/* Show the up arrow on the last thumbnail (video) when scrolled to the bottom */}
+            {isMobile && isAtBottom && totalThumbnails > 3 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <button
+                  onClick={handleThumbnailScroll}
+                  className="bg-white/80 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center hover:bg-white hover:text-black pointer-events-auto shadow-md border border-gray-300"
+                  aria-label="Scroll back to top"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    {/* Up arrow: points from bottom left to top middle to bottom right */}
+                    <polyline points="6,15 12,9 18,15"></polyline>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <></>
+        )}
+        {/* Scroll indicator: show down arrow overlay on mobile when the list can scroll */}
+        {isMobile && !isAtBottom && totalThumbnails > 3 && (
+          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 pointer-events-none z-10">
+            <button
+              onClick={handleThumbnailScroll}
+              className="bg-white/80 text-gray-800 rounded-full w-8 h-8 flex items-center justify-center hover:bg-white hover:text-black pointer-events-auto shadow-md border border-gray-300"
+              aria-label="Scroll to see more images"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                {/* Down arrow: points from top left to bottom middle to top right */}
+                <polyline points="6,9 12,15 18,9"></polyline>
+              </svg>
+            </button>
+          </div>
         )}
       </div>
       
       {/* Mobile carousel indicators - visible only on xs screens */}
       <div className="xs:hidden w-full flex justify-center items-center gap-1 mt-2 mb-4">
-        {allMedia.map((_, index) => (
+        {allMedia.map((_, index: number) => (
           <button 
             key={`indicator-${index}`}
             onClick={() => {
               setCurrentIndex(index);
-              setSelectedImage(allMedia[index]);
+              setSelectedImage(allMedia[index] as any);
             }}
             className={`w-2 h-2 rounded-full ${currentIndex === index ? 'bg-primary-P-40' : 'bg-neutral-N-80'}`}
             aria-label={`View product image ${index + 1}`}
