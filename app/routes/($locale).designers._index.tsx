@@ -51,12 +51,11 @@ const designerList: DesignerType[] = [
     // isFull: true,
   },
   {
-    imgSrc: 'Parah.jpeg',
-    imgLogo: 'parah.svg',
-    link: '/products?designer=parah',
-    title: 'Parah',
+    imgSrc: 'LoveMoschino.jpeg',       
+    imgLogo: 'love-moschino.png',     
+    link: '/products?designer=love+moschino',
+    title: 'Love Moschino',
     bgColor: 'bg-black/10',
-    // isFull: true,
   },
   {
     imgSrc: 'Claudia Rossi.png',
