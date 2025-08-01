@@ -51,7 +51,7 @@ const designerList: DesignerType[] = [
     // isFull: true,
   },
   {
-    imgSrc: 'LoveMoschino.jpeg',       
+    imgSrc: 'LoveMoschino.WEBP',       
     imgLogo: 'love-moschino.png',     
     link: '/products?designer=love+moschino',
     title: 'Love Moschino',
