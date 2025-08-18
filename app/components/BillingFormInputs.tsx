@@ -42,7 +42,7 @@ const BillingFormInputs = ({
         iconPosition={direction === 'rtl' ? 'right' : 'left'}
       >
         <InputIcon>
-          <img src="/icons/payment_methods.svg" />
+          <img src="/icons/payment_methods.svg" alt="Payment methods" />
         </InputIcon>
         <FloatLabel>
           <Dropdown
@@ -102,9 +102,9 @@ const BillingFormInputs = ({
         <div
           className={`${direction === 'rtl' ? 'left-4' : 'right-4'} absolute top-1/2 -translate-y-1/2 flex gap-3 items-center justify-center`}
         >
-          <img src="/icons/amex.svg" />
-          <img src="/icons/Maestro.svg" />
-          <img src="/icons/Mastercard.svg" />
+          <img src="/icons/amex.svg" alt="American Express" />
+          <img src="/icons/Maestro.svg" alt="Maestro" />
+          <img src="/icons/Mastercard.svg" alt="Mastercard" />
         </div>
       </div>
       <div

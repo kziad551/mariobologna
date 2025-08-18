@@ -149,7 +149,7 @@ export function Header({header, cart, submenus}: HeaderProps) {
         <div className="relative flex-1 items-center justify-center">
           <NavLink className="w-fit mx-auto block" prefetch="intent" to="/" end>
             {shop?.brand?.logo?.image?.url && (
-              <img src={shop.brand.logo.image.url} className="w-90" />
+              <img src={shop.brand.logo.image.url} alt="Mario Bologna Logo" className="w-90" />
             )}
           </NavLink>
         </div>

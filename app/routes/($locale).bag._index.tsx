@@ -238,14 +238,15 @@ export default function Bag() {
                   {t('Checkout')}
                 </NavLink>
                 <div className="flex flex-wrap items-center justify-start gap-6 mt-3 mb-4">
-                  <img className="" src="/icons/payments/visa_card.svg" />
-                  <img className="" src="/icons/payments/paypal.svg" />
-                  <img className="" src="/icons/payments/master_card.svg" />
-                  <img className="" src="/icons/payments/google_pay.svg" />
-                  <img className="" src="/icons/payments/apple_pay.svg" />
+                  <img className="" src="/icons/payments/visa_card.svg" alt="Visa" />
+                  <img className="" src="/icons/payments/paypal.svg" alt="PayPal" />
+                  <img className="" src="/icons/payments/master_card.svg" alt="Mastercard" />
+                  <img className="" src="/icons/payments/google_pay.svg" alt="Google Pay" />
+                  <img className="" src="/icons/payments/apple_pay.svg" alt="Apple Pay" />
                   <img
                     className=""
                     src="/icons/payments/american_express.svg"
+                    alt="American Express"
                   />
                 </div>
                 <div className="flex flex-col gap-2 text-sm">
