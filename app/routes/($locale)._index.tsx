@@ -952,6 +952,17 @@ function Shops({
         aria-label="Shop Men's Luxury Designer Fashion Collection Dubai"
       >
         <picture>
+          {/* Mobile optimization - smaller download but same visual size */}
+          <source
+            media="(max-width: 639px)"
+            srcSet="/images/shops/men.webp?width=360"
+            sizes="50vw"
+          />
+          <source
+            media="(min-width: 640px) and (max-width: 1023px)"
+            srcSet="/images/shops/men.webp?width=500"
+            sizes="33vw"
+          />
           <source
             media="(min-width: 1024px)"
             srcSet="/images/shops/men.webp?width=400 400w, /images/shops/men.webp?width=800 800w"
@@ -978,6 +989,17 @@ function Shops({
         aria-label="Shop Women's Luxury Designer Fashion Collection Dubai"
       >
         <picture>
+          {/* Mobile optimization - smaller download but same visual size */}
+          <source
+            media="(max-width: 639px)"
+            srcSet="/images/shops/women.webp?width=360"
+            sizes="50vw"
+          />
+          <source
+            media="(min-width: 640px) and (max-width: 1023px)"
+            srcSet="/images/shops/women.webp?width=500"
+            sizes="33vw"
+          />
           <source
             media="(min-width: 1024px)"
             srcSet="/images/shops/women.webp?width=400 400w, /images/shops/women.webp?width=800 800w"
@@ -1004,6 +1026,17 @@ function Shops({
         aria-label="Shop Kids Luxury Designer Fashion Collection Dubai"
       >
         <picture>
+          {/* Mobile optimization - smaller download but same visual size */}
+          <source
+            media="(max-width: 639px)"
+            srcSet="/images/shops/kids.webp?width=360"
+            sizes="50vw"
+          />
+          <source
+            media="(min-width: 640px) and (max-width: 1023px)"
+            srcSet="/images/shops/kids.webp?width=500"
+            sizes="33vw"
+          />
           <source
             media="(min-width: 1024px)"
             srcSet="/images/shops/kids.webp?width=400 400w, /images/shops/kids.webp?width=800 800w"
