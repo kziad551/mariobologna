@@ -35,7 +35,7 @@ const FooterMobile = ({cart}: FooterMobileProps) => {
         <div
           className={`${location.pathname === '/' ? 'bg-primary-P-40 text-white' : ''} w-full py-1 xs:px-5 px-1 rounded flex items-center justify-center`}
         >
-          <img src="/mobile-logo.png" alt="logo" className="w-6 h-6" />
+          <img src="/mobile-logo.webp" alt="logo" className="w-6 h-6" />
         </div>
         <p className="text-xs font-semibold text-neutral-N-30">{t('Shop')}</p>
       </NavLink>
