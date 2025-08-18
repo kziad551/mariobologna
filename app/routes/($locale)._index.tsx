@@ -116,12 +116,14 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const {collection: brandNewProducts} = await storefront.query(
     OTHER_COLLECTION_QUERY,
     {
+      cache: storefront.CacheLong(),
       variables: {country, handle: 'new-arrivals', first: 5},
     },
   );
   const {collection: topPicksProducts} = await storefront.query(
     OTHER_COLLECTION_QUERY,
     {
+      cache: storefront.CacheLong(),
       variables: {country, handle: 'best-selling', first: 8},
     },
   );
@@ -129,6 +131,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const {collection: lookCollection} = await storefront.query(
     ONE_LOOK_COLLECTION_QUERY,
     {
+      cache: storefront.CacheLong(),
       variables: {country, handle: 'one-look'},
     },
   );
@@ -160,6 +163,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const {metaobject} = await context.storefront.query(
     METAOBJECT_CONTENT_QUERY,
     {
+      cache: context.storefront.CacheLong(),
       variables: {
         country,
         handle: newHeroHandle,
