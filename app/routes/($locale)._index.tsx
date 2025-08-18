@@ -950,11 +950,11 @@ function Shops({
         <picture>
           <source
             media="(min-width: 1024px)"
-            srcSet="/images/shops/men.png?width=400 400w, /images/shops/men.png?width=800 800w"
+            srcSet="/images/shops/men.webp?width=400 400w, /images/shops/men.webp?width=800 800w"
             sizes="(min-width: 1280px) 400px, 33vw"
           />
           <img
-            src="/images/shops/men.png"
+            src="/images/shops/men.webp"
             alt="Men's Luxury Fashion Dubai - Designer Suits, Shirts & Accessories at Mario Bologna"
             className="w-full h-full object-cover"
             loading="lazy"
@@ -976,11 +976,11 @@ function Shops({
         <picture>
           <source
             media="(min-width: 1024px)"
-            srcSet="/images/shops/women.png?width=400 400w, /images/shops/women.png?width=800 800w"
+            srcSet="/images/shops/women.webp?width=400 400w, /images/shops/women.webp?width=800 800w"
             sizes="(min-width: 1280px) 400px, 33vw"
           />
           <img
-            src="/images/shops/women.png"
+            src="/images/shops/women.webp"
             alt="Women's Luxury Fashion Dubai - Designer Dresses, Bags & Shoes at Mario Bologna"
             className="w-full h-full object-cover"
             loading="lazy"
@@ -1002,11 +1002,11 @@ function Shops({
         <picture>
           <source
             media="(min-width: 1024px)"
-            srcSet="/images/shops/kids.png?width=400 400w, /images/shops/kids.png?width=800 800w"
+            srcSet="/images/shops/kids.webp?width=400 400w, /images/shops/kids.webp?width=800 800w"
             sizes="(min-width: 1280px) 400px, 33vw"
           />
           <img
-            src="/images/shops/kids.png"
+            src="/images/shops/kids.webp"
             alt="Kids Luxury Fashion Dubai - Designer Children's Clothing at Mario Bologna"
             className="w-full h-full object-cover"
             loading="lazy"
