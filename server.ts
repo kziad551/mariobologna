@@ -97,6 +97,11 @@ export default {
 
       const response = await handleRequest(request);
 
+      // Add cache headers for Google Maps API
+      if (request.url.includes('maps.googleapis.com')) {
+        response.headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
+      }
+
       if (response.status === 404) {
         /**
          * Check for redirects only when there's a 404 from the app.
