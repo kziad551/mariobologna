@@ -1142,6 +1142,8 @@ i18n.use(initReactI18next).init({
         Grey: 'رمادي',
         Silver: 'فضي',
         Brown: 'بني',
+        Bronze: 'برونزي',
+        Print: 'نقش',
         Red: 'أحمر',
         Blue: 'أزرق',
         Green: 'أخضر',

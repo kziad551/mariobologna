@@ -45,11 +45,14 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     };
   }
 
+  // Enhanced search query to include Arabic metafields
+  const searchQuery = `product_type:"${searchTerm}" OR tag:"${searchTerm}" OR vendor:"${searchTerm}" OR title:"${searchTerm}" OR metafield.custom.arabic_title:"${searchTerm}" OR metafield.custom.arabic_description:"${searchTerm}"`;
+  
   const {errors, ...data} = await context.storefront.query(SEARCH_QUERY, {
     variables: {
       ...variables,
       country,
-      query: `product_type:"${searchTerm}" OR tag:"${searchTerm}" OR vendor:"${searchTerm}" OR title:"${searchTerm}"`,
+      query: searchQuery,
       first: 100,
     },
   });
@@ -135,6 +138,13 @@ const SEARCH_QUERY = `#graphql
     title
     trackingParameters
     vendor
+    metafields(identifiers: [
+      {namespace: "custom", key: "arabic_title"},
+      {namespace: "custom", key: "arabic_description"}
+    ]) {
+      key
+      value
+    }
     variants(first: 1) {
       nodes {
         id

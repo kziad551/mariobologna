@@ -277,6 +277,13 @@ const PREDICTIVE_SEARCH_QUERY = `#graphql
     title
     handle
     trackingParameters
+    metafields(identifiers: [
+      {namespace: "custom", key: "arabic_title"},
+      {namespace: "custom", key: "arabic_description"}
+    ]) {
+      key
+      value
+    }
     variants(first: 1) {
       nodes {
         id
