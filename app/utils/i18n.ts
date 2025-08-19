@@ -1414,8 +1414,9 @@ Collections:'المجموعات',
         'We are proud to maintain the highest standards of sustainability and ethical practices in our industry.':'نحن فخورون بالحفاظ على أعلى معايير الاستدامة والممارسات الأخلاقية في مجال عملنا.',
         'To use your store credit balance you can follow these steps: log into your account, add your desired items to cart and visit your shopping bag. There, select the option to use your store credit balance then proceed to the checkout. Your amount will automatically be deducted from the total cost of your order. For more help, feel free to call our Customer Care team.':'لإستخدام رصيد المتجر الإلكتروني الخاص بك، يرجى إتباع الخطوات التالية: قم بتسجيل الدخول إلى حسابك، ثم أضف المنتجات التي ترغب بها إلى سلة التسوق وانتقل إلى حقيبة التسوق. عندها، إختر خيار إستخدام رصيد المتجر الإلكتروني ثم تابع إلى صفحة الدفع. سيتم خصم المبلغ تلقائيًا من التكلفة الإجمالية لطلبك. للحصول على المزيد من المساعدة، لا تتردد في الإتصال بفريق خدمة العملاء لدينا.',
         'We accept Visa, Mastercard, American Express, PayPal, Apple Pay, Cash on Delivery and online store credit. We also offer a payment in instalments option via third party providers (each a \'Delayed Payment Provider\') subject to you meeting the Delayed Payment Provider\'s eligibility criteria and entering into a contract with the Delayed Payment Provider. Cash on Delivery is permitted for Orders of up to 50,000 AED.':'نقبل بطاقات فيزا وماستر كارد واميركان اكسبرس، بالإضافة إلى بايبال و آبل باي والدفع عند الإستلام وبطاقة المتجر عبر الإنترنت. كما نوفر خيار الدفع بالتقسيط من خلال مزودين خارجيين (ويشار الى كل منهم بإسم "مزود الدفع المؤجل")، وذلك رهنًا بإستيفائك لمعايير الأهلية الخاصة بمزود الدفع المؤجل وإبرامك عقدًا معه. يسمح بالدفع عند الإستلام للطلبات التي تصل قيمتها إلى  50000 درهم إماراتي كحد أقصى.',
-        "The item doesn't look like the one in the photo":
-          'العنصر لا يبدو مثل الذي في الصورة',
+        "The item doesn't look like the one in the photo": 'العنصر لا يبدو مثل الذي في الصورة',
+        'Jeans':'جينز',
+        'Balck':'أسود',
         'The color does not match the one displayed in the image':
           'اللون لا يتطابق مع اللون المعروض في الصورة',
         'The size is too big': 'الحجم كبير جدًا',
