@@ -654,14 +654,33 @@ function HeroSection({
       }
     }
     
+    // QUALITY FALLBACK: If mobile/tablet don't have specific images, use desktop
+    if (!mobileUrl && desktopUrl) {
+      // console.log('No mobile-specific image, using desktop image for mobile');
+      mobileUrl = desktopUrl;
+    }
+    if (!tabletUrl && desktopUrl) {
+      // console.log('No tablet-specific image, using desktop image for tablet');
+      tabletUrl = desktopUrl;
+    }
+    
     // console.log('Final URLs for language:', language);
     // console.log('Desktop URL:', desktopUrl);
     // console.log('Tablet URL:', tabletUrl);
     // console.log('Mobile URL:', mobileUrl);
     
-    if (desktopUrl) setDesktopImage(desktopUrl);
-    if (tabletUrl) setTabletImage(tabletUrl);
-    if (mobileUrl) setMobileImage(mobileUrl);
+    // Ensure all devices get high-quality images
+    const highQualityUrl = desktopUrl || tabletUrl || mobileUrl;
+    if (highQualityUrl) {
+      // console.log('Setting high-quality URL for all devices:', highQualityUrl);
+      setDesktopImage(highQualityUrl);
+      setTabletImage(highQualityUrl);
+      setMobileImage(highQualityUrl);
+    } else {
+      if (desktopUrl) setDesktopImage(desktopUrl);
+      if (tabletUrl) setTabletImage(tabletUrl);
+      if (mobileUrl) setMobileImage(mobileUrl);
+    }
   }, [metaobject, language]);
 
   return (
@@ -673,7 +692,7 @@ function HeroSection({
           {mobileImage && (
             <source
               media="(max-width: 639px)"
-              srcSet={`${mobileImage}?width=414 414w, ${mobileImage}?width=828 828w`}
+              srcSet={`${mobileImage}`}
               sizes="100vw"
             />
           )}
@@ -682,7 +701,7 @@ function HeroSection({
           {tabletImage && (
             <source
               media="(min-width: 640px) and (max-width: 1023px)"
-              srcSet={`${tabletImage}?width=768 768w, ${tabletImage}?width=1536 1536w`}
+              srcSet={`${tabletImage}`}
               sizes="100vw"
             />
           )}
@@ -691,7 +710,7 @@ function HeroSection({
           {desktopImage && (
             <source
               media="(min-width: 1024px)"
-              srcSet={`${desktopImage}?width=1024 1024w, ${desktopImage}?width=1920 1920w, ${desktopImage}?width=2560 2560w`}
+              srcSet={`${desktopImage}`}
               sizes="100vw"
             />
           )}
@@ -709,22 +728,22 @@ function HeroSection({
       
       {/* Fallback if no images are loaded */}
       {!desktopImage && !tabletImage && !mobileImage && (
-        <div className="w-full aspect-video bg-gray-200 flex items-center justify-center">
+        <div className="w-full aspect-video bg-transparent flex items-center justify-center">
           <p>Loading Mario Bologna luxury fashion brands hero image...</p>
         </div>
       )}
       
-      {/* Overlay gradient for better text readability - only on desktop */}
-      <div className="absolute inset-0 bg-transparent lg:bg-black/10"></div>
-      
-      <div className="absolute bottom-8 left-0 right-0 flex justify-center pb-8">
-        <NavLink
-          to="/#products_section"
-          className="bg-secondary-S-90 px-8 py-3 rounded-md text-lg md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all backdrop-blur-sm"
-        >
-          {t('Shop Now')}
-        </NavLink>
-      </div>
+      {/* Button positioned within the hero image area */}
+      {(mobileImage || tabletImage || desktopImage) && (
+        <div className="absolute bottom-16 sm:bottom-16 lg:bottom-8 left-0 right-0 flex justify-center px-4">
+          <NavLink
+            to="/#products_section"
+            className="bg-secondary-S-90 px-6 py-2 sm:px-8 sm:py-3 rounded-md text-base sm:text-lg md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all backdrop-blur-sm"
+          >
+            {t('Shop Now')}
+          </NavLink>
+        </div>
+      )}
     </div>
   );
 }
