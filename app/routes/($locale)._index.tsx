@@ -262,7 +262,7 @@ export default function Homepage() {
       <div style={{display: 'none'}}>
         <section>
           <h1>Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion Destination UAE</h1>
-          <h2>Dubai's Premier Luxury Brands Experience - Summer 2025</h2>
+          <h6>Dubai's Premier Luxury Brands Experience - Summer 2025</h6>
           <p>
             <a href="/aboutus" title="About Mario Bologna - Luxury Fashion Brands in Dubai">About Mario Bologna - Luxury Fashion Brands in Dubai</a> Welcome to Mario Bologna - Luxury Fashion Brands in Dubai, where the world's most prestigious 
             luxury brands meet Dubai's sophisticated fashion scene. Step into Summer 2025 with our exclusive luxury brands collection, featuring the finest <a href="https://www.vogue.com/article/italian-fashion-designers" target="_blank" rel="noopener noreferrer" title="Italian Fashion Designers - Vogue">Italian designers</a> and international luxury brands.
@@ -300,7 +300,7 @@ export default function Homepage() {
         </section>
 
         <section>
-          <h2>Shop Women's Collection</h2>
+          <h4>Shop Women's Collection</h4>
           <h3>Luxury Looks for the Elegant Woman</h3>
           <p>
             Explore our Summer 2025 Women's Collection – designed for women who dress with passion.
@@ -316,7 +316,7 @@ export default function Homepage() {
         </section>
 
         <section>
-          <h2>Shop Men's Collection</h2>
+          <h5>Shop Men's Collection</h5>
           <h3>Luxury Style for Every Occasion</h3>
           <p>
             Upgrade your wardrobe with House of Brands Mario Bologna's Summer 2025 Men's Edit, a
@@ -348,7 +348,7 @@ export default function Homepage() {
 
         {/* Arabic SEO Content */}
         <section lang="ar" dir="rtl">
-          <h2>ماريو بولونيا - الماركات الفاخرة في دبي | وجهة الأزياء الراقية الإمارات</h2>
+          <h6>ماريو بولونيا - الماركات الفاخرة في دبي | وجهة الأزياء الراقية الإمارات</h6>
           <p>
             مرحباً بك في ماريو بولونيا - الماركات الفاخرة في دبي، وجهتك الأولى للماركات الفاخرة وأحدث صيحات الأزياء الراقية في دبي والخليج.
             ماريو بولونيا - الماركات الفاخرة في دبي تقدم مجموعة حصرية من أرقى الماركات الفاخرة العالمية والإيطالية المرموقة.
@@ -369,7 +369,7 @@ export default function Homepage() {
         </section>
 
         <section lang="ar" dir="rtl">
-          <h2>قسم النساء – صيف 2025</h2>
+          <h4>قسم النساء – صيف 2025</h4>
           <h3>إطلالات فاخرة للمرأة الأنيقة</h3>
           <p>
             هذا صيفك، وهذه لحظتك! اكتشفي تشكيلتنا الفاخرة للمرأة العصرية من ماريو بولونيا. 
