@@ -132,7 +132,8 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
           filters.push({
             productType: "Accessories"
           });
-        } else {
+        } 
+        else {
           filters.push({
             [filterKey]: JSON.parse(value),
           });
@@ -351,7 +352,7 @@ export default function Collection() {
 
   useEffect(() => {
     setTotalLength(collection.allProducts.nodes.length);
-    setFilteredLength(collection.filteredProducts.nodes.length);
+    setFilteredLength(collection.filteredProducts?.nodes?.length || 0);
   }, [appliedFilters]);
 
   // Update filter display based on screen size
@@ -784,12 +785,12 @@ export default function Collection() {
                       {isLoading ? t('Loading...') : t('Load previous')}
                     </Button>
                   </div>
-                  {nodes.length > 0 ? (
+                  {(nodes.length > 0 || (appliedFilters.length > 0 && collection.filteredProducts?.nodes?.length > 0)) ? (
                     <ProductsGrid
                       handle={section}
                       t={t}
                       direction={direction}
-                      products={nodes as ProductCardFragment[]}
+                      products={(nodes.length > 0 ? nodes : collection.filteredProducts?.nodes || []) as ProductCardFragment[]}
                       openFilter={openFilter}
                       width={width}
                       inView={inView}
@@ -1429,7 +1430,7 @@ const COLLECTION_QUERY = `#graphql
         filters: $filters,
       ) {
         nodes {
-          id
+          ...ProductCard
         }
       }
     }

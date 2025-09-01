@@ -321,14 +321,8 @@ export function FiltersDrawer({
           </div>
         ) : null}
         {filters.map((filter: Filter, index) => {
-          // Check if this is the Brand filter and if product type filter is applied
-          const isProductTypeFilterApplied = params.has(`${FILTER_URL_PREFIX}productType`);
-          
-          // Skip rendering the brand filter if it has no options with count > 0 when product type filter is applied
-          if (filter.label === 'Brand' && isProductTypeFilterApplied) {
-            const hasBrandsWithProducts = filter.values?.some(option => option.count > 0);
-            if (!hasBrandsWithProducts) return null;
-          }
+          // Always show filters, even if they have no current results
+          // This prevents the "no products found" issue when filters are combined
           
           return (
             <Disclosure as="div" key={index} className="w-full">
@@ -400,7 +394,20 @@ export function getAppliedFilterLink(
   const paramsClone = new URLSearchParams(params);
   Object.entries(filter.filter).forEach(([key, value]) => {
     const fullKey = FILTER_URL_PREFIX + key;
-    paramsClone.delete(fullKey, JSON.stringify(value));
+    
+    // Get all values for this filter key
+    const existingValues = paramsClone.getAll(fullKey);
+    const targetValue = JSON.stringify(value);
+    
+    // Remove all instances of this filter key first
+    paramsClone.delete(fullKey);
+    
+    // Re-add all values except the one we want to remove
+    existingValues.forEach(existingValue => {
+      if (existingValue !== targetValue) {
+        paramsClone.append(fullKey, existingValue);
+      }
+    });
   });
   return `${location.pathname}?${paramsClone.toString()}`;
 }
@@ -532,14 +539,22 @@ function filterInputToParams(
       : rawInput;
 
   Object.entries(input).forEach(([key, value]) => {
-    if (params.has(`${FILTER_URL_PREFIX}${key}`, JSON.stringify(value))) {
-      return;
+    const fullKey = `${FILTER_URL_PREFIX}${key}`;
+    const stringValue = JSON.stringify(value);
+    
+    // Check if this exact value already exists
+    const existingValues = params.getAll(fullKey);
+    if (existingValues.includes(stringValue)) {
+      return; // Already exists, don't add duplicate
     }
+    
     if (key === 'price') {
-      // For price, we want to overwrite
-      params.set(`${FILTER_URL_PREFIX}${key}`, JSON.stringify(value));
+      // For price, we want to overwrite all existing price filters
+      params.delete(fullKey);
+      params.set(fullKey, stringValue);
     } else {
-      params.append(`${FILTER_URL_PREFIX}${key}`, JSON.stringify(value));
+      // For other filters, append to allow multiple values
+      params.append(fullKey, stringValue);
     }
   });
 
