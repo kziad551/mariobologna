@@ -1272,7 +1272,7 @@ function BannerSection({
   }, [metaobject, language]);
 
   return (
-    <div className="relative w-full h-screen sm:h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-50">
+    <div className="relative w-full h-[35vh] sm:h-[29vh] flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-50">
       {/* Desktop layout */}
       <div className="hidden sm:flex absolute inset-0 items-center justify-center">
         {/* Left images */}
