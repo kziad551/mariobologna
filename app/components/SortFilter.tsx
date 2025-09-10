@@ -409,7 +409,8 @@ export function getAppliedFilterLink(
       }
     });
   });
-  return `${location.pathname}?${paramsClone.toString()}`;
+  const query = paramsClone.toString();
+  return `${location.pathname}?${query}#products`;
 }
 
 function getSortLink(
@@ -418,7 +419,7 @@ function getSortLink(
   location: Location,
 ) {
   params.set('sort', sort);
-  return `${location.pathname}?${params.toString()}`;
+  return `${location.pathname}?${params.toString()}#products`;
 }
 
 export function getFilterLink(
@@ -428,7 +429,7 @@ export function getFilterLink(
 ) {
   const paramsClone = new URLSearchParams(params);
   const newParams = filterInputToParams(rawInput, paramsClone);
-  return `${location.pathname}?${newParams.toString()}`;
+  return `${location.pathname}?${newParams.toString()}#products`;
 }
 
 const PRICE_RANGE_FILTER_DEBOUNCE = 500;
