@@ -145,6 +145,7 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   );
 
   const {collection} = await context.storefront.query(COLLECTION_QUERY, {
+    cache: context.storefront.CacheShort(),
     variables: {
       ...paginationVariables,
       handle,
@@ -785,12 +786,12 @@ export default function Collection() {
                       {isLoading ? t('Loading...') : t('Load previous')}
                     </Button>
                   </div>
-                  {(nodes.length > 0 || (appliedFilters.length > 0 && collection.filteredProducts?.nodes?.length > 0)) ? (
+                  {nodes.length > 0 ? (
                     <ProductsGrid
                       handle={section}
                       t={t}
                       direction={direction}
-                      products={(nodes.length > 0 ? nodes : collection.filteredProducts?.nodes || []) as ProductCardFragment[]}
+                      products={nodes as ProductCardFragment[]}
                       openFilter={openFilter}
                       width={width}
                       inView={inView}
@@ -1430,7 +1431,7 @@ const COLLECTION_QUERY = `#graphql
         filters: $filters,
       ) {
         nodes {
-          ...ProductCard
+          id
         }
       }
     }
