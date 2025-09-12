@@ -4,8 +4,64 @@
   --cart-aside-summary-height: 250px;
   --grid-item-width: 355px;
   --header-height: 64px;
+  --header-h: 80px; /* Sticky header height for scroll margin */
   --color-dark: #000;
   --color-light: #fff;
+}
+
+/* Scroll margin for smooth navigation with sticky header */
+#products {
+  scroll-margin-top: var(--header-h);
+}
+
+/* RTL text handling in mega menu */
+.dir-aware[dir="rtl"] .mega-menu-item {
+  text-align: right;
+}
+
+.dir-aware[dir="rtl"] .mega-menu-container {
+  direction: rtl;
+}
+
+/* Better text wrapping for RTL languages */
+.rtl-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+/* Mega menu responsive spacing - allow natural vertical flow */
+.mega-menu-container {
+  overflow: visible;
+}
+
+/* Prevent horizontal wrapping in menu columns */
+.mega-menu-container .flex.flex-col {
+  flex-wrap: nowrap !important;
+}
+
+@media (max-width: 1279px) {
+  .mega-menu-container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  .mega-menu-container .flex.gap-2 {
+    gap: 0.5rem !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mega-menu-container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  .mega-menu-container .flex.gap-2 {
+    gap: 0.25rem !important;
+  }
 }
 
 @font-face {

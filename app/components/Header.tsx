@@ -316,86 +316,27 @@ export function HeaderMenu({
   };
 
   const handleNavigationClick = (url: string) => {
-    console.log('Navigation menu item clicked - navigating with scroll handling');
+    // Navigate to collection page with #products hash for smooth scroll
+    const urlWithHash = url.includes('#') ? url : `${url}#products`;
     
-    // Clear any existing scroll restoration data
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      window.sessionStorage.removeItem('lastScrollPosition');
-      window.sessionStorage.setItem('intentionalScroll', 'true');
-    }
-    
-    navigate(url, {
+    navigate(urlWithHash, {
       replace: true,
       preventScrollReset: true,
     });
-    
-    // Handle scroll to products section
-    const scrollDelay = width >= 1280 ? 800 : 500;
-    
-    setTimeout(() => {
-      const productsSection = document.getElementById('products');
-      if (productsSection) {
-        const headerHeight = 80;
-        const elementRect = productsSection.getBoundingClientRect();
-        const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
-        console.log('Menu navigation: scrolling to products section, position:', targetPosition);
-        
-        window.scrollTo({
-          top: targetPosition,
-          behavior: 'smooth'
-        });
-        
-        // Clear the intentional scroll flag after scroll completes
-        const clearDelay = width >= 1280 ? 1500 : 1000;
-        setTimeout(() => {
-          if (typeof window !== 'undefined' && window.sessionStorage) {
-            window.sessionStorage.removeItem('intentionalScroll');
-          }
-        }, clearDelay);
-      }
-    }, scrollDelay);
   };
 
   const handleSubMenuClick = (url: string) => {
-    console.log('Submenu item clicked - navigating with scroll handling');
     setOpenMegaMenu({});
     
-    // Clear any existing scroll restoration data
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      window.sessionStorage.removeItem('lastScrollPosition');
-      window.sessionStorage.setItem('intentionalScroll', 'true');
-    }
+    // Navigate with #products hash for smooth scroll if it's a collection page
+    const urlWithHash = (url.includes('/collections/') && !url.includes('#')) 
+      ? `${url}#products` 
+      : url;
     
-    navigate(url, {
+    navigate(urlWithHash, {
       replace: true,
       preventScrollReset: true,
     });
-    
-    // Handle scroll to products section
-    const scrollDelay = width >= 1280 ? 800 : 500;
-    
-    setTimeout(() => {
-      const productsSection = document.getElementById('products');
-      if (productsSection) {
-        const headerHeight = 80;
-        const elementRect = productsSection.getBoundingClientRect();
-        const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
-        console.log('Submenu navigation: scrolling to products section, position:', targetPosition);
-        
-        window.scrollTo({
-          top: targetPosition,
-          behavior: 'smooth'
-        });
-        
-        // Clear the intentional scroll flag after scroll completes
-        const clearDelay = width >= 1280 ? 1500 : 1000;
-        setTimeout(() => {
-          if (typeof window !== 'undefined' && window.sessionStorage) {
-            window.sessionStorage.removeItem('intentionalScroll');
-          }
-        }, clearDelay);
-      }
-    }, scrollDelay);
   };
 
   const rightSections: {
@@ -469,9 +410,9 @@ export function HeaderMenu({
             exit={{opacity: 0, transition: {delay: 0.25, ease: 'easeInOut'}}}
             onMouseEnter={() => setOpenMegaMenu({[selectedMegaMenu]: true})}
             onMouseLeave={() => setOpenMegaMenu({})}
-            className="z-50 absolute top-full left-0 right-0 pt-8 pb-2 px-16 bg-[#F5F5F5] hidden lg:flex items-start justify-between gap-16 shadow-xl shadow-black/30"
+            className="mega-menu-container z-50 absolute top-full left-0 right-0 pt-8 pb-4 px-4 md:px-8 xl:px-12 bg-[#F5F5F5] hidden lg:flex items-start justify-between gap-4 md:gap-8 xl:gap-12 shadow-xl shadow-black/30"
           >
-            <div className="flex gap-8 w-full items-stretch justify-start">
+            <div className="flex gap-2 md:gap-4 xl:gap-6 w-full items-stretch justify-start">
               {subMenuItems.length > 0 &&
                 subMenuItems.map((item, index) => {
                   // Clean URL construction - remove hash fragments
@@ -484,7 +425,7 @@ export function HeaderMenu({
                   return (
                     <div
                       key={index}
-                      className="flex-1 flex flex-col items-start gap-4"
+                      className="flex-1 flex flex-col items-start gap-2 min-w-0 max-w-48 md:max-w-56"
                     >
                       <button
                         onClick={() => handleSubMenuClick(
@@ -494,12 +435,12 @@ export function HeaderMenu({
                               : designerLink
                             : fullURL
                         )}
-                        className={`${item.title === 'All Designers' ? 'self-center font-semibold' : 'font-semibold'} text-base font-medium hover:underline cursor-pointer bg-transparent border-none text-left`}
+                        className={`mega-menu-item font-semibold text-sm md:text-base font-medium hover:underline cursor-pointer bg-transparent border-none text-left rtl-text break-words`}
                       >
                         {t(item.title)}
                       </button>
                       <div
-                        className={`${selectedMegaMenu === 'Designers' ? 'w-full' : 'w-max'} flex flex-col flex-wrap max-h-67.5 items-start gap-y-4 gap-x-8`}
+                        className={`${selectedMegaMenu === 'Designers' ? 'w-full' : 'w-max'} flex flex-col items-start gap-y-2`}
                       >
                         {item.items && item.items.map((sub_item, index) => {
                           // Clean sub-item URL construction - remove hash fragments
@@ -518,7 +459,7 @@ export function HeaderMenu({
                             <button
                               key={index}
                               onClick={() => handleSubMenuClick(subItemFullURL)}
-                              className="text-sm hover:underline cursor-pointer bg-transparent border-none text-left"
+                              className="mega-menu-item text-xs md:text-sm hover:underline cursor-pointer bg-transparent border-none text-left rtl-text break-words max-w-full"
                               data-discover="true"
                             >
                               {t(sub_item.title)}
@@ -531,19 +472,19 @@ export function HeaderMenu({
                 })}
             </div>
             {selectedMegaMenu && rightSections[selectedMegaMenu] && (
-              <div className="flex flex-col gap-2 items-start">
+              <div className="flex flex-col gap-2 items-start flex-shrink-0">
                 <img
                   src={`/images/mega menus/${rightSections[selectedMegaMenu].imgSrc}`}
                   alt="collection image"
-                  className="w-70 h-60 rounded object-cover object-center"
+                  className="w-32 md:w-40 lg:w-48 h-24 md:h-32 lg:h-40 rounded object-cover object-center flex-shrink-0"
                 />
-                <h2 className='text-sm'>{rightSections[selectedMegaMenu].label}</h2>
+                <h2 className='text-xs md:text-sm text-center max-w-32 md:max-w-40 lg:max-w-48'>{rightSections[selectedMegaMenu].label}</h2>
                 <button
                   onClick={() => {
                     setOpenMegaMenu({});
                     handleNavigationClick(rightSections[selectedMegaMenu].linkShop);
                   }}
-                  className="bg-primary-P-40 text-white border text-sm py-2.5 px-6 border-primary-P-40 rounded-md cursor-pointer"
+                  className="bg-primary-P-40 text-white border text-xs py-1.5 px-3 md:py-2 md:px-4 border-primary-P-40 rounded-md cursor-pointer text-center max-w-32 md:max-w-40 lg:max-w-48"
                 >
                   {t('Shop Now')}
                 </button>

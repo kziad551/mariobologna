@@ -434,7 +434,7 @@ export default function App() {
               </ContextProvider>
             </AuthProvider>
           </PrimeReactProvider>
-          <ScrollRestoration nonce={nonce} />
+          {/* ScrollRestoration completely removed to prevent conflicts */}
           <Scripts nonce={nonce} />
         </body>
       </html>
@@ -476,7 +476,7 @@ export function ErrorBoundary() {
             )}
           </div>
         </Layout>
-        <ScrollRestoration nonce={nonce} />
+        {/* ScrollRestoration removed to prevent conflicts with hash navigation */}
         <Scripts nonce={nonce} />
       </body>
     </html>

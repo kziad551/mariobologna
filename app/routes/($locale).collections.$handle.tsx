@@ -332,7 +332,6 @@ export default function Collection() {
     collection.products.nodes.length,
   );
   const [section, setSection] = useState('');
-  const [shouldScrollToProducts, setShouldScrollToProducts] = useState(false);
 
   useEffect(() => {
     if (['women', 'men', 'kids'].includes(handle)) {
@@ -361,112 +360,32 @@ export default function Collection() {
     setOpenFilter(width >= 1280); // Use sidebar filter only on large desktop (xl+), mobile-style on tablet and iPad
   }, [width]);
 
-  // Handle scroll to products when filtered products change
+  // Handle scroll to products when hash is present
   useEffect(() => {
-    if (shouldScrollToProducts && collection.products.nodes.length > 0) {
-      console.log('Starting intentional scroll to products...');
-      
-      // Clear any existing scroll restoration data immediately
-      if (typeof window !== 'undefined' && window.sessionStorage) {
-        window.sessionStorage.removeItem('lastScrollPosition');
-        window.sessionStorage.setItem('intentionalScroll', 'true');
-      }
-      
-      // Wait for layout to stabilize, especially important on desktop with sidebar
-      const scrollDelay = width >= 1280 ? 800 : 500; // Longer delay on desktop due to sidebar layout
-      
-      const timeoutId = setTimeout(() => {
+    if (location.hash === '#products') {
+      // Wait for layout to stabilize
+      requestAnimationFrame(() => {
         const productsSection = document.getElementById('products');
         if (productsSection) {
-          const headerHeight = 80;
-          const elementRect = productsSection.getBoundingClientRect();
-          const targetPosition = window.pageYOffset + elementRect.top - headerHeight;
-          console.log('Scrolling after products loaded, position:', targetPosition, 'width:', width);
-          
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
+          productsSection.scrollIntoView({
+            behavior: 'smooth', 
+            block: 'start'
           });
           
-          // Clear the intentional scroll flag after scroll completes
-          const clearDelay = width >= 1280 ? 1500 : 1000; // Longer delay on desktop
+          // Remove hash after smooth scroll
           setTimeout(() => {
-            if (typeof window !== 'undefined' && window.sessionStorage) {
-              window.sessionStorage.removeItem('intentionalScroll');
+            if (typeof window !== 'undefined' && window.history.replaceState) {
+              const newUrl = window.location.pathname + window.location.search;
+              window.history.replaceState(null, '', newUrl);
             }
-            setShouldScrollToProducts(false);
-          }, clearDelay);
-        } else {
-          setShouldScrollToProducts(false);
+          }, 1000);
         }
-      }, scrollDelay);
-      
-      return () => clearTimeout(timeoutId);
+      });
     }
-  }, [collection.products.nodes.length, shouldScrollToProducts, location.search, width]);
+  }, [location.hash]);
 
-  // Restore scroll position when coming back from product page
-  useEffect(() => {
-    // Skip scroll restoration if we're intentionally scrolling to products
-    if (typeof window !== 'undefined' && window.location.hash === '#products') {
-      return;
-    }
-    
-    // Skip if we have a pending scroll to products
-    if (shouldScrollToProducts) {
-      return;
-    }
-    
-    // Skip if there's an intentional scroll happening
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const intentionalScroll = window.sessionStorage.getItem('intentionalScroll');
-      if (intentionalScroll === 'true') {
-        console.log('Skipping scroll restoration due to intentional scroll');
-        return;
-      }
-    }
-    
-    // Only attempt to restore if we have sessionStorage access
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      try {
-        const savedScrollData = window.sessionStorage.getItem('lastScrollPosition');
-        if (savedScrollData) {
-          interface ScrollPosition {
-            path: string;
-            position: number;
-          }
-          
-          const scrollData = JSON.parse(savedScrollData) as ScrollPosition;
-          
-          // Only restore if we're navigating back to the same collection/filter combo
-          if (scrollData.path === location.pathname + location.search && scrollData.position > 0) {
-            console.log('Restoring scroll position:', scrollData.position);
-            
-            // Use longer delay on desktop to ensure layout is stable and avoid conflicts
-            const restoreDelay = width >= 1280 ? 200 : 50;
-            
-            setTimeout(() => {
-              // Double-check that no intentional scroll is happening
-              const intentionalScroll = window.sessionStorage?.getItem('intentionalScroll');
-              if (intentionalScroll === 'true') {
-                console.log('Aborting scroll restoration - intentional scroll detected');
-                return;
-              }
-              
-              window.scrollTo({
-                top: scrollData.position,
-                behavior: 'auto' // Don't use smooth scrolling for restoration
-              });
-              // Clear the saved position after restoration
-              window.sessionStorage.removeItem('lastScrollPosition');
-            }, restoreDelay);
-          }
-        }
-      } catch (e) {
-        console.error('Error restoring scroll position:', e);
-      }
-    }
-  }, [location.pathname, location.search, shouldScrollToProducts, width]);
+
+  // Let Remix handle scroll restoration for back/forward navigation
 
   return (
     <div className="collection">
@@ -499,9 +418,7 @@ export default function Collection() {
                 : '',
             }}
             onClick={() => {
-              console.log('Footwear category box clicked - setting scroll flag');
-              setShouldScrollToProducts(true);
-              navigate(`/collections/${collection.handle}?filter.productType="Footwear"`, {
+              navigate(`/collections/${collection.handle}?filter.productType="Footwear"#products`, {
                 replace: true,
                 preventScrollReset: true,
               });
@@ -519,9 +436,7 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  console.log('Clothes category box clicked - setting scroll flag');
-                  setShouldScrollToProducts(true);
-                  navigate(`/collections/${collection.handle}?filter.productType="Clothes"`, {
+                  navigate(`/collections/${collection.handle}?filter.productType="Clothes"#products`, {
                     replace: true,
                     preventScrollReset: true,
                   });
@@ -539,9 +454,7 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  console.log('Bags category box clicked - setting scroll flag');
-                  setShouldScrollToProducts(true);
-                  navigate(`/collections/${collection.handle}?filter.productType="Bags"`, {
+                  navigate(`/collections/${collection.handle}?filter.productType="Bags"#products`, {
                     replace: true,
                     preventScrollReset: true,
                   });
@@ -557,9 +470,7 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  console.log('Accessories category box clicked - setting scroll flag');
-                  setShouldScrollToProducts(true);
-                  navigate(`/collections/${collection.handle}?filter.productType="Accessories"`, {
+                  navigate(`/collections/${collection.handle}?filter.productType="Accessories"#products`, {
                     replace: true,
                     preventScrollReset: true,
                   });
@@ -801,7 +712,6 @@ export default function Collection() {
                       nextPageUrl={nextPageUrl}
                       state={state}
                       lookProducts={lookCollection?.products.nodes}
-                      shouldScrollToProducts={shouldScrollToProducts}
                     />
                   ) : (
                     <p>{t('No Products available yet')}</p>
@@ -846,7 +756,6 @@ function ProductsGrid({
   hasPreviousPage,
   state,
   lookProducts = [],
-  shouldScrollToProducts,
 }: {
   handle: string;
   t: TFunction<'translation', undefined>;
@@ -861,7 +770,6 @@ function ProductsGrid({
   hasPreviousPage: boolean;
   state: any;
   lookProducts?: ProductCardFragment[];
-  shouldScrollToProducts: boolean;
 }) {
   const navigate = useNavigate();
   const location = useLocation();
