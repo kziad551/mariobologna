@@ -329,18 +329,17 @@ export default function Product() {
   const [primaryCollection, setPrimaryCollection] = useState<string>('');
   const {toggleWishlist, wishlist} = useWishlist();
   
-  // Ensure we start at the top of the page when navigating from a collection
+  // Always scroll to top when navigating to a product page
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      const navigatingToProduct = window.sessionStorage.getItem('navigatingToProduct');
-      if (navigatingToProduct === 'true') {
-        // Scroll to top
-        window.scrollTo(0, 0);
-        // Clear the flag
-        window.sessionStorage.removeItem('navigatingToProduct');
-      }
+    if (typeof window !== 'undefined') {
+      // Scroll to top immediately on product page load
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
     }
-  }, []);
+  }, [product.handle]); // Re-run when product changes
 
   useEffect(() => {
     if (product.collections && product.collections.nodes.length > 0) {

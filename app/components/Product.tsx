@@ -214,7 +214,11 @@ const Product = ({
       to={`/products/${product.handle}`}
       key={product.id}
       className={`${!showCompare ? 'h-auto min-h-110' : ''} relative z-10 hover:no-underline group rounded-xl border bg-white border-neutral-N-80 overflow-hidden max-w-87.5 hover:shadow-md hover:shadow-black/30 active:shadow-none`}
-      onClick={(event) => event.defaultPrevented && event.stopPropagation()}
+      onClick={(event) => {
+        if (event.defaultPrevented) {
+          event.stopPropagation();
+        }
+      }}
     >
       <div className="relative">
         <button

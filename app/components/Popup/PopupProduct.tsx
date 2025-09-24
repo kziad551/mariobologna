@@ -194,7 +194,11 @@ const PopupProduct = forwardRef(
         <Link
           className="w-full xs:w-87.5 max-h-120 rounded-xl border bg-white border-neutral-N-80 overflow-hidden"
           to={`/products/${product.handle}?${params}`}
-          onClick={(event) => event.defaultPrevented && event.stopPropagation()}
+          onClick={(event) => {
+            if (event.defaultPrevented) {
+              event.stopPropagation();
+            }
+          }}
         >
           <div
             className={`${direction === 'ltr' ? 'left-2' : 'right-2'} absolute z-10 top-4 flex flex-col xs:flex-row flex-wrap gap-2 items-start xs:items-center xs:justify-center`}
