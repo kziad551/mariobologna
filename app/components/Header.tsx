@@ -269,6 +269,8 @@ export function Header({header, cart, submenus}: HeaderProps) {
   );
 }
 
+const SCROLL_TO_PRODUCTS_FLAG = 'scrollToProducts';
+
 export function HeaderMenu({
   t,
   direction,
@@ -316,10 +318,15 @@ export function HeaderMenu({
   };
 
   const handleNavigationClick = (url: string) => {
-    // Navigate to collection page with #products hash for smooth scroll
-    const urlWithHash = url.includes('#') ? url : `${url}#products`;
+    const isMainCollection = url === '/collections/men' || 
+                             url === '/collections/women' || 
+                             url === '/collections/kids';
     
-    navigate(urlWithHash, {
+    if (isMainCollection && typeof window !== 'undefined') {
+      sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+    }
+    
+    navigate(url, {
       replace: true,
       preventScrollReset: true,
     });
@@ -328,12 +335,12 @@ export function HeaderMenu({
   const handleSubMenuClick = (url: string) => {
     setOpenMegaMenu({});
     
-    // Navigate with #products hash for smooth scroll if it's a collection page
-    const urlWithHash = (url.includes('/collections/') && !url.includes('#')) 
-      ? `${url}#products` 
-      : url;
+    // Submenu/box clicks should also control scroll explicitly
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+    }
     
-    navigate(urlWithHash, {
+    navigate(url, {
       replace: true,
       preventScrollReset: true,
     });

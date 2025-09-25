@@ -12,10 +12,14 @@ import {
   useMatches,
   useRouteError,
   useLoaderData,
-  ScrollRestoration,
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
+  useLocation,
+  useNavigation,
 } from '@remix-run/react';
+import { useEffect } from 'react';
+
+const SCROLL_TO_PRODUCTS_FLAG = 'scrollToProducts';
 import favicon from './assets/favicon.png';
 import resetStyles from './styles/reset.css?url';
 import appStyles from './styles/app.css?url';
@@ -354,12 +358,39 @@ export async function loader({context, request}: LoaderFunctionArgs) {
 export default function App() {
   const nonce = useNonce();
   const data = useLoaderData<typeof loader>();
+  const location = useLocation();
+  const navigation = useNavigation();
+  
   const value = {
     cssTransition: true,
     hideOverlaysOnDocumentScrolling: true,
     // inputStyle: "filled",
     nullSortOrder: -1,
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const { pathname } = location;
+    const isCollectionRoute = pathname.includes('/collections/');
+    const wantsProductsScroll =
+      sessionStorage.getItem(SCROLL_TO_PRODUCTS_FLAG) === '1';
+
+    // ⛔ Never force scroll on collection routes; they handle it themselves
+    if (isCollectionRoute) return;
+
+    // For all NON-collection pages, start at top once the new route is idle
+    if (navigation.state !== 'idle') return;
+
+    // Clean up any stale flag when leaving collections
+    if (wantsProductsScroll) {
+      sessionStorage.removeItem(SCROLL_TO_PRODUCTS_FLAG);
+    }
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+  }, [location.pathname, navigation.state]);
 
   // Get direction from URL or cookie
   const getDirection = () => {
@@ -434,7 +465,6 @@ export default function App() {
               </ContextProvider>
             </AuthProvider>
           </PrimeReactProvider>
-          {/* ScrollRestoration completely removed to prevent conflicts */}
           <Scripts nonce={nonce} />
         </body>
       </html>
@@ -476,7 +506,6 @@ export function ErrorBoundary() {
             )}
           </div>
         </Layout>
-        {/* ScrollRestoration removed to prevent conflicts with hash navigation */}
         <Scripts nonce={nonce} />
       </body>
     </html>

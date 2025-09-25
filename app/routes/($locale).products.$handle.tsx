@@ -96,9 +96,7 @@ export const meta: MetaFunction<typeof loader> = ({data, location}) => {
     { property: 'og:site_name', content: 'Mario Bologna' },
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: `${title} | Mario Bologna` },
-    { name: 'twitter:description', content: metaDescription },
-    // Disable scroll restoration for product pages
-    { name: 'scroll-restoration', content: 'manual' }
+    { name: 'twitter:description', content: metaDescription }
   ];
 };
 
@@ -329,17 +327,17 @@ export default function Product() {
   const [primaryCollection, setPrimaryCollection] = useState<string>('');
   const {toggleWishlist, wishlist} = useWishlist();
   
-  // Always scroll to top when navigating to a product page
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Scroll to top immediately on product page load
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant'
-      });
-    }
-  }, [product.handle]); // Re-run when product changes
+  // TEMPORARILY DISABLED - Always scroll to top when navigating to a product page
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     // Scroll to top immediately on product page load
+  //     window.scrollTo({
+  //       top: 0,
+  //       left: 0,
+  //       behavior: 'instant'
+  //     });
+  //   }
+  // }, [product.handle]); // Re-run when product changes
 
   useEffect(() => {
     if (product.collections && product.collections.nodes.length > 0) {

@@ -6,7 +6,10 @@ import {
   NavLink,
   useNavigate,
   useLocation,
+  useNavigation,
 } from '@remix-run/react';
+
+const SCROLL_TO_PRODUCTS_FLAG = 'scrollToProducts';
 import {useInView} from 'react-intersection-observer';
 import {Pagination, getPaginationVariables, Money} from '@shopify/hydrogen';
 import type {ProductCardFragment} from 'storefrontapi.generated';
@@ -310,6 +313,7 @@ export default function Collection() {
   const {width} = useWindowDimensions();
   const location = useLocation();
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const {
     handle,
     collection,
@@ -360,29 +364,30 @@ export default function Collection() {
     setOpenFilter(width >= 1280); // Use sidebar filter only on large desktop (xl+), mobile-style on tablet and iPad
   }, [width]);
 
-  // Handle scroll to products when hash is present
+  // Handle controlled scroll behavior using sessionStorage flag
   useEffect(() => {
-    if (location.hash === '#products') {
-      // Wait for layout to stabilize
-      requestAnimationFrame(() => {
-        const productsSection = document.getElementById('products');
-        if (productsSection) {
-          productsSection.scrollIntoView({
-            behavior: 'smooth', 
-            block: 'start'
-          });
-          
-          // Remove hash after smooth scroll
-          setTimeout(() => {
-            if (typeof window !== 'undefined' && window.history.replaceState) {
-              const newUrl = window.location.pathname + window.location.search;
-              window.history.replaceState(null, '', newUrl);
-            }
-          }, 1000);
-        }
-      });
-    }
-  }, [location.hash]);
+    if (typeof window === 'undefined') return;
+
+    // Only scroll when we *explicitly* set the flag
+    const shouldScroll = sessionStorage.getItem(SCROLL_TO_PRODUCTS_FLAG) === '1';
+    if (!shouldScroll) return;
+
+    // Wait until the navigation has finished and the DOM is painted
+    if (navigation.state !== 'idle') return;
+
+    sessionStorage.removeItem(SCROLL_TO_PRODUCTS_FLAG);
+
+    // If you have a sticky header, optionally subtract its height
+    requestAnimationFrame(() => {
+      const el = document.getElementById('products');
+      if (!el) return;
+      const header = document.getElementById('main-header');
+      const offset = header?.offsetHeight ?? 0;
+
+      const top = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    });
+  }, [location.pathname, location.search, navigation.state]);
 
 
   // Let Remix handle scroll restoration for back/forward navigation
@@ -418,7 +423,10 @@ export default function Collection() {
                 : '',
             }}
             onClick={() => {
-              navigate(`/collections/${collection.handle}?filter.productType="Footwear"#products`, {
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+              }
+              navigate(`/collections/${collection.handle}?filter.productType="Footwear"`, {
                 replace: true,
                 preventScrollReset: true,
               });
@@ -436,7 +444,10 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  navigate(`/collections/${collection.handle}?filter.productType="Clothes"#products`, {
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+                  }
+                  navigate(`/collections/${collection.handle}?filter.productType="Clothes"`, {
                     replace: true,
                     preventScrollReset: true,
                   });
@@ -454,7 +465,10 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  navigate(`/collections/${collection.handle}?filter.productType="Bags"#products`, {
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+                  }
+                  navigate(`/collections/${collection.handle}?filter.productType="Bags"`, {
                     replace: true,
                     preventScrollReset: true,
                   });
@@ -470,7 +484,10 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  navigate(`/collections/${collection.handle}?filter.productType="Accessories"#products`, {
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+                  }
+                  navigate(`/collections/${collection.handle}?filter.productType="Accessories"`, {
                     replace: true,
                     preventScrollReset: true,
                   });
