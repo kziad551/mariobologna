@@ -269,7 +269,7 @@ export function Header({header, cart, submenus}: HeaderProps) {
   );
 }
 
-const SCROLL_TO_PRODUCTS_FLAG = 'scrollToProducts';
+import {SCROLL_TO_PRODUCTS_FLAG, markScrollToProducts} from '~/lib/scrollFlag';
 
 export function HeaderMenu({
   t,
@@ -322,8 +322,8 @@ export function HeaderMenu({
                              url === '/collections/women' || 
                              url === '/collections/kids';
     
-    if (isMainCollection && typeof window !== 'undefined') {
-      sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
+    if (isMainCollection) {
+      markScrollToProducts();
     }
     
     navigate(url, {
@@ -336,9 +336,7 @@ export function HeaderMenu({
     setOpenMegaMenu({});
     
     // Submenu/box clicks should also control scroll explicitly
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
-    }
+    markScrollToProducts();
     
     navigate(url, {
       replace: true,

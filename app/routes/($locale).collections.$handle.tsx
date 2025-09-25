@@ -9,7 +9,7 @@ import {
   useNavigation,
 } from '@remix-run/react';
 
-const SCROLL_TO_PRODUCTS_FLAG = 'scrollToProducts';
+import {SCROLL_TO_PRODUCTS_FLAG, markScrollToProducts} from '~/lib/scrollFlag';
 import {useInView} from 'react-intersection-observer';
 import {Pagination, getPaginationVariables, Money} from '@shopify/hydrogen';
 import type {ProductCardFragment} from 'storefrontapi.generated';
@@ -423,9 +423,7 @@ export default function Collection() {
                 : '',
             }}
             onClick={() => {
-              if (typeof window !== 'undefined') {
-                sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
-              }
+              markScrollToProducts();
               navigate(`/collections/${collection.handle}?filter.productType="Footwear"`, {
                 replace: true,
                 preventScrollReset: true,
@@ -444,9 +442,7 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
-                  }
+                  markScrollToProducts();
                   navigate(`/collections/${collection.handle}?filter.productType="Clothes"`, {
                     replace: true,
                     preventScrollReset: true,
@@ -465,9 +461,7 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
-                  }
+                  markScrollToProducts();
                   navigate(`/collections/${collection.handle}?filter.productType="Bags"`, {
                     replace: true,
                     preventScrollReset: true,
@@ -484,9 +478,7 @@ export default function Collection() {
                     : '',
                 }}
                 onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    sessionStorage.setItem(SCROLL_TO_PRODUCTS_FLAG, '1');
-                  }
+                  markScrollToProducts();
                   navigate(`/collections/${collection.handle}?filter.productType="Accessories"`, {
                     replace: true,
                     preventScrollReset: true,

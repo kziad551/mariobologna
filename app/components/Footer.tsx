@@ -1,5 +1,5 @@
 import React, {Suspense, useRef, useState} from 'react';
-import {Link, NavLink} from '@remix-run/react';
+import {Link, NavLink, useNavigate} from '@remix-run/react';
 import {BsTwitterX} from 'react-icons/bs';
 import {FaFacebook, FaInstagram, FaLinkedin, FaTiktok, FaYoutube} from 'react-icons/fa';
 import {IoStarSharp} from 'react-icons/io5';
@@ -15,6 +15,7 @@ import {Dropdown} from 'primereact/dropdown';
 import CurrencyDropdown from './Currency';
 import {TFunction} from 'i18next';
 import PopupLocateStore from './Popup/PopupLocateStore';
+import {markScrollToProducts} from '~/lib/scrollFlag';
 
 type ShopData = (Pick<Shop, 'id' | 'name' | 'description'> & {
   primaryDomain: {
@@ -259,6 +260,15 @@ function FooterMenus({footerLinks, menus, primaryDomain, t}: FooterMenusProps) {
   );
 }
 
+function useCollectionNav() {
+  const navigate = useNavigate();
+  return (to: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    markScrollToProducts();
+    navigate(to, { preventScrollReset: true });
+  };
+}
+
 function FooterMenu({
   t,
   menu,
@@ -269,6 +279,7 @@ function FooterMenu({
   t: TFunction<'translation', undefined>;
 }) {
   const {publicStoreDomain} = useRootLoaderData();
+  const goToCollection = useCollectionNav();
 
   return (
     menu &&
@@ -283,6 +294,8 @@ function FooterMenu({
           ? newURL.pathname + newURL.hash
           : item.url;
       const isExternal = !url.startsWith('/');
+      const isCollectionUrl = url.startsWith('/collections/');
+      
       return isExternal ? (
         <a
           href={url}
@@ -304,11 +317,23 @@ function FooterMenu({
             className="text-sm group-hover:underline"
             prefetch="intent"
             to="/collections/new-arrivals"
+            onClick={goToCollection('/collections/new-arrivals')}
           >
             {t(`${item.title}`)}
           </NavLink>
           <IoStarSharp className="w-6 h-6 text-yellow-600" />
         </div>
+      ) : isCollectionUrl ? (
+        <NavLink
+          end
+          key={item.id}
+          className="text-sm hover:underline cursor-pointer"
+          prefetch="intent"
+          to={url}
+          onClick={goToCollection(url)}
+        >
+          {t(`${item.title}`)}
+        </NavLink>
       ) : (
         <NavLink
           end

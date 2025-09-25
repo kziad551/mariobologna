@@ -19,7 +19,7 @@ import {
 } from '@remix-run/react';
 import { useEffect } from 'react';
 
-const SCROLL_TO_PRODUCTS_FLAG = 'scrollToProducts';
+import {SCROLL_TO_PRODUCTS_FLAG} from '~/lib/scrollFlag';
 import favicon from './assets/favicon.png';
 import resetStyles from './styles/reset.css?url';
 import appStyles from './styles/app.css?url';
