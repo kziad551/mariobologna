@@ -485,7 +485,7 @@ function LoginSection({
       
       navigate(guestCheckoutUrl);
     }}
-    className="mt-8 border border-primary-P-40 w-full text-center py-2.5 text-sm text-primary-P-40 rounded font-medium flex items-center justify-center"
+    className="mt-8 border border-black w-full text-center py-2.5 text-sm text-white bg-black rounded font-medium flex items-center justify-center"
   >
     {t('Continue as Guest')}
   </button>
