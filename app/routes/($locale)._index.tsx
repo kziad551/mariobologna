@@ -35,12 +35,12 @@ export const meta: MetaFunction = () => {
   return [
     // English Meta Tags
     {
-      title: 'Mario Bologna - Luxury Fashion Brands in Dubai',
+      title: 'Mario Bologna – Luxury House of Brands in Dubai | Italian Fashion',
     },
     {
       name: 'description',
       content:
-        'Mario Bologna Dubai offers luxury fashion brands, designer clothes & accessories for men, women & kids. Premium Italian fashion with fast UAE delivery.',
+        'Discover Mario Bologna, the luxury house of brands in Dubai. Shop premium Italian fashion, designer dresses, handbags & accessories with fast UAE delivery.',
     },
     {
       name: 'keywords',
