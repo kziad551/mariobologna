@@ -35,7 +35,7 @@ export const meta: MetaFunction = () => {
   return [
     // English Meta Tags
     {
-      title: 'Mario Bologna – Luxury House of Brands in Dubai | Italian Fashion',
+      title: 'Mario Bologna – Luxury House of Brands in Dubai',
     },
     {
       name: 'description',
