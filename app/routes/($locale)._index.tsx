@@ -34,66 +34,69 @@ import {Image} from '@shopify/hydrogen/customer-account-api-types';
 export const meta: MetaFunction = () => {
   return [
     // English Meta Tags
-    { title: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
-    { name: 'description', content: 'Mario Bologna Dubai offers luxury fashion brands, designer clothes &amp; accessories for men, women &amp; kids. Premium Italian fashion with fast UAE delivery.' },
-    { name: 'keywords', content: 'Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium fashion Dubai, Italian luxury fashion brands, designer clothes Dubai, luxury fashion Dubai, high-end fashion brands Dubai, luxury shopping Dubai, Mario Bologna Dubai, premium fashion brands Dubai, luxury fashion store Dubai, designer fashion brands Dubai, upscale fashion Dubai, luxury boutique Dubai, Italian designer fashion brands Dubai, exclusive fashion brands Dubai, luxury fashion accessories Dubai, premium designer Dubai, luxury fashion house Dubai, elite fashion brands Dubai' },
-    
-    // Arabic Meta Tags
-    { title: 'ماريو بولونيا - الماركات الفاخرة في دبي | أزياء إيطالية راقية', lang: 'ar' },
-    { name: 'description', content: 'ماريو بولونيا دبي يقدم أرقى الماركات الفاخرة والأزياء الإيطالية المصممة للرجال والنساء والأطفال. مجموعات فاخرة مع توصيل سريع في الإمارات والسعودية.', lang: 'ar' },
-    { name: 'keywords', content: 'ماريو بولونيا الماركات الفاخرة دبي، الماركات الفاخرة دبي، أزياء فاخرة دبي، الماركات الإيطالية الفاخرة، ملابس مصممة دبي، أزياء راقية دبي، الماركات الفاخرة الإمارات، تسوق فاخر دبي، متجر الماركات الفاخرة دبي، بوتيك فاخر دبي، الماركات الإيطالية المصممة دبي، الماركات الحصرية دبي، اكسسوارات فاخرة دبي، مصمم راقي دبي، دار أزياء فاخرة دبي، الماركات النخبة دبي، أزياء نسائية فاخرة، أزياء رجالية راقية، ملابس أطفال فاخرة، فساتين مصممة، أحذية فاخرة، حقائب مصممة، الأزياء الإيطالية، الموضة الراقية، التسوق الفاخر', lang: 'ar' },
-    
-    // Open Graph Tags - English
-    { property: 'og:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion & Accessories' },
-    { property: 'og:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.' },
+    {
+      title: 'Mario Bologna – Luxury House of Brands in Dubai',
+    },
+    {
+      name: 'description',
+      content:
+        'Discover Mario Bologna, the luxury house of brands in Dubai. Shop premium Italian fashion, designer dresses, handbags & accessories with fast UAE delivery.',
+    },
+    {
+      name: 'keywords',
+      content:
+        'luxury fashion Dubai, designer brands UAE, Italian fashion Dubai, premium shopping Dubai, luxury boutique Dubai, high-end fashion UAE, Mario Bologna Dubai',
+    },
+    {
+      name: 'robots',
+      content:
+        'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+    },
+
+    // Open Graph
     { property: 'og:type', content: 'website' },
-    { property: 'og:site_name', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
-    { property: 'og:locale', content: 'en_US' },
-    { property: 'og:locale:alternate', content: 'ar_AE' },
-    { property: 'og:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
+    { property: 'og:site_name', content: 'Mario Bologna' },
+    {
+      property: 'og:title',
+      content:
+        'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion & Accessories',
+    },
+    {
+      property: 'og:description',
+      content:
+        'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.',
+    },
+    {
+      name: 'keywords',
+      content:
+        'luxury fashion Dubai, luxury house of brands, designer boutique Dubai, multi-brand boutique UAE, women’s designer dresses Dubai, men’s luxury clothing Dubai, luxury handbags Dubai, Italian designer fashion, personal styling Dubai, express UAE delivery',
+    },
+    { property: 'og:url', content: 'https://mariobologna.com' },
+    {
+      property: 'og:image',
+      content: '/images/mario-bologna-luxury-brands-dubai.jpg',
+    },
     { property: 'og:image:width', content: '1200' },
     { property: 'og:image:height', content: '630' },
-    { property: 'og:url', content: 'https://mariobologna.com' },
-    
-    // Open Graph Tags - Arabic
-    { property: 'og:title', content: 'ماريو بولونيا - الماركات الفاخرة في دبي | أزياء إيطالية راقية ومجموعات حصرية', lang: 'ar' },
-    { property: 'og:description', content: 'ماريو بولونيا - الماركات الفاخرة في دبي يضم مجموعات المصممين الإيطاليين الحصرية. أزياء فاخرة واكسسوارات راقية للعملاء المميزين في الإمارات والسعودية.', lang: 'ar' },
-    
-    // Twitter Meta Tags - English
+    { property: 'og:locale', content: 'en_AE' },
+    { property: 'og:locale:alternate', content: 'ar_AE' },
+
+    // Twitter
     { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion' },
-    { name: 'twitter:description', content: 'Mario Bologna - Luxury Fashion Brands in Dubai. Premium Italian fashion collections with fast UAE delivery.' },
-    { name: 'twitter:image', content: '/images/mario-bologna-luxury-brands-dubai.jpg' },
-    
-    // Twitter Meta Tags - Arabic
-    { name: 'twitter:title', content: 'ماريو بولونيا - الماركات الفاخرة في دبي | أزياء إيطالية راقية', lang: 'ar' },
-    { name: 'twitter:description', content: 'ماريو بولونيا - الماركات الفاخرة في دبي. مجموعات الأزياء الإيطالية الراقية مع توصيل سريع في الإمارات.', lang: 'ar' },
-    
-    // Additional SEO Meta Tags
-    { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
-    { name: 'author', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
-    { name: 'publisher', content: 'Mario Bologna - Luxury Fashion Brands in Dubai' },
-    { name: 'geo.region', content: 'AE-DU' },
-    { name: 'geo.placename', content: 'Dubai' },
-    { name: 'geo.position', content: '25.2048;55.2708' },
-    { name: 'ICBM', content: '25.2048, 55.2708' },
-    
-    // Additional Arabic SEO Meta Tags
-    { name: 'author', content: 'ماريو بولونيا - الماركات الفاخرة في دبي', lang: 'ar' },
-    { name: 'publisher', content: 'ماريو بولونيا - الماركات الفاخرة في دبي', lang: 'ar' },
-    { name: 'geo.placename', content: 'دبي', lang: 'ar' },
-    
-    // Enhanced Keywords for specific categories
-    { name: 'keywords', content: 'luxury fashion Dubai, designer brands UAE, Italian fashion Dubai, premium shopping Dubai, luxury boutique Dubai, high-end fashion UAE, designer clothes Dubai, luxury accessories Dubai, fashion store Dubai, premium brands UAE, luxury shopping experience Dubai, designer fashion UAE, upscale fashion Dubai, luxury retail Dubai, exclusive brands Dubai, fashion boutique UAE, designer outlet Dubai, luxury fashion house Dubai, premium fashion store UAE, luxury brand collection Dubai' },
-    { name: 'keywords', content: 'أزياء فاخرة دبي، ماركات مصممة الإمارات، الأزياء الإيطالية دبي، تسوق راقي دبي، بوتيك فاخر دبي، أزياء راقية الإمارات، ملابس مصممة دبي، اكسسوارات فاخرة دبي، متجر أزياء دبي، ماركات راقية الإمارات، تجربة تسوق فاخرة دبي، أزياء مصممة الإمارات، موضة راقية دبي، بيع بالتجزئة الفاخر دبي، ماركات حصرية دبي، بوتيك أزياء الإمارات، منفذ مصمم دبي، دار أزياء فاخرة دبي، متجر أزياء راقي الإمارات، مجموعة الماركات الفاخرة دبي', lang: 'ar' },
-    
-    // Hreflang alternatives
-    { name: 'alternate', content: 'ar', hrefLang: 'ar' },
-    { name: 'alternate', content: 'en', hrefLang: 'en' },
-    { name: 'alternate', content: 'ar-AE', hrefLang: 'ar-AE' },
-    { name: 'alternate', content: 'en-AE', hrefLang: 'en-AE' },
-    { name: 'alternate', content: 'ar-SA', hrefLang: 'ar-SA' },
-    { name: 'alternate', content: 'en-SA', hrefLang: 'en-SA' },
+    {
+      name: 'twitter:title',
+      content:
+        'Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Mario Bologna - Luxury Fashion Brands in Dubai. Premium Italian fashion collections with fast UAE delivery.',
+    },
+    {
+      name: 'twitter:image',
+      content: '/images/mario-bologna-luxury-brands-dubai.jpg',
+    },
   ];
 };
 
@@ -259,169 +262,72 @@ export default function Homepage() {
       </div>
       
       {/* SEO Content - Hidden from users but visible to search engines */}
-      <div style={{display: 'none'}}>
-        <section>
-          <h1>Mario Bologna - Luxury Fashion Brands in Dubai | Premium Fashion Destination UAE</h1>
-          <h6>Dubai's Premier Luxury Brands Experience - Summer 2025</h6>
-          <p>
-            <a href="/aboutus" title="About Mario Bologna - Luxury Fashion Brands in Dubai">About Mario Bologna - Luxury Fashion Brands in Dubai</a> Welcome to Mario Bologna - Luxury Fashion Brands in Dubai, where the world's most prestigious 
-            luxury brands meet Dubai's sophisticated fashion scene. Step into Summer 2025 with our exclusive luxury brands collection, featuring the finest <a href="https://www.vogue.com/article/italian-fashion-designers" target="_blank" rel="noopener noreferrer" title="Italian Fashion Designers - Vogue">Italian designers</a> and international luxury brands.
-            Mario Bologna - Luxury Fashion Brands in Dubai offers an unparalleled selection of luxury brands for discerning customers who appreciate the finest things in life.
-            Explore our curated luxury brands collections for <a href="/collections/women" title="Women's Luxury Fashion Dubai">women</a>, <a href="/collections/men" title="Men's Designer Fashion Dubai">men</a>, and <a href="/collections/kids" title="Kids Luxury Clothing Dubai">kids</a>, designed for Dubai's vibrant lifestyle and refined taste.
-            Premium fabrics, exquisite craftsmanship, and exclusive luxury brands define our summer collection.
-            Fast delivery of luxury brands across <a href="https://www.visitdubai.com/" target="_blank" rel="noopener noreferrer" title="Visit Dubai Official Website">Dubai</a>, Abu Dhabi, Riyadh, and the entire GCC region.
-            Discover our prestigious luxury brands portfolio including <a href="https://www.baldinini.it/" target="_blank" rel="noopener noreferrer" title="Baldinini Official Website">Baldinini</a>, <a href="https://www.peserico.it/" target="_blank" rel="noopener noreferrer" title="Peserico Official Website">Peserico</a>, <a href="https://www.cromia.it/" target="_blank" rel="noopener noreferrer" title="Cromia Official Website">Cromia</a>, Jijil, Mario Cerutti, Claudia Rossi and many more exclusive luxury brands! 
-            From designer high heels to comfortable luxury footwear, Mario Bologna - Luxury Fashion Brands in Dubai has the most coveted luxury brands collection for you.
-            <a href="/new-arrivals" title="New Arrivals - Mario Bologna Dubai">Shop luxury brands</a>. Experience excellence. Own the finest.
-          </p>
-          <p>
-            SEO Keywords: Mario Bologna luxury fashion brands Dubai, luxury fashion brands Dubai, premium luxury brands UAE, designer luxury brands Dubai, 
-            high-end luxury brands Dubai, exclusive luxury brands Dubai, Italian luxury brands Dubai, luxury brands store Dubai, 
-            luxury brands shopping Dubai, premium fashion brands Dubai, elite luxury brands UAE, luxury brands boutique Dubai
-          </p>
-        </section>
+      <div className="visually-hidden">
+      <section>
+  <h1>Mario Bologna — Luxury House of Brands in Dubai</h1>
 
-        <section>
-          <h4>New Arrivals Section - Mario Bologna Luxury Fashion Brands in Dubai</h4>
-          <h5>Just In: Summer Icons You'll Love from Luxury Fashion Brands in Dubai</h5>
-          <p>
-            Discover fresh drops from top <a href="https://www.fashionhistory.it/" target="_blank" rel="noopener noreferrer" title="European Fashion History">European designers</a>, curated for the modern Middle East
-            lifestyle at Mario Bologna - Luxury Fashion Brands in Dubai.
-            From statement <a href="/collections/evening-wear" title="Evening Wear Collection Dubai">eveningwear</a> to effortlessly chic <a href="/collections/casual" title="Casual Luxury Fashion Dubai">day looks</a>, our new arrivals embody
-            refinement, versatility, and global sophistication.
-            Perfect for <a href="https://whatson.ae/dubai/" target="_blank" rel="noopener noreferrer" title="Dubai Events - What's On">Dubai events</a>, business meetings, luxury travel, or simply showing up in style.
-            Enjoy fast and secure delivery across the <a href="https://u.ae/" target="_blank" rel="noopener noreferrer" title="UAE Official Portal">UAE</a>, <a href="https://www.my.gov.sa/" target="_blank" rel="noopener noreferrer" title="Saudi Arabia Official Portal">KSA</a>, and Gulf countries.
-            Visit our <a href="/stores" title="Mario Bologna Store Locations Dubai">Dubai showroom</a> or shop online for the finest luxury brands in Dubai.
-          </p>
-          <p>
-            SEO Keywords: Mario Bologna luxury fashion brands in Dubai, new luxury arrivals Dubai, summer 2025 fashion Dubai, designer clothes UAE, shop
-            new in women men kids Dubai, latest trends GCC, luxury brands Dubai new arrivals.
-          </p>
-        </section>
+  <h2>Luxury Fashion Brands in Dubai — Curated Designer Collections</h2>
+  <p>
+    Discover Mario Bologna, Dubai’s luxury <strong>house of brands</strong>. Explore hand-picked designer
+    pieces for <a href="/collections/women" title="Women's Luxury Fashion Dubai">women</a>,
+    <a href="/collections/men" title="Men's Designer Fashion Dubai">men</a>, and
+    <a href="/collections/kids" title="Kids Luxury Clothing Dubai">kids</a>—with premium Italian
+    craftsmanship, limited editions, and express UAE & GCC delivery.
+  </p>
 
-        <section>
-          <h4>Shop Women's Collection</h4>
-          <h3>Luxury Looks for the Elegant Woman</h3>
-          <p>
-            Explore our Summer 2025 Women's Collection – designed for women who dress with passion.
-            From flowing maxi dresses and kaftans to sharp tailoring and luxe essentials, every piece is
-            made to impress.
-            Inspired by Dubai's high fashion scene & Saudi elegance.
-            Order now for fast delivery to your doorstep.
-          </p>
-          <p>
-            SEO Keywords: women's luxury fashion UAE, summer dresses Dubai, Italian designer women's
-            wear, high-end abayas, fast shipping Saudi Arabia
-          </p>
-        </section>
+  <h2>Best Luxury Fashion Brands in Dubai — Why Mario Bologna</h2>
+  <p>
+    We curate timeless silhouettes, elevated essentials, and statement accessories from leading fashion
+    houses. Enjoy personal styling, secure checkout, and fast shipping from our Dubai boutique to your door.
+    <a href="/new-arrivals" title="New Arrivals Dubai">Shop new arrivals</a>.
+  </p>
 
-        <section>
-          <h5>Shop Men's Collection</h5>
-          <h3>Luxury Style for Every Occasion</h3>
-          <p>
-            Upgrade your wardrobe with House of Brands Mario Bologna's Summer 2025 Men's Edit, a
-            refined blend of lightweight tailoring, soft cotton shirts, classic shoes, sneakers, and timeless
-            silhouettes.
-            Ideal for DIFC boardrooms, sunset dinners in Jeddah, and effortless elegance at every turn.
-            Express delivery available in Dubai, Riyadh & more.
-          </p>
-          <p>
-            SEO Keywords: men's luxury fashion Dubai, summer shirts UAE, classy outfits for men, linen
-            suits Gulf, designer menswear Saudi Arabia, designer clothes
-          </p>
-        </section>
+  <h2>Shop by Collection</h2>
+  <ul>
+    <li><strong>Women:</strong> evening dresses, kaftans, tailoring, handbags &amp; fine accessories.</li>
+    <li><strong>Men:</strong> lightweight tailoring, cotton shirts, classic shoes &amp; sneakers.</li>
+    <li><strong>Kids:</strong> breathable premium fabrics for comfort and special occasions.</li>
+  </ul>
 
-        <section>
-          <h5>Shop Kids' Collection</h5>
-          <h3>Stylish Little Looks for Big Summer Moments</h3>
-          <p>
-            Let your kids shine with House of Brands Mario Bologna's premium children's collection,
-            designed for comfort, movement, and celebration.
-            Shop adorable Eid outfits, stylish sets, and breathable fabrics perfect for hot climates.
-            Fast delivery across Dubai and the GCC, get ready in time for the holidays!
-          </p>
-          <p>
-            SEO Keywords: luxury kids fashion UAE, Eid outfits children Dubai, stylish boys & girls clothes
-            GCC, designer kidswear online, kids clothing fast shipping Dubai
-          </p>
-        </section>
+</section>
 
-        {/* Arabic SEO Content */}
-        <section lang="ar" dir="rtl">
-          <h6>ماريو بولونيا - الماركات الفاخرة في دبي | وجهة الأزياء الراقية الإمارات</h6>
-          <p>
-            مرحباً بك في ماريو بولونيا - الماركات الفاخرة في دبي، وجهتك الأولى للماركات الفاخرة وأحدث صيحات الأزياء الراقية في دبي والخليج.
-            ماريو بولونيا - الماركات الفاخرة في دبي تقدم مجموعة حصرية من أرقى الماركات الفاخرة العالمية والإيطالية المرموقة.
-            اكتشف تشكيلات الماركات الفاخرة لصيف 2025 المميّزة من ماريو بولونيا - الماركات الفاخرة في دبي:
-            الماركات الفاخرة للفساتين الصيفية الراقية، الماركات الفاخرة للبدلات الرجالية الكلاسيكية، الماركات الفاخرة لملابس الأطفال الأنيقة.
-            ماريو بولونيا - الماركات الفاخرة في دبي تجمع أفضل الماركات الفاخرة العالمية في مكان واحد.
-            مستوحاة من أناقة دبي، صمّمت تشكيلات الماركات الفاخرة لدينا لتجمع بين الستايل الأوروبي الراقي والذوق الخليجي الفاخر.
-            توصيل سريع للماركات الفاخرة إلى دبي، أبوظبي، الرياض، وجدة خلال أيام.
-            تسوق الماركات الفاخرة آمن وسهل عبر الإنترنت من ماريو بولونيا - الماركات الفاخرة في دبي.
-            الكمية محدودة من الماركات الفاخرة… لا تفوّت فرصتك.
-            ابدأ تسوق الماركات الفاخرة الآن وتميّز بإطلالة لا تُنسى من أرقى الماركات الفاخرة في دبي.
-          </p>
-          <p>
-            كلمات البحث: ماريو بولونيا الماركات الفاخرة دبي، الماركات الفاخرة دبي، الماركات الفاخرة الإمارات، 
-            محل الماركات الفاخرة دبي، تسوق الماركات الفاخرة دبي، أفضل الماركات الفاخرة دبي، 
-            الماركات الفاخرة الإيطالية دبي، متجر الماركات الفاخرة الإمارات، الماركات الفاخرة الراقية دبي
-          </p>
-        </section>
+<section>
+<h2>FAQs about Luxury Fashion in Dubai</h2>
+  <h3>Where is Mario Bologna located?</h3>
+  <p>Mario Bologna is based in Dubai and delivers luxury designer fashion across the UAE and GCC.</p>
+  <h3>Do you offer international shipping?</h3>
+  <p>Yes, we offer fast and secure delivery throughout the GCC and selected international destinations.</p>
 
-        <section lang="ar" dir="rtl">
-          <h4>قسم النساء – صيف 2025</h4>
-          <h3>إطلالات فاخرة للمرأة الأنيقة</h3>
-          <p>
-            هذا صيفك، وهذه لحظتك! اكتشفي تشكيلتنا الفاخرة للمرأة العصرية من ماريو بولونيا. 
-            فساتين خفيفة وأنيقة، عبايات وكافتانات بلمسة أوروبية، وتنانير تعكس نعومة القطن وأناقة القصّات الإيطالية.
-            اختاري تصاميم مميزة للسهرات أو للنهار، واحصلي على ستايل راقٍ يلفت الأنظار ويترك انطباع لا ينتسى.
-            تسوقي إطلالاتك القادمة مثل النجمات بتصاميم تلائم رقيّ دبي وسحر أناقة المرأة السعودية.
-            الأناقة هنا ليست خيارًا، بل أسلوب حياة.
-            ماريو بولونيا... حيث الموضة تلتقي مع الذوق الخليجي الفاخر.
-            اطلبي الآن، واستمتعي بخدمة توصيل سريع داخل دبي والإمارات والسعودية.
-          </p>
-          <p>
-            كلمات البحث: فساتين صيف فخمة، عبايات ستايل، أزياء نسائية فاخرة، ماركات راقية في الإمارات،
-            أزياء نسائية دبي، لوك خليجي راقٍ، عبايات عصرية، فساتين فاخرة الإمارات
-          </p>
-        </section>
+  </section>
 
-        <section lang="ar" dir="rtl">
-          <h6>قسم الرجال – صيف 2025</h6>
-          <h3>ستايل فاخر لكل مناسبة</h3>
-          <p>
-            لأنك تحسن الإختيار، قدّمنا لك تشكيلة راقية رجال صيف 2025 من ماريو بولونيا. 
-            القماش كتان ناعم وقُطن. الألوان بيج رملي وأبيض صيفي وأزرق ناعم. 
-            الموديلات تتألف من القمصان الكاجوال للبدلات الرسمية الخفيفة.
-            كن واجهة الأناقة الخليجية حيث تصاميمك تتحدث عنك سواء كنت في دبي مول أو في أحد مقاهي الرياض الراقية.
-            ستايل أنيق، عصري، ويعكس حضورك القوي. مثالي لأجواء العمل، ولا يُضاهى في المناسبات.
-            وللباحثين عن الإطلالة الكلاسيكية الراقية، ستجد قطعًا مثالية للاجتماعات في مركز دبي المالي العالمي DIFC، 
-            أو للعشاء الفاخر في فندق الريتز بالرياض.
-            بدلات وقمصان وقصّات أنيقة تظهر ثقتك، وتُحاكي ذوقك النخبوي.
-            اطلب الآن وتمتّع بـ شحن سريع داخل دبي والإمارات والسعودية، لأن الإطلالة الكاملة تبدأ من الراحة في التجربة.
-          </p>
-          <p>
-            كلمات البحث: ملابس رجال دبي، ماركات فاخرة في سعودية، قميص كتان صيفي، بدلة خفيفة للحر، 
-            توصيل سريع السعودية، توصيل سريع دبي، أزياء رجالية فاخرة الخليج
-          </p>
-        </section>
+  <p>
+  Mario Bologna brings the finest international designers to Dubai.
+  Our luxury boutique blends European artistry with Middle Eastern elegance,
+  making us the destination for refined style in the UAE.
+</p>
 
-        <section lang="ar" dir="rtl">
-          <h5>قسم الأطفال – صيف 2025</h5>
-          <h3>إطلالات أنيقة للحظات الصيفية الجميلة</h3>
-          <p>
-            إطلبي اليوم واستلمي الطلب بتوصيل سريع في دبي خلال أيام قليلة. نوفر لكِ تجربة تسوق راقية وسريعة بدون تعب.
-            العيد فرحة… خلّي إطلالة أطفالك تكتمل مع Mario Bologna.
-            لصيف ونشاطات أجمل مع ماريو بولونيا. تشكيلات راقية للبنات والأولاد، بأقمشة ناعمة لا تسبّب حساسية ولا تقيد الحركة.
-            ملابس أطفال بتصاميم راقية توائم ذوق العائلات الخليجية – لأن التميّز يبدأ من الصغر.
-            من حفلات الأعياد في دبي والإمارات وجدة والرياض إلى عطلات التسوّق في دبي مول، طفلك سيكون دائمًا أنيق.
-            كل تفصيلة مدروسة، من الأزرار للألوان، لتليق بأهم ضيوف هذا الصيف: أطفالك.
-          </p>
-          <p>
-            كلمات البحث: ملابس أطفال فخمة، ملابس صيفية بنات أولاد، أزياء أطفال دبي، موضة سعودية صيفية،
-            أزياء العيد للأطفال، ملابس أطفال راقية دبي، فساتين بنات العيد، توصيل سريع دبي، ملابس أولاد فخمة
-          </p>
-        </section>
+<section lang="ar" dir="rtl">
+  <h2>ماريو بولونيا — دار الماركات الفاخرة في دبي</h2>
+  <p>
+    اكتشف دار الماركات من ماريو بولونيا في دبي: تشكيلات مصممين مختارة للنساء والرجال والأطفال،
+    بحِرفية إيطالية وقطع محدودة مع توصيل سريع داخل الإمارات والخليج.
+  </p>
+
+  <h2>أفضل الماركات الفاخرة في دبي — لماذا ماريو بولونيا؟</h2>
+  <p>
+    نُقدّم قصّات خالدة وقطعاً أساسية راقية واكسسوارات مميّزة من أرقى دور الأزياء، مع خدمة
+    تنسيق شخصية ودفع آمن وتوصيل سريع. <a href="/new-arrivals">تسوّق الجديد</a>.
+  </p>
+
+  <h2>تسوّق حسب القسم</h2>
+  <ul>
+    <li><strong>النساء:</strong> فساتين سهرة، كافتان، قصّات رسمية، حقائب واكسسوارات.</li>
+    <li><strong>الرجال:</strong> بدلات خفيفة، قمصان قطنية، أحذية كلاسيكية وسنيكرز.</li>
+    <li><strong>الأطفال:</strong> أقمشة فاخرة مريحة للمناسبات.</li>
+  </ul>
+
+  
+</section>
       </div>
     </div>
   );
