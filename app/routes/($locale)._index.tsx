@@ -66,6 +66,11 @@ export const meta: MetaFunction = () => {
       content:
         'Mario Bologna - Luxury Fashion Brands in Dubai features exclusive Italian designer collections. Premium fashion & accessories for discerning customers across UAE & Saudi Arabia.',
     },
+    {
+      name: 'keywords',
+      content:
+        'luxury fashion Dubai, luxury house of brands, designer boutique Dubai, multi-brand boutique UAE, women’s designer dresses Dubai, men’s luxury clothing Dubai, luxury handbags Dubai, Italian designer fashion, personal styling Dubai, express UAE delivery',
+    },
     { property: 'og:url', content: 'https://mariobologna.com' },
     {
       property: 'og:image',
