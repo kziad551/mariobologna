@@ -257,7 +257,7 @@ export default function Homepage() {
       </div>
       
       {/* SEO Content - Hidden from users but visible to search engines */}
-      <div style={{display: 'none'}}>
+      <div className="visually-hidden">
       <section>
   <h1>Mario Bologna — Luxury House of Brands in Dubai</h1>
 
