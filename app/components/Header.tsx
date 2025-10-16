@@ -1,5 +1,5 @@
 import {Link, NavLink, useLocation, useNavigate} from '@remix-run/react';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import type {HeaderQuery} from 'storefrontapi.generated';
 import type {LayoutProps} from './Layout';
 import {useRootLoaderData} from '~/root';
@@ -291,6 +291,27 @@ export function HeaderMenu({
   const [openMegaMenu, setOpenMegaMenu] = useState<{[x: string]: boolean}>({});
   const [selectedMegaMenu, setSelectedMegaMenu] = useState('');
   const [subMenuItems, setSubMenuItems] = useState<MenuItem[]>([]);
+  
+  // Refs and state for mega menu positioning
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [megaMenuStyle, setMegaMenuStyle] = useState<React.CSSProperties>({});
+
+  function positionMegaMenu(anchorEl?: HTMLElement) {
+    if (!navRef.current || !menuRef.current) return;
+
+    const navRect = navRef.current.getBoundingClientRect();
+    const menuRect = menuRef.current.getBoundingClientRect();
+    const viewportW = window.innerWidth;
+
+    // Center the menu in the viewport
+    const viewportCenter = viewportW / 2;
+    let left = viewportCenter - navRect.left - menuRect.width / 2;
+
+    setMegaMenuStyle({
+      left,
+    });
+  }
 
   const handleOpenSubMenu = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -369,9 +390,32 @@ export function HeaderMenu({
     },
   };
 
+  // Position menu when it opens
+  useEffect(() => {
+    if (openMegaMenu[selectedMegaMenu] && menuRef.current) {
+      // Small delay to ensure the menu has fully rendered
+      const timer = setTimeout(() => {
+        positionMegaMenu();
+      }, 10);
+      return () => clearTimeout(timer);
+    }
+  }, [openMegaMenu, selectedMegaMenu]);
+
+  // Re-position on resize
+  useEffect(() => {
+    const onResize = () => {
+      if (openMegaMenu[selectedMegaMenu]) {
+        positionMegaMenu();
+      }
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [openMegaMenu, selectedMegaMenu]);
+
   return (
-    <div>
+    <div className="lg:relative">
       <nav
+        ref={navRef}
         className={`z-50 bg-[#f5f5f5] rounded-md scrollbar-none lg:rounded-none lg:shadow-none lg:relative lg:top-auto lg:left-auto lg:right-auto overflow-auto shadow-md top-17.5 left-3 right-3 absolute flex sm:justify-center p-0 m-0 gap-0 text-neutral-N-30`}
         role="navigation"
       >
@@ -410,14 +454,16 @@ export function HeaderMenu({
       <AnimatePresence>
         {openMegaMenu[selectedMegaMenu] && (
           <motion.div
+            ref={menuRef}
             initial={{opacity: 0}}
             animate={{opacity: 1}}
             exit={{opacity: 0, transition: {delay: 0.25, ease: 'easeInOut'}}}
             onMouseEnter={() => setOpenMegaMenu({[selectedMegaMenu]: true})}
             onMouseLeave={() => setOpenMegaMenu({})}
-            className="mega-menu-container z-50 absolute top-full left-0 right-0 pt-8 pb-4 px-4 md:px-8 xl:px-12 bg-[#F5F5F5] hidden lg:flex items-start justify-between gap-4 md:gap-8 xl:gap-12 shadow-xl shadow-black/30"
+            className="mega-menu-container z-50 absolute top-full bg-[#F5F5F5] hidden lg:flex items-start gap-6 rounded-lg shadow-xl shadow-black/20 p-6 w-auto max-w-screen-xl border border-black/5 backdrop-blur-sm"
+            style={megaMenuStyle}
           >
-            <div className="flex gap-2 md:gap-4 xl:gap-6 w-full items-stretch justify-start">
+            <div className="flex gap-6 items-start justify-start w-auto max-w-full">
               {subMenuItems.length > 0 &&
                 subMenuItems.map((item, index) => {
                   // Clean URL construction - remove hash fragments
@@ -430,7 +476,7 @@ export function HeaderMenu({
                   return (
                     <div
                       key={index}
-                      className="flex-1 flex flex-col items-start gap-2 min-w-0 max-w-48 md:max-w-56"
+                      className="flex flex-col items-start gap-2 min-w-[12rem] max-w-[14rem]"
                     >
                       <button
                         onClick={() => handleSubMenuClick(
@@ -445,7 +491,7 @@ export function HeaderMenu({
                         {t(item.title)}
                       </button>
                       <div
-                        className={`${selectedMegaMenu === 'Designers' ? 'w-full' : 'w-max'} flex flex-col items-start gap-y-2`}
+                        className="w-max flex flex-col items-start gap-y-2"
                       >
                         {item.items && item.items.map((sub_item, index) => {
                           // Clean sub-item URL construction - remove hash fragments
@@ -477,7 +523,7 @@ export function HeaderMenu({
                 })}
             </div>
             {selectedMegaMenu && rightSections[selectedMegaMenu] && (
-              <div className="flex flex-col gap-2 items-start flex-shrink-0">
+              <div className="flex flex-col gap-2 items-start flex-shrink-0 w-auto">
                 <img
                   src={`/images/mega menus/${rightSections[selectedMegaMenu].imgSrc}`}
                   alt="collection image"
