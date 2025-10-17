@@ -21,6 +21,7 @@ import {
   ONE_LOOK_COLLECTION_QUERY,
   OTHER_COLLECTION_QUERY,
 } from '~/lib/queries';
+import {resolveCountry} from '~/lib/utils';
 import {
   CountryCode,
   CurrencyCode,
@@ -103,18 +104,7 @@ export const meta: MetaFunction = () => {
 export async function loader({context, request}: LoaderFunctionArgs) {
   const {storefront} = context;
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   const {collection: brandNewProducts} = await storefront.query(
     OTHER_COLLECTION_QUERY,

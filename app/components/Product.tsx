@@ -166,14 +166,12 @@ const Product = ({
     return Array.from(colors);
   };
 
-  let uniqueSizeOptions: string[] = [];
-  let uniqueColorOptions: string[] = extractUniqueColors(product);
-
-  product.options.forEach((option) => {
-    if (option.name === 'Size') {
-      uniqueSizeOptions = option.values;
-    }
-  });
+  // Memoize to prevent infinite re-renders
+  const uniqueColorOptions = useMemo(() => extractUniqueColors(product), [product.id]);
+  const uniqueSizeOptions = useMemo(() => {
+    const sizeOption = product.options.find(option => option.name === 'Size');
+    return sizeOption?.values || [];
+  }, [product.id]);
 
   useEffect(() => {
     let details = {};

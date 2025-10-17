@@ -20,6 +20,7 @@ import {
 import { useEffect } from 'react';
 
 import {SCROLL_TO_PRODUCTS_FLAG} from '~/lib/scrollFlag';
+import {resolveCountry} from '~/lib/utils';
 import favicon from './assets/favicon.png';
 import resetStyles from './styles/reset.css?url';
 import appStyles from './styles/app.css?url';
@@ -238,18 +239,9 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const {storefront, cart, env} = context;
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  
+  // Use resolveCountry to ensure we only query allowed markets
+  const country = resolveCountry(cookies);
 
   const mainFooter = await storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),

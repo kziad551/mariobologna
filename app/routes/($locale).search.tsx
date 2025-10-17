@@ -8,6 +8,7 @@ import {
   NoSearchResults,
   TrySearch,
 } from '~/components/Search';
+import {resolveCountry} from '~/lib/utils';
 import {useCustomContext} from '~/contexts/App';
 import {useTranslation} from 'react-i18next';
 import {useEffect} from 'react';
@@ -24,18 +25,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   const searchTerm = String(searchParams.get('q') || '');
   const handle = String(searchParams.get('handle') || '');
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   if (!searchTerm) {
     return {

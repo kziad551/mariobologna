@@ -15,6 +15,7 @@ import {useCustomContext} from '~/contexts/App';
 import useWindowDimensions from '~/hooks/useWindowDimensions';
 import MobileProduct from '~/components/MobileProduct';
 import {PRODUCT_CARD_FRAGMENT} from '~/lib/fragments';
+import {resolveCountry} from '~/lib/utils';
 import {Button} from '~/components/Button';
 import {useTranslation} from 'react-i18next';
 import {TFunction} from 'i18next';
@@ -55,18 +56,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   });
 
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   // Get designer parameter from URL
   const designer = searchParams.get('designer') ?? '';

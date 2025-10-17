@@ -35,18 +35,7 @@ export const meta: MetaFunction = () => {
 export async function loader({context, request}: LoaderFunctionArgs) {
   const {storefront} = context;
   const cookieHeader = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookieHeader) {
-    const match = cookieHeader.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookieHeader);
   const cart = await context.cart.get();
   const {collection: youMayAlsoLikeProducts} = await storefront.query(
     OTHER_COLLECTION_QUERY,

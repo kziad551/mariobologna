@@ -10,6 +10,7 @@ import {
 } from '@remix-run/react';
 
 import {SCROLL_TO_PRODUCTS_FLAG, markScrollToProducts} from '~/lib/scrollFlag';
+import {resolveCountry} from '~/lib/utils';
 import {useInView} from 'react-intersection-observer';
 import {Pagination, getPaginationVariables, Money} from '@shopify/hydrogen';
 import type {ProductCardFragment} from 'storefrontapi.generated';
@@ -86,7 +87,9 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   const {handle} = params;
   const cookies = request.headers.get('cookie');
   let currency = allCurrencies[0];
-  let country: CountryCode = 'AE';
+  
+  // Use resolveCountry to ensure only allowed markets are queried
+  const country = resolveCountry(cookies);
 
   if (cookies) {
     // Use a regular expression to extract the 'currency' cookie
@@ -97,18 +100,6 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
         currency = JSON.parse(decodeURIComponent(match[1])) as currencyType;
       } catch (error) {
         console.error('Error parsing currency cookie:', error);
-      }
-    }
-
-    const matchCountry = cookies.match(/country=([^;]+)/);
-    if (matchCountry) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(
-          decodeURIComponent(matchCountry[1]),
-        ) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
       }
     }
   }

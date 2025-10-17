@@ -39,7 +39,7 @@ import useWindowDimensions from '~/hooks/useWindowDimensions';
 import {useTranslation} from 'react-i18next';
 import {useCustomContext} from '~/contexts/App';
 import {TFunction} from 'i18next';
-import {calculateSalePercentage, handleCreateCheckout} from '~/lib/utils';
+import {calculateSalePercentage, handleCreateCheckout, resolveCountry} from '~/lib/utils';
 import {
   OTHER_COLLECTION_QUERY,
   SIMILAR_PRODUCTS_QUERY,
@@ -105,18 +105,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {storefront, env} = context;
   
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   const selectedOptions = getSelectedProductOptions(request).filter(
     (option) =>

@@ -26,6 +26,23 @@ type CartResult = {
   message?: string;
 };
 
+/**
+ * Resolve country code from cookies, ensuring only allowed markets are used
+ * Falls back to AE if country is not in allowed list or parsing fails
+ */
+export function resolveCountry(cookies: string | null): CountryCode {
+  const ALLOWED: CountryCode[] = ['AE', 'BH', 'KW', 'LB', 'OM', 'SA', 'QA'];
+  try {
+    const match = cookies?.match(/country=([^;]+)/);
+    if (!match) return 'AE';
+    
+    const countryValue = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
+    return ALLOWED.includes(countryValue) ? countryValue : 'AE';
+  } catch {
+    return 'AE';
+  }
+}
+
 export function missingClass(string?: string, prefix?: string) {
   if (!string) {
     return true;
