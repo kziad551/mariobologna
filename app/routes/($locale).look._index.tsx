@@ -22,7 +22,7 @@ import {useCustomContext} from '~/contexts/App';
 import {useTranslation} from 'react-i18next';
 import {TFunction} from 'i18next';
 import LookProduct from '~/components/LookProduct';
-import {handleCreateCheckout} from '~/lib/utils';
+import {handleCreateCheckout, resolveCountry} from '~/lib/utils';
 import {ONE_LOOK_COLLECTION_QUERY, OTHER_COLLECTION_QUERY} from '~/lib/queries';
 import {currencyType} from '~/data/currencies';
 
@@ -33,18 +33,7 @@ export const meta: MetaFunction<typeof loader> = ({data, location}) => {
 export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {storefront} = context;
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   const {collection} = await storefront.query(ONE_LOOK_COLLECTION_QUERY, {
     variables: {country, handle: 'one-look'},

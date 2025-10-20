@@ -7,6 +7,7 @@ import {Money} from '@shopify/hydrogen';
 import BagSection from '~/components/BagSection';
 import {FaCheck, FaTruckFast} from 'react-icons/fa6';
 import {OTHER_COLLECTION_QUERY} from '~/lib/queries';
+import {resolveCountry} from '~/lib/utils';
 import {useTranslation} from 'react-i18next';
 import {ProductsSection} from '~/components/ProductsSection';
 import {CountryCode} from '@shopify/hydrogen/storefront-api-types';
@@ -25,18 +26,7 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
   const {storefront, cart} = context;
   const cartPromise = await cart.get();
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   const {collection: moreItemsFromMarioBologna} = await storefront.query(
     OTHER_COLLECTION_QUERY,

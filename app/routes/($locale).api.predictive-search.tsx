@@ -5,6 +5,7 @@ import type {
 } from '~/components/Search';
 import {NO_PREDICTIVE_SEARCH_RESULTS} from '~/components/Search';
 import {applyTrackingParams} from '~/lib/search';
+import {resolveCountry} from '~/lib/utils';
 
 import type {
   PredictiveArticleFragment,
@@ -37,18 +38,7 @@ const DEFAULT_SEARCH_TYPES: PredictiveSearchTypes[] = [
  */
 export async function loader({request, params, context}: LoaderFunctionArgs) {
   const cookies = request.headers.get('Cookie');
-  let country: CountryCode = 'AE';
-  if (cookies) {
-    const match = cookies.match(/country=([^;]+)/);
-    if (match) {
-      try {
-        // Parse the JSON string back into an object
-        country = JSON.parse(decodeURIComponent(match[1])) as CountryCode;
-      } catch (error) {
-        console.error('Error parsing country cookie:', error);
-      }
-    }
-  }
+  const country = resolveCountry(cookies);
 
   const search = await fetchPredictiveSearchResults({
     params,
