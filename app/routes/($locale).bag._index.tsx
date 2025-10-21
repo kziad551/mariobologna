@@ -15,6 +15,7 @@ import BagSection from '~/components/BagSection';
 import {ProductsSection} from '~/components/ProductsSection';
 import {useTranslation} from 'react-i18next';
 import {OTHER_COLLECTION_QUERY} from '~/lib/queries';
+import {resolveCountry} from '~/lib/utils';
 import {tokenCookie} from '~/utils/auth';
 import {
   CountryCode,

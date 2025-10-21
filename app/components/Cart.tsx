@@ -59,8 +59,12 @@ export function CartLineQuantity({
   }
 
   /* ------------------ DERIVED VALUES ------------------------ */
-  const outOfStock = merchandise && !(merchandise as any).availableForSale;
-  const reachedMax = blocked || outOfStock; // rely only on client watchdog + availableForSale
+  // Consider a variant available if either availableForSale is true OR quantityAvailable > 0
+  const hasStock = merchandise 
+    ? ((merchandise as any).availableForSale || ((merchandise as any).quantityAvailable ?? 0) > 0)
+    : true;
+  const outOfStock = !hasStock;
+  const reachedMax = blocked || outOfStock; // rely on client watchdog + stock availability
 
   const prevQuantity = Math.max(0, quantity - 1);
   const nextQuantity = quantity + 1;

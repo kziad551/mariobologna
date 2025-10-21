@@ -632,12 +632,17 @@ function HeroSection({
       {/* Button positioned within the hero image area */}
       {(mobileImage || tabletImage || desktopImage) && (
         <div className="absolute bottom-16 sm:bottom-16 lg:bottom-8 left-0 right-0 flex justify-center px-4">
-          <NavLink
-            to="/#products_section"
-            className="bg-secondary-S-90 px-6 py-2 sm:px-8 sm:py-3 rounded-md text-base sm:text-lg md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all backdrop-blur-sm"
+          <button
+            onClick={() => {
+              const element = document.getElementById('shop-categories');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            className="bg-secondary-S-90 px-6 py-2 sm:px-8 sm:py-3 rounded-md text-base sm:text-lg md:text-xl text-white hover:shadow-md hover:shadow-black/30 hover:bg-secondary-S-80 active:shadow-none active:bg-secondary-S-40 transition-all backdrop-blur-sm cursor-pointer"
           >
             {t('Shop Now')}
-          </NavLink>
+          </button>
         </div>
       )}
     </div>
@@ -859,7 +864,7 @@ function Shops({
   direction: 'ltr' | 'rtl';
 }) {
   return (
-    <div className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div id="shop-categories" className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
       <NavLink
         to="/collections/men"
         className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5] bg-transparent"
