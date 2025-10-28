@@ -275,17 +275,29 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   let metaobject = null;
 
   if (['outlet', 'sale'].includes(handle)) {
-    const contentHandle = `${handle.toLocaleLowerCase()}s_banner`;
-    const type = 'collections_banner';
-    const data = await context.storefront.query(METAOBJECT_CONTENT_QUERY, {
-      variables: {
-        country,
-        handle: contentHandle,
-        type,
-      },
-    });
+    // Determine which metaobject to fetch based on the collection handle
+    let contentHandle: string = '';
+    let type: string = '';
+    
+    if (handle === 'sale') {
+      contentHandle = 'sales-page-xiubxaob'; // Sales Page metaobject handle
+      type = 'sales_page'; // Sales Page metaobject type
+    } else if (handle === 'outlet') {
+      contentHandle = 'outlet-page-banner-2taim71p'; // Outlet Page metaobject handle
+      type = 'outlet_page_banner'; // Outlet Page metaobject type
+    }
+    
+    if (contentHandle && type) {
+      const data = await context.storefront.query(METAOBJECT_CONTENT_QUERY, {
+        variables: {
+          country,
+          handle: contentHandle,
+          type,
+        },
+      });
 
-    metaobject = data.metaobject;
+      metaobject = data.metaobject;
+    }
   }
 
   return json({
@@ -1134,134 +1146,32 @@ function BannerSection({
     | null
     | undefined;
 }) {
-  const [rightLine, setRightLine] = useState('');
-  const [leftLine, setLeftLine] = useState('');
-  const [rightImagesSrc, setRightImagesSrc] = useState<
-    (string | undefined)[] | undefined
-  >();
-  const [leftImagesSrc, setLeftImagesSrc] = useState<
-    (string | undefined)[] | undefined
-  >();
+  const [bannerImageUrl, setBannerImageUrl] = useState<string | undefined>();
 
   if (!metaobject) return <></>;
 
   useEffect(() => {
-    const rightImages = metaobject.fields.find(
-      (meta) => meta.key === 'right_images',
+    // Find the BannerImage field from the metaobject
+    const bannerImageField = metaobject.fields.find(
+      (meta) => meta.key === 'bannerimage',
     );
-    const leftImages = metaobject.fields.find(
-      (meta) => meta.key === 'left_images',
-    );
-    setRightImagesSrc(
-      rightImages?.references?.nodes?.map((ref) => ref.image?.url),
-    );
-    setLeftImagesSrc(
-      leftImages?.references?.nodes?.map((ref) => ref.image?.url),
-    );
+    
+    // Get the image URL from the reference
+    const imageUrl = bannerImageField?.reference?.image?.url;
+    setBannerImageUrl(imageUrl);
   }, [metaobject]);
 
-  useEffect(() => {
-    const fields = metaobject.fields;
-    let leftLine = '';
-    let rightLine = '';
-    if (language === 'en') {
-      leftLine = fields.find((meta) => meta.key === 'left_line')?.value ?? '';
-      rightLine = fields.find((meta) => meta.key === 'right_line')?.value ?? '';
-    }
-    if (language === 'ar') {
-      leftLine =
-        fields.find((meta) => meta.key === 'arabic_left_line')?.value ?? '';
-      rightLine =
-        fields.find((meta) => meta.key === 'arabic_right_line')?.value ?? '';
-    }
-
-    setRightLine(rightLine);
-    setLeftLine(leftLine);
-  }, [metaobject, language]);
+  // If no banner image, return empty
+  if (!bannerImageUrl) return <></>;
 
   return (
-    <div className="relative w-full h-[35vh] sm:h-[29vh] flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-50">
-      {/* Desktop layout */}
-      <div className="hidden sm:flex absolute inset-0 items-center justify-center">
-        {/* Left images */}
-        <div
-          className={`${direction === 'ltr' ? 'left-8 md:left-16' : 'right-8 md:right-16'} absolute flex items-center justify-center gap-4`}
-        >
-          {leftImagesSrc &&
-            leftImagesSrc.map((src) => (
-              <img
-                key={src}
-                src={src}
-                className="max-h-32 md:max-h-48 lg:max-h-64 w-auto object-contain"
-                alt=""
-              />
-            ))}
-        </div>
-
-        {/* Center text */}
-        <div className="flex flex-col items-center gap-6 md:gap-8 z-10 max-w-2xl px-8">
-          <p className="font-rangga text-2xl md:text-4xl lg:text-5xl backdrop-blur bg-white/20 px-6 py-3 rounded-lg text-center">
-            {leftLine}
-          </p>
-          <p className="font-rangga text-2xl md:text-4xl lg:text-5xl backdrop-blur bg-white/20 px-6 py-3 rounded-lg text-center">
-            {rightLine}
-          </p>
-        </div>
-
-        {/* Right images */}
-        <div
-          className={`${direction === 'ltr' ? 'right-8 md:right-16' : 'left-8 md:left-16'} absolute flex items-center justify-center gap-4`}
-        >
-          {rightImagesSrc &&
-            rightImagesSrc.map((src) => (
-              <img
-                key={src}
-                src={src}
-                className="max-h-32 md:max-h-48 lg:max-h-64 w-auto object-contain"
-                alt=""
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* Mobile layout */}
-      <div className="sm:hidden flex flex-col items-center justify-center gap-6 p-6 w-full">
-        {/* Top images */}
-        <div className="flex items-center justify-center gap-3">
-          {leftImagesSrc &&
-            leftImagesSrc.map((src) => (
-              <img
-                key={src}
-                src={src}
-                className="max-h-16 w-auto object-contain"
-                alt=""
-              />
-            ))}
-        </div>
-        
-        {/* Text content */}
-        <div className="flex flex-col items-center gap-4 w-full">
-          <p className="font-rangga text-xl backdrop-blur bg-white/30 px-4 py-2 rounded-lg text-center w-full">
-            {leftLine}
-          </p>
-          <p className="font-rangga text-xl backdrop-blur bg-white/30 px-4 py-2 rounded-lg text-center w-full">
-            {rightLine}
-          </p>
-        </div>
-        
-        {/* Bottom images */}
-        <div className="flex items-center justify-center gap-3">
-          {rightImagesSrc &&
-            rightImagesSrc.map((src) => (
-              <img
-                key={src}
-                src={src}
-                className="max-h-16 w-auto object-contain"
-                alt=""
-              />
-            ))}
-        </div>
-      </div>
+    <div className="relative w-full">
+      <img
+        src={bannerImageUrl}
+        alt="Sale Banner"
+        className="w-full h-auto object-cover"
+        loading="lazy"
+      />
     </div>
   );
 }
