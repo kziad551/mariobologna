@@ -21,6 +21,7 @@ import { useEffect } from 'react';
 
 import {SCROLL_TO_PRODUCTS_FLAG} from '~/lib/scrollFlag';
 import {resolveCountry} from '~/lib/utils';
+import {METAOBJECT_CONTENT_QUERY} from '~/lib/queries';
 import favicon from './assets/favicon.png';
 import resetStyles from './styles/reset.css?url';
 import appStyles from './styles/app.css?url';
@@ -323,6 +324,16 @@ export async function loader({context, request}: LoaderFunctionArgs) {
     country,
   });
 
+  // Fetch MenuImages metaobject
+  const menuImagesData = await storefront.query(METAOBJECT_CONTENT_QUERY, {
+    cache: storefront.CacheLong(),
+    variables: {
+      country,
+      handle: 'menuimages-thsvoigk',
+      type: 'menuimages',
+    },
+  }).catch(() => ({ metaobject: null }));
+
   return defer(
     {
       GOOGLE_API_KEY: env.GOOGLE_API_KEY,
@@ -336,6 +347,7 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       },
       header,
       submenus,
+      menuImages: menuImagesData.metaobject,
       publicStoreDomain,
       selectedLocale: storefront.i18n,
     },

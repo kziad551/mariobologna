@@ -1151,15 +1151,18 @@ function BannerSection({
   if (!metaobject) return <></>;
 
   useEffect(() => {
-    // Find the BannerImage field from the metaobject
+    // Determine which field to use based on language
+    const fieldKey = language === 'ar' ? 'bannerimagear' : 'bannerimage';
+    
+    // Find the appropriate BannerImage field from the metaobject
     const bannerImageField = metaobject.fields.find(
-      (meta) => meta.key === 'bannerimage',
+      (meta) => meta.key === fieldKey,
     );
     
     // Get the image URL from the reference
     const imageUrl = bannerImageField?.reference?.image?.url;
     setBannerImageUrl(imageUrl);
-  }, [metaobject]);
+  }, [metaobject, language]);
 
   // If no banner image, return empty
   if (!bannerImageUrl) return <></>;
@@ -1168,7 +1171,7 @@ function BannerSection({
     <div className="relative w-full">
       <img
         src={bannerImageUrl}
-        alt="Sale Banner"
+        alt="Banner"
         className="w-full h-auto object-cover"
         loading="lazy"
       />

@@ -26,7 +26,7 @@ declare global {
   }
 }
 
-type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'submenus'>;
+type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'submenus' | 'menuImages'>;
 
 function activeLinkStyle({
   isActive,
@@ -41,7 +41,7 @@ function activeLinkStyle({
   };
 }
 
-export function Header({header, cart, submenus}: HeaderProps) {
+export function Header({header, cart, submenus, menuImages}: HeaderProps) {
   const {currentPage, language, setLanguage, direction} = useCustomContext();
   const {t} = useTranslation();
   const shop = header?.shop;
@@ -252,6 +252,7 @@ export function Header({header, cart, submenus}: HeaderProps) {
             menu={menu}
             submenus={submenus}
             primaryDomainUrl={shop?.primaryDomain.url || ''}
+            menuImages={menuImages}
           />
         ) : (
           <></>
@@ -263,6 +264,7 @@ export function Header({header, cart, submenus}: HeaderProps) {
           menu={menu}
           submenus={submenus}
           primaryDomainUrl={shop?.primaryDomain.url || ''}
+          menuImages={menuImages}
         />
       )}
     </header>
@@ -277,12 +279,14 @@ export function HeaderMenu({
   menu,
   submenus,
   primaryDomainUrl,
+  menuImages,
 }: {
   t: TFunction<'translation', undefined>;
   direction: 'rtl' | 'ltr';
   menu: HeaderProps['header']['menu'] | null;
   submenus: LayoutProps['submenus'];
   primaryDomainUrl: string;
+  menuImages?: any;
 }) {
   const {publicStoreDomain} = useRootLoaderData();
   const navigate = useNavigate();
@@ -365,26 +369,47 @@ export function HeaderMenu({
     });
   };
 
+  // Extract image URLs from menuImages metaobject
+  const [menuImageUrls, setMenuImageUrls] = useState<{
+    men?: string;
+    women?: string;
+    kids?: string;
+    designers?: string;
+  }>({});
+
+  useEffect(() => {
+    if (menuImages?.fields) {
+      const urls: any = {};
+      menuImages.fields.forEach((field: any) => {
+        if (field.reference?.image?.url) {
+          urls[field.key] = field.reference.image.url;
+        }
+      });
+      console.log('Menu Images loaded from Shopify:', urls);
+      setMenuImageUrls(urls);
+    }
+  }, [menuImages]);
+
   const rightSections: {
     [key: string]: {imgSrc: string; label: string; linkShop: string};
   } = {
     Men: {
-      imgSrc: 'men.jpg',
+      imgSrc: menuImageUrls.men || 'men.jpg',
       label: t("Men's Collection Spring"),
       linkShop: '/collections/men',
     },
     Women: {
-      imgSrc: 'women.jpg',
+      imgSrc: menuImageUrls.women || 'women.jpg',
       label: t("Women's Collection Summer"),
       linkShop: '/collections/women',
     },
     Kids: {
-      imgSrc: 'kids.jpeg',
+      imgSrc: menuImageUrls.kids || 'kids.jpeg',
       label: t("Kids' Collection"),
       linkShop: '/collections/kids',
     },
     Designers: {
-      imgSrc: 'designers.jpg',
+      imgSrc: menuImageUrls.designers || 'designers.jpg',
       label: t('Explore our Designers'),
       linkShop: '/designers',
     },
@@ -525,7 +550,11 @@ export function HeaderMenu({
             {selectedMegaMenu && rightSections[selectedMegaMenu] && (
               <div className="flex flex-col gap-2 items-start flex-shrink-0 w-auto">
                 <img
-                  src={`/images/mega menus/${rightSections[selectedMegaMenu].imgSrc}`}
+                  src={
+                    rightSections[selectedMegaMenu].imgSrc.startsWith('http')
+                      ? rightSections[selectedMegaMenu].imgSrc
+                      : `/images/mega menus/${rightSections[selectedMegaMenu].imgSrc}`
+                  }
                   alt="collection image"
                   className="w-32 md:w-40 lg:w-48 h-24 md:h-32 lg:h-40 rounded object-cover object-center flex-shrink-0"
                 />

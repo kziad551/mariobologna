@@ -55,6 +55,7 @@ export type LayoutProps = {
     women: submenuType[];
     kids: submenuType[];
   };
+  menuImages?: any;
 };
 
 export function Layout({
@@ -63,6 +64,7 @@ export function Layout({
   footer,
   header,
   submenus,
+  menuImages,
 }: LayoutProps) {
   const {showHeaderFooter} = useCustomContext();
   const location = useLocation();
@@ -88,7 +90,7 @@ export function Layout({
       {showHeaderFooter && header && (
         <>
           <SaleBanner />
-          <Header header={header} cart={cart} submenus={submenus} />
+          <Header header={header} cart={cart} submenus={submenus} menuImages={menuImages} />
         </>
       )}
       <main className="bg-[#F5F5F5] pb-19.25 lg:pb-0">{children}</main>
