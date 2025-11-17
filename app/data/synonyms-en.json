@@ -1,0 +1,12 @@
+{
+  "sneakers": ["running shoes", "trainers", "tennis shoes", "sports shoes"],
+  "classic": ["formal", "casual"],
+  "boots": ["short boots", "long boots"],
+  "slippers": ["flip-flops", "slip-on", "knee high boots", "ankle boots"],
+  "ballerinas": ["flats"],
+  "pants": ["leggings", "stretch pants", "tights", "yoga pants", "trousers", "wide-leg pants", "flared leggings", "straight cut pants", "skinny pants", "wide cut pants", "baggy pants", "cargo pants", "straight jeans", "classic pants", "casual pants", "jeans", "mid waist", "low waist", "fashionable pants", "denim"],
+  "hoodie": ["sweatshirt", "jumper", "hooded sweatshirt","oversized hoodie", "fleece hoodie"],
+  "jacket": ["coat", "blazer", "sports jacket", "zip-up jacket", "cardigan"],
+  "shorts": ["denim shorts", "classic shorts", "cargo shorts", "frenchy shorts"],
+  "shirt": ["t-shirt", "basic", "top", "casual", "cotton basic", "blouse", "round neck", "v-neck", "polo" , "crop top", "turtle neck", "short sleeve", "long sleeve", "half sleeve", "sleevless shirt", "bodysuit", "tank top", "I-shirt"]
+}

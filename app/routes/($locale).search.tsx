@@ -13,10 +13,54 @@ import {useCustomContext} from '~/contexts/App';
 import {useTranslation} from 'react-i18next';
 import {useEffect} from 'react';
 import {CountryCode} from '@shopify/hydrogen/storefront-api-types';
+import synonymsData from '~/data/synonyms-en.json';
 
 export const meta: MetaFunction = () => {
   return [{title: `Search`}];
 };
+
+/**
+ * Build search query with synonyms
+ * If the searchTerm exists in the synonym dictionary (as key or value), append all related terms to the query
+ */
+function buildSearchQueryWithSynonyms(searchTerm: string): string {
+  const synonyms = synonymsData as Record<string, string[]>;
+  const normalizedTerm = searchTerm.toLowerCase().trim();
+  
+  let allTerms = [searchTerm];
+  
+  // Check if the search term is a key in the dictionary
+  if (synonyms[normalizedTerm]) {
+    allTerms.push(...synonyms[normalizedTerm]);
+  } else {
+    // Check if the search term is a value (synonym) in any of the arrays
+    for (const [key, synonymList] of Object.entries(synonyms)) {
+      const normalizedSynonyms = synonymList.map(s => s.toLowerCase());
+      if (normalizedSynonyms.includes(normalizedTerm)) {
+        // Include the key and all its synonyms
+        allTerms.push(key);
+        allTerms.push(...synonymList);
+        break; // Found a match, no need to continue
+      }
+    }
+  }
+  
+  // Remove duplicates (case-insensitive)
+  const uniqueTerms = Array.from(
+    new Set(allTerms.map(t => t.toLowerCase()))
+  );
+  
+  // Build the query for each field (product_type, tag, vendor, title)
+  const fields = ['product_type', 'tag', 'vendor', 'title'];
+  const queryParts: string[] = [];
+  
+  fields.forEach(field => {
+    const fieldQueries = uniqueTerms.map(term => `${field}:"${term}"`);
+    queryParts.push(...fieldQueries);
+  });
+  
+  return queryParts.join(' OR ');
+}
 
 export async function loader({request, context}: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -35,11 +79,14 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     };
   }
 
+  // Build query with synonyms
+  const searchQuery = buildSearchQueryWithSynonyms(searchTerm);
+
   const {errors, ...data} = await context.storefront.query(SEARCH_QUERY, {
     variables: {
       ...variables,
       country,
-      query: `product_type:"${searchTerm}" OR tag:"${searchTerm}" OR vendor:"${searchTerm}" OR title:"${searchTerm}"`,
+      query: searchQuery,
       first: 100,
     },
   });
