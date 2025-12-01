@@ -76,7 +76,10 @@ export default function ContextProvider({children}: {children: ReactNode}) {
   const [showBoardingPage, setShowBoardingPage] = React.useState(false);
   const [language, setLanguage] = React.useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('language') || 'en';
+      const lang = localStorage.getItem('language') || 'en';
+      // Also set it in cookies for server-side access
+      Cookies.set('language', lang, {path: '/'});
+      return lang;
     }
     return 'en';
   });
@@ -130,6 +133,7 @@ export default function ContextProvider({children}: {children: ReactNode}) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('language', language);
+      Cookies.set('language', language, {path: '/'});
       setDirection(language === 'ar' ? 'rtl' : 'ltr');
       i18n.changeLanguage(language);
     }

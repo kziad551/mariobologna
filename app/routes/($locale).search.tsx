@@ -13,7 +13,8 @@ import {useCustomContext} from '~/contexts/App';
 import {useTranslation} from 'react-i18next';
 import {useEffect} from 'react';
 import {CountryCode} from '@shopify/hydrogen/storefront-api-types';
-import synonymsData from '~/data/synonyms-en.json';
+import synonymsEnData from '~/data/synonyms-en.json';
+import synonymsArData from '~/data/synonyms-ar.json';
 
 export const meta: MetaFunction = () => {
   return [{title: `Search`}];
@@ -23,7 +24,10 @@ export const meta: MetaFunction = () => {
  * Build search query with synonyms
  * If the searchTerm exists in the synonym dictionary (as key or value), append all related terms to the query
  */
-function buildSearchQueryWithSynonyms(searchTerm: string): string {
+function buildSearchQueryWithSynonyms(searchTerm: string, language: string = 'EN'): string {
+  // Select the appropriate synonyms dictionary based on language
+  const isArabic = language.toLowerCase().startsWith('ar');
+  const synonymsData = isArabic ? synonymsArData : synonymsEnData;
   const synonyms = synonymsData as Record<string, string[]>;
   const normalizedTerm = searchTerm.toLowerCase().trim();
   
@@ -70,6 +74,16 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   const handle = String(searchParams.get('handle') || '');
   const cookies = request.headers.get('Cookie');
   const country = resolveCountry(cookies);
+  
+  // Get language from cookies (where the UI stores it)
+  let language = 'en';
+  if (cookies) {
+    const languageMatch = cookies.match(/language=([^;]+)/);
+    if (languageMatch) {
+      language = decodeURIComponent(languageMatch[1]);
+    }
+  }
+
 
   if (!searchTerm) {
     return {
@@ -79,8 +93,8 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     };
   }
 
-  // Build query with synonyms
-  const searchQuery = buildSearchQueryWithSynonyms(searchTerm);
+  // Build query with synonyms based on the current language
+  const searchQuery = buildSearchQueryWithSynonyms(searchTerm, language);
 
   const {errors, ...data} = await context.storefront.query(SEARCH_QUERY, {
     variables: {
@@ -96,6 +110,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   }
 
   let filteredResults = data.products.nodes;
+  
   if (handle) {
     filteredResults = filteredResults.filter((product) =>
       product.collections.nodes.some(
@@ -172,6 +187,8 @@ const SEARCH_QUERY = `#graphql
     title
     trackingParameters
     vendor
+    tags
+    productType
     variants(first: 1) {
       nodes {
         id
