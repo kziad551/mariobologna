@@ -258,10 +258,9 @@ export default function Homepage() {
 
   <h2>Luxury Fashion Brands in Dubai — Curated Designer Collections</h2>
   <p>
-    Discover Mario Bologna, Dubai’s luxury <strong>house of brands</strong>. Explore hand-picked designer
-    pieces for <a href="/collections/women" title="Women's Luxury Fashion Dubai">women</a>,
-    <a href="/collections/men" title="Men's Designer Fashion Dubai">men</a>, and
-    <a href="/collections/kids" title="Kids Luxury Clothing Dubai">kids</a>—with premium Italian
+    Discover Mario Bologna, Dubai's luxury <strong>house of brands</strong>. Explore hand-picked designer
+    pieces for <a href="/collections/women" title="Women's Luxury Fashion Dubai">women</a> and
+    <a href="/collections/men" title="Men's Designer Fashion Dubai">men</a>—with premium Italian
     craftsmanship, limited editions, and express UAE & GCC delivery.
   </p>
 
@@ -276,7 +275,6 @@ export default function Homepage() {
   <ul>
     <li><strong>Women:</strong> evening dresses, kaftans, tailoring, handbags &amp; fine accessories.</li>
     <li><strong>Men:</strong> lightweight tailoring, cotton shirts, classic shoes &amp; sneakers.</li>
-    <li><strong>Kids:</strong> breathable premium fabrics for comfort and special occasions.</li>
   </ul>
 
 </section>
@@ -844,14 +842,6 @@ function OldShops({
           {t('Shop Women')}
         </a>
       </button>
-      <button className="relative flex-grow border border-neutral-N-80 rounded-lg w-full min-h-96 lg:min-h-120 bg-[url('/images/shops/kids.png')] bg-contain bg-center bg-no-repeat hover:bg-black/10 focus:bg-black/10 active:bg-black/15 transition-colors">
-        <a
-          href="/collections/kids"
-          className={`absolute inset-0 bottom-1/4 top-auto mx-auto bg-primary-P-40 text-white rounded-md transition-colors w-36 p-2.5 hover:no-underline hover:shadow hover:shadow-black/30 hover:bg-primary-P-80 active:shadow-none active:bg-primary-P-90`}
-        >
-          {t('Shop Kids')}
-        </a>
-      </button>
     </div>
   );
 }
@@ -864,7 +854,7 @@ function Shops({
   direction: 'ltr' | 'rtl';
 }) {
   return (
-    <div id="shop-categories" className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div id="shop-categories" className="py-20 lg:py-36 max-w-[1280px] mx-auto grid grid-cols-2 gap-4">
       <NavLink
         to="/collections/men"
         className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5] bg-transparent"
@@ -936,43 +926,6 @@ function Shops({
         <div className="absolute inset-0 flex items-center justify-center  group-hover:bg-black/30 transition-colors">
           <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
             {t('Shop Women')}
-          </span>
-        </div>
-      </NavLink>
-      <NavLink
-        to="/collections/kids"
-        className="group relative overflow-hidden border border-primary-P-40/10 hover:shadow active:shadow-sm transition-colors aspect-square lg:aspect-[4/5] bg-transparent"
-        title="Kids Luxury Fashion Dubai - Mario Bologna Luxury Fashion Brands"
-        aria-label="Shop Kids Luxury Designer Fashion Collection Dubai"
-      >
-        <picture>
-          {/* Mobile optimization - smaller download but same visual size */}
-          <source
-            media="(max-width: 639px)"
-            srcSet="/images/shops/kids.webp?width=360"
-            sizes="50vw"
-          />
-          <source
-            media="(min-width: 640px) and (max-width: 1023px)"
-            srcSet="/images/shops/kids.webp?width=500"
-            sizes="33vw"
-          />
-          <source
-            media="(min-width: 1024px)"
-            srcSet="/images/shops/kids.webp?width=400 400w, /images/shops/kids.webp?width=800 800w"
-            sizes="(min-width: 1280px) 400px, 33vw"
-          />
-          <img
-            src="/images/shops/kids.webp"
-            alt="Kids Luxury Fashion Dubai - Designer Children's Clothing at Mario Bologna"
-            className="w-full h-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-        </picture>
-        <div className="absolute inset-0 flex items-center justify-center  group-hover:bg-black/30 transition-colors">
-          <span className="text-white group-hover:text-black text-xl xs:text-3xl sm:text-4xl lg:text-7xl font-rangga text-center leading-tight px-2">
-            {t('Shop Kids')}
           </span>
         </div>
       </NavLink>

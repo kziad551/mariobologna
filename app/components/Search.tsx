@@ -125,7 +125,6 @@ export function SearchForm({
               options={[
                 {name: t('Men'), value: 'men'},
                 {name: t('Women'), value: 'women'},
-                {name: t('Kids'), value: 'kids'},
               ]}
               optionLabel="name"
               optionValue="value"

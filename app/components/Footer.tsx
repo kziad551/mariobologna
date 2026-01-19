@@ -283,7 +283,9 @@ function FooterMenu({
 
   return (
     menu &&
-    menu.items.map((item) => {
+    menu.items
+      .filter((item) => item.title !== 'Kids') // Filter out Kids from footer menu
+      .map((item) => {
       if (!item.url) return null;
       // if the url is internal, we strip the domain
       const newURL = new URL(item.url);

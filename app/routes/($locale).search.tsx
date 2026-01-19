@@ -111,8 +111,21 @@ export async function loader({request, context}: LoaderFunctionArgs) {
 
   let filteredResults = data.products.nodes;
   
+  // Filter out Kids products (by collection handle or tags)
+  filteredResults = filteredResults.filter((product: any) => {
+    // Check if product is in kids collection
+    const isInKidsCollection = product.collections.nodes.some(
+      (collection: any) => collection.handle === 'kids' || collection.handle.includes('kids')
+    );
+    // Check if product has kids tag
+    const hasKidsTag = product.tags?.some(
+      (tag: string) => tag.toLowerCase() === 'kids' || tag.toLowerCase().includes('kids')
+    );
+    return !isInKidsCollection && !hasKidsTag;
+  });
+  
   if (handle) {
-    filteredResults = filteredResults.filter((product) =>
+    filteredResults = filteredResults.filter((product: any) =>
       product.collections.nodes.some(
         (collection: any) => collection.handle === handle,
       ),

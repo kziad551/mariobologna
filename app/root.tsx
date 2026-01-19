@@ -316,13 +316,14 @@ export async function loader({context, request}: LoaderFunctionArgs) {
     type: 'women',
     country,
   });
-  await handleFilters({
-    publicStoreDomain,
-    storefront,
-    submenus,
-    type: 'kids',
-    country,
-  });
+  // Kids submenu disabled
+  // await handleFilters({
+  //   publicStoreDomain,
+  //   storefront,
+  //   submenus,
+  //   type: 'kids',
+  //   country,
+  // });
 
   // Fetch MenuImages metaobject
   const menuImagesData = await storefront.query(METAOBJECT_CONTENT_QUERY, {

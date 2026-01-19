@@ -330,8 +330,8 @@ export default function Product() {
 
   useEffect(() => {
     if (product.collections && product.collections.nodes.length > 0) {
-      // Try to find a main category (men, women, kids, designers)
-      const mainCategories = ['men', 'women', 'kids', 'designers'];
+      // Try to find a main category (men, women, designers)
+      const mainCategories = ['men', 'women', 'designers'];
       const mainCollection = product.collections.nodes.find((col: {handle: string; title: string}) => 
         mainCategories.includes(col.handle.toLowerCase())
       );
@@ -1222,7 +1222,7 @@ function ProductForm({
     const collections = product.collections.nodes;
     // Find the first matching collection
     const collection = collections.find((collection) =>
-      ['women', 'men', 'kids'].includes(collection.handle),
+      ['women', 'men'].includes(collection.handle),
     );
     if (collection) {
       setGuide(collection.handle);

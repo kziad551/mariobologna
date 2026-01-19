@@ -341,7 +341,7 @@ export default function Collection() {
   const [section, setSection] = useState('');
 
   useEffect(() => {
-    if (['women', 'men', 'kids'].includes(handle)) {
+    if (['women', 'men'].includes(handle)) {
       setSection(handle);
     } else {
       setSection('other collections');
@@ -414,9 +414,9 @@ export default function Collection() {
           {t(collection.title)}
         </p>
       </div>
-      {['Men', 'Women', 'Kids'].includes(collection.title) ? (
+      {['Men', 'Women'].includes(collection.title) ? (
         <div
-          className={`mt-4 lg:mt-0 px-4 ss:px-8 grid grid-cols-1 ss:grid-cols-2 ${handle !== 'kids' ? 'md:grid-cols-3 xl:grid-cols-4' : 'xl:grid-cols-2'} gap-2 md:gap-4`}
+          className={`mt-4 lg:mt-0 px-4 ss:px-8 grid grid-cols-1 ss:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4`}
         >
           <div
             className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
@@ -435,67 +435,61 @@ export default function Collection() {
           >
             <p className="p-2 text-xs ss:text-base md:p-4">{t('Footwear')}</p>
           </div>
-          {handle !== 'kids' ? (
-            <>
-              <div
-                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
-                style={{
-                  backgroundImage: section
-                    ? `url('/images/${section}/clothes.jpg')`
-                    : '',
-                }}
-                onClick={() => {
-                  markScrollToProducts();
-                  navigate(`/collections/${collection.handle}?filter.productType="Clothes"`, {
-                    replace: true,
-                    preventScrollReset: true,
-                  });
-                }}
-              >
-                <p className="p-2 text-xs ss:text-base md:p-4">
-                  {t('Clothes')}
-                </p>
-              </div>
-              <div
-                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
-                style={{
-                  backgroundImage: section
-                    ? `url('/images/${section}/bags.jpg')`
-                    : '',
-                }}
-                onClick={() => {
-                  markScrollToProducts();
-                  navigate(`/collections/${collection.handle}?filter.productType="Bags"`, {
-                    replace: true,
-                    preventScrollReset: true,
-                  });
-                }}
-              >
-                <p className="p-2 text-xs ss:text-base md:p-4">{t('Bags')}</p>
-              </div>
-              <div
-                className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
-                style={{
-                  backgroundImage: section
-                    ? `url('/images/${section}/accessories.jpg')`
-                    : '',
-                }}
-                onClick={() => {
-                  markScrollToProducts();
-                  navigate(`/collections/${collection.handle}?filter.productType="Accessories"`, {
-                    replace: true,
-                    preventScrollReset: true,
-                  });
-                }}
-              >
-                <p className="p-2 text-xs ss:text-base md:p-4">
-                  {t('Accessories')}
-                </p>
-              </div>
-            </>
-          ) : (
-            <></>
-          )}
+          <div
+            className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
+            style={{
+              backgroundImage: section
+                ? `url('/images/${section}/clothes.jpg')`
+                : '',
+            }}
+            onClick={() => {
+              markScrollToProducts();
+              navigate(`/collections/${collection.handle}?filter.productType="Clothes"`, {
+                replace: true,
+                preventScrollReset: true,
+              });
+            }}
+          >
+            <p className="p-2 text-xs ss:text-base md:p-4">
+              {t('Clothes')}
+            </p>
+          </div>
+          <div
+            className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
+            style={{
+              backgroundImage: section
+                ? `url('/images/${section}/bags.jpg')`
+                : '',
+            }}
+            onClick={() => {
+              markScrollToProducts();
+              navigate(`/collections/${collection.handle}?filter.productType="Bags"`, {
+                replace: true,
+                preventScrollReset: true,
+              });
+            }}
+          >
+            <p className="p-2 text-xs ss:text-base md:p-4">{t('Bags')}</p>
+          </div>
+          <div
+            className={`block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30 cursor-pointer`}
+            style={{
+              backgroundImage: section
+                ? `url('/images/${section}/accessories.jpg')`
+                : '',
+            }}
+            onClick={() => {
+              markScrollToProducts();
+              navigate(`/collections/${collection.handle}?filter.productType="Accessories"`, {
+                replace: true,
+                preventScrollReset: true,
+              });
+            }}
+          >
+            <p className="p-2 text-xs ss:text-base md:p-4">
+              {t('Accessories')}
+            </p>
+          </div>
         </div>
       ) : ['Sale', 'Outlet'].includes(collection.title) ? (
         <BannerSection
@@ -524,12 +518,6 @@ export default function Collection() {
               className="text-sm font-medium px-6 py-2.5 bg-transparent border border-primary-P-40 text-primary-P-40"
             >
               {t('Shop Women')}
-            </NavLink>
-            <NavLink
-              to="/collections/kids"
-              className="text-sm font-medium px-6 py-2.5 bg-transparent border border-primary-P-40 text-primary-P-40"
-            >
-              {t('Shop Kids')}
             </NavLink>
           </div>
         </div>
@@ -870,13 +858,13 @@ function ProductsGrid({
   const elements: any[] = [];
   let guide = '';
   products.forEach((product, index) => {
-    if (['men', 'women', 'kids'].includes(handle)) {
+    if (['men', 'women'].includes(handle)) {
       guide = handle;
     } else {
       const collections = product.collections.nodes;
       // Find the first matching collection
       const collection = collections.find((collection) =>
-        ['women', 'men', 'kids'].includes(collection.handle),
+        ['women', 'men'].includes(collection.handle),
       );
       if (collection) {
         guide = collection.handle;

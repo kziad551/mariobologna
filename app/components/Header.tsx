@@ -324,7 +324,7 @@ export function HeaderMenu({
   ) => {
     e.preventDefault();
     if (
-      ['Men', 'Women', 'Kids', 'Designers'].includes(item.title) &&
+      ['Men', 'Women', 'Designers'].includes(item.title) &&
       item.items.length > 0
     ) {
       if (item.title === 'Designers') {
@@ -344,8 +344,7 @@ export function HeaderMenu({
 
   const handleNavigationClick = (url: string) => {
     const isMainCollection = url === '/collections/men' || 
-                             url === '/collections/women' || 
-                             url === '/collections/kids';
+                             url === '/collections/women';
     
     if (isMainCollection) {
       markScrollToProducts();
@@ -373,7 +372,6 @@ export function HeaderMenu({
   const [menuImageUrls, setMenuImageUrls] = useState<{
     men?: string;
     women?: string;
-    kids?: string;
     designers?: string;
   }>({});
 
@@ -402,11 +400,6 @@ export function HeaderMenu({
       imgSrc: menuImageUrls.women || 'women.jpg',
       label: t("Women's Collection Summer"),
       linkShop: '/collections/women',
-    },
-    Kids: {
-      imgSrc: menuImageUrls.kids || 'kids.jpeg',
-      label: t("Kids' Collection"),
-      linkShop: '/collections/kids',
     },
     Designers: {
       imgSrc: menuImageUrls.designers || 'designers.jpg',
@@ -445,7 +438,9 @@ export function HeaderMenu({
         role="navigation"
       >
         {menu &&
-          menu.items.map((item) => {
+          menu.items
+            .filter((item) => item.title !== 'Kids') // Filter out Kids from navigation
+            .map((item) => {
             if (!item.url) return null;
 
             // Clean URL construction - remove hash fragments first
