@@ -21,9 +21,6 @@ const Privacy = () => {
           <h1 className="text-5xl font-medium">
             {t('Privacy & Cookies Policy')}
           </h1>
-          <p className="text-medium">
-            {t('Effective date: February 22, 2024')}
-          </p>
         </div>
         <div className="flex items-start justify-start flex-col sm:flex-row w-full gap-8 sm:gap-18 lg:gap-54">
           <div className="sticky top-34.5 hidden sm:flex flex-col items-start gap-4 min-w-50">

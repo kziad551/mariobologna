@@ -482,8 +482,6 @@ i18n.use(initReactI18next).init({
         'Privacy & Cookies Policy': 'Privacy & Cookies Policy',
         'Online Returns Policy': 'Online Returns Policy',
         'Payments Policy': 'Payments Policy',
-        'Effective date: February 22, 2024':
-          'Effective date: February 22, 2024',
         'Welcome to Mario Bologna - House of Brands!':
           'Welcome to Mario Bologna - House of Brands!',
         'Table Of Contents': 'Table Of Contents',
@@ -1522,7 +1520,6 @@ Collections:'المجموعات',
         'Privacy & Cookies Policy': 'سياسة الخصوصية وملفات تعريف الارتباط',
         'Online Returns Policy': 'سياسة الإرجاع عبر الإنترنت',
         'Payments Policy': 'Payments Policy',
-        'Effective date: February 22, 2024': 'تاريخ السريان: 22 فبراير 2024',
         'Table Of Contents': 'جدول المحتويات',
         'Welcome to Mario Bologna - House of Brands!':
           'ماريو بولونيا - ملتقى الأناقة والجودة!',

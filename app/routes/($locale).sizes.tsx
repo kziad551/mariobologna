@@ -160,11 +160,6 @@ const SizeCharts = () => {
 
   const navigateTo = (guide: string) => {
     const searchParams = new URLSearchParams(location.search);
-    const toChangeSection =
-      guide === 'kids' && searchParams.get('section') !== 'Footwear';
-    if (toChangeSection) {
-      searchParams.set('section', 'Footwear');
-    }
     searchParams.set('guide', guide);
     navigate(`/sizes?${searchParams.toString()}${location.hash}`);
   };
@@ -193,16 +188,10 @@ const SizeCharts = () => {
           >
             {t('Women')}
           </button>
-          <button
-            onClick={() => navigateTo('kids')}
-            className={`${guide === 'kids' ? 'bg-primary-P-40 border-transparent text-white' : 'bg-transparent border-neutral-N-50 text-primary-P-40'} text-center flex-1 border text-sm font-medium rounded-md py-2.5 px-6 transition-colors`}
-          >
-            {t('Kids')}
-          </button>
         </div>
         {guide ? (
           <div
-            className={`mt-8 grid grid-cols-2 ss:grid-cols-2 ${guide !== 'kids' ? 'md:grid-cols-3 xl:grid-cols-4' : 'xl:grid-cols-2'} gap-2 sm:gap-4`}
+            className="mt-8 grid grid-cols-2 ss:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4"
           >
             <Link
               to={`/sizes?guide=${guide}&section=Footwear#size_details`}
@@ -211,41 +200,35 @@ const SizeCharts = () => {
             >
               <p className="p-2 text-sm sm:text-base sm:p-4">{t('Footwear')}</p>
             </Link>
-            {guide !== 'kids' ? (
-              <>
-                <Link
-                  to={`/sizes?guide=${guide}&section=Clothes#size_details`}
-                  className={`${section === 'Clothes' ? 'after:bg-black/10' : ''} block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
-                  style={{
-                    backgroundImage: `url('/images/${guide}/clothes.jpg')`,
-                  }}
-                >
-                  <p className="p-2 text-sm sm:text-base sm:p-4">
-                    {t('Clothes')}
-                  </p>
-                </Link>
-                <Link
-                  to={`/sizes?guide=${guide}&section=Bags#size_details`}
-                  className={`${section === 'Bags' ? 'after:bg-black/10' : ''} block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
-                  style={{backgroundImage: `url('/images/${guide}/bags.jpg')`}}
-                >
-                  <p className="p-2 text-sm sm:text-base sm:p-4">{t('Bags')}</p>
-                </Link>
-                <Link
-                  to={`/sizes?guide=${guide}&section=Accessories#size_details`}
-                  className={`${section === 'Accessories' ? 'after:bg-black/10' : ''} block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
-                  style={{
-                    backgroundImage: `url('/images/${guide}/accessories.jpg')`,
-                  }}
-                >
-                  <p className="p-2 text-sm sm:text-base sm:p-4">
-                    {t('Belts & Accessories')}
-                  </p>
-                </Link>
-              </>
-            ) : (
-              <></>
-            )}
+            <Link
+              to={`/sizes?guide=${guide}&section=Clothes#size_details`}
+              className={`${section === 'Clothes' ? 'after:bg-black/10' : ''} block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+              style={{
+                backgroundImage: `url('/images/${guide}/clothes.jpg')`,
+              }}
+            >
+              <p className="p-2 text-sm sm:text-base sm:p-4">
+                {t('Clothes')}
+              </p>
+            </Link>
+            <Link
+              to={`/sizes?guide=${guide}&section=Bags#size_details`}
+              className={`${section === 'Bags' ? 'after:bg-black/10' : ''} block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+              style={{backgroundImage: `url('/images/${guide}/bags.jpg')`}}
+            >
+              <p className="p-2 text-sm sm:text-base sm:p-4">{t('Bags')}</p>
+            </Link>
+            <Link
+              to={`/sizes?guide=${guide}&section=Accessories#size_details`}
+              className={`${section === 'Accessories' ? 'after:bg-black/10' : ''} block relative w-full min-h-44 md:min-h-100 border border-neutral-N-80 rounded-xl overflow-hidden bg-white bg-contain bg-center bg-no-repeat after:absolute after:inset-0 after:z-10 after:transition-colors hover:no-underline hover:after:bg-black/10 active:after:bg-black/30`}
+              style={{
+                backgroundImage: `url('/images/${guide}/accessories.jpg')`,
+              }}
+            >
+              <p className="p-2 text-sm sm:text-base sm:p-4">
+                {t('Belts & Accessories')}
+              </p>
+            </Link>
           </div>
         ) : (
           <></>
@@ -321,32 +304,6 @@ const SizeCharts = () => {
                 />
               ) : (
                 <p>{t('Invalid Men Section')}</p>
-              )
-            ) : (
-              <></>
-            )}
-            {guide === 'kids' ? (
-              section === 'Clothes' ? (
-                <h3 className="font-semibold text-2xl xs:text-4xl">
-                  {t('COMING SOON...')}
-                </h3>
-              ) : section === 'Footwear' ? (
-                <FootwearSizes
-                  t={t}
-                  EU_SIZES={KIDS_FOOTWEAR_EU_SIZES}
-                  UK_SIZES={KIDS_FOOTWEAR_UK_SIZES}
-                  US_SIZES={KIDS_FOOTWEAR_US_SIZES}
-                />
-              ) : section === 'Bags' ? (
-                <h3 className="font-semibold text-2xl xs:text-4xl">
-                  {t('COMING SOON...')}
-                </h3>
-              ) : section === 'Accessories' ? (
-                <h3 className="font-semibold text-2xl xs:text-4xl">
-                  {t('COMING SOON...')}
-                </h3>
-              ) : (
-                <p>{t('Invalid Kids Section')}</p>
               )
             ) : (
               <></>

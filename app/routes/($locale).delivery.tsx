@@ -61,12 +61,9 @@ const Privacy = () => {
 
       <div className="delivery">
         <div className="py-3 px-4 sm:py-36 sm:px-8">
-          <div className="hidden sm:flex flex-col items-start gap-7 mb-16">
-            <h1 className="text-5xl font-medium">{t('Shipping & Delivery')}</h1>
-            <p className="text-medium">
-              {t('Effective date: February 22, 2024')}
-            </p>
-          </div>
+        <div className="hidden sm:flex flex-col items-start gap-7 mb-16">
+          <h1 className="text-5xl font-medium">{t('Shipping & Delivery')}</h1>
+        </div>
           <div className="flex items-start justify-start flex-col sm:flex-row w-full gap-8 sm:gap-18 lg:gap-54">
             <div className="sticky top-34.5 hidden sm:flex flex-col items-start gap-4 min-w-50">
               <Link to="" className="text-xl">
