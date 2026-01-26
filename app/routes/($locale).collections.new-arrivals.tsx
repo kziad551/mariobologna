@@ -129,12 +129,6 @@ export default function NewArrivalsPage() {
           >
             {t('Shop Women')}
           </NavLink>
-          <NavLink
-            to="/collections/kids"
-            className="text-sm font-medium px-6 py-2.5 bg-transparent border border-primary-P-40 text-primary-P-40"
-          >
-            {t('Shop Kids')}
-          </NavLink>
         </div>
       </div>
 
