@@ -439,7 +439,7 @@ export function HeaderMenu({
       >
         {menu &&
           menu.items
-            .filter((item) => item.title !== 'Kids') // Filter out Kids from navigation
+            .filter((item) => item.title !== 'Kids' && item.title !== 'Outlet') // Filter out Kids and Outlet from navigation
             .map((item) => {
             if (!item.url) return null;
 

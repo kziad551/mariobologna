@@ -106,6 +106,11 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
 
   invariant(handle, 'Missing handle param');
 
+  // Outlet collection is disabled
+  if (handle === 'outlet') {
+    throw new Response('Outlet collection is not available', {status: 404});
+  }
+
   const searchParams = new URL(request.url).searchParams;
 
   const {sortKey, reverse} = getSortValuesFromParam(

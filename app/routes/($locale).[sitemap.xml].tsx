@@ -85,7 +85,7 @@ function generateSitemap({
     });
 
   const collections = flattenConnection(data.collections)
-    .filter((collection) => collection.onlineStoreUrl)
+    .filter((collection) => collection.onlineStoreUrl && collection.handle !== 'outlet')
     .map((collection) => {
       const url = `${baseUrl}/collections/${collection.handle}`;
 
