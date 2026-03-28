@@ -18,7 +18,7 @@ import {useVariantUrl} from '~/lib/variants';
 import {IoIosArrowDown, IoIosArrowForward} from 'react-icons/io';
 import {CgClose} from 'react-icons/cg';
 import Product from '~/components/Product';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {filterList} from '~/lib/filter';
 import {GoSearch} from 'react-icons/go';
 import {MdArrowRight, MdMenu} from 'react-icons/md';
@@ -372,20 +372,29 @@ export default function Collection() {
     setOpenFilter(width >= 1280); // Use sidebar filter only on large desktop (xl+), mobile-style on tablet and iPad
   }, [width]);
 
-  // Handle controlled scroll behavior using sessionStorage flag
+  // Handle controlled scroll behavior using sessionStorage flag.
+  // Only depend on pathname + navigation.state — NOT location.search,
+  // because infinite-scroll pagination changes search params and must
+  // never cause a scroll-to-top jump.
+  const scrollHandledRef = useRef(false);
+
+  useEffect(() => {
+    // Reset the guard whenever the actual route (pathname) changes
+    scrollHandledRef.current = false;
+  }, [location.pathname]);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (scrollHandledRef.current) return;
 
-    // Only scroll when we *explicitly* set the flag
     const shouldScroll = sessionStorage.getItem(SCROLL_TO_PRODUCTS_FLAG) === '1';
     if (!shouldScroll) return;
 
-    // Wait until the navigation has finished and the DOM is painted
     if (navigation.state !== 'idle') return;
 
+    scrollHandledRef.current = true;
     sessionStorage.removeItem(SCROLL_TO_PRODUCTS_FLAG);
 
-    // If you have a sticky header, optionally subtract its height
     requestAnimationFrame(() => {
       const el = document.getElementById('products');
       if (!el) return;
@@ -395,7 +404,7 @@ export default function Collection() {
       const top = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top, behavior: 'smooth' });
     });
-  }, [location.pathname, location.search, navigation.state]);
+  }, [location.pathname, navigation.state]);
 
 
   // Let Remix handle scroll restoration for back/forward navigation

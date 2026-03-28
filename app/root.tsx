@@ -17,7 +17,7 @@ import {
   useLocation,
   useNavigation,
 } from '@remix-run/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import {SCROLL_TO_PRODUCTS_FLAG} from '~/lib/scrollFlag';
 import {resolveCountry} from '~/lib/utils';
@@ -373,21 +373,27 @@ export default function App() {
     nullSortOrder: -1,
   };
 
+  // Track previous pathname so we only scroll-to-top on actual route changes,
+  // not on search-param-only changes (e.g. infinite-scroll pagination).
+  const prevPathnameRef = useRef(location.pathname);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const { pathname } = location;
+
+    // Only act when the pathname itself changed
+    if (pathname === prevPathnameRef.current) return;
+    prevPathnameRef.current = pathname;
+
     const isCollectionRoute = pathname.includes('/collections/');
     const wantsProductsScroll =
       sessionStorage.getItem(SCROLL_TO_PRODUCTS_FLAG) === '1';
 
-    // ⛔ Never force scroll on collection routes; they handle it themselves
     if (isCollectionRoute) return;
 
-    // For all NON-collection pages, start at top once the new route is idle
     if (navigation.state !== 'idle') return;
 
-    // Clean up any stale flag when leaving collections
     if (wantsProductsScroll) {
       sessionStorage.removeItem(SCROLL_TO_PRODUCTS_FLAG);
     }
