@@ -826,6 +826,7 @@ i18n.use(initReactI18next).init({
         'Up to 50% off selected items.': 'Up to 50% off selected items.',
         'Discover how much you can save by exploring the products!':
           'Discover how much you can save by exploring the products!',
+        'Discover our latest products!': 'Discover our latest products!',
         Pricing: 'Pricing',
         'Up to 80% off': 'Up to 80% off',
         'Shop our Outlet Price Collection and enjoy unbeatable discounts starting from 30%.':
@@ -1863,6 +1864,7 @@ Collections:'المجموعات',
         'Up to 50% off selected items.': 'خصم يصل إلى 50% على قطع مختارة',
         'Discover how much you can save by exploring the products!':
           'اكتشف المبلغ الذي يمكنك توفيره من خلال استكشاف المنتجات!',
+        'Discover our latest products!': 'اكتشف أحدث منتجاتنا!',
         Pricing: 'التسعير',
         'Up to 80% off': 'خصم يصل إلى 80%',
         'Shop our Outlet Price Collection and enjoy unbeatable discounts starting from 30%.':
