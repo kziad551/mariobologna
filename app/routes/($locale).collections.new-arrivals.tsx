@@ -25,9 +25,9 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       NEW_ARRIVALS_QUERY,
       {
         variables: {
-          country, 
-          handle: 'new-arrivals', 
-          first: 10,
+          country,
+          handle: 'new-arrivals',
+          first: 250,
           sortKey: 'PUBLISHED_AT',
           reverse: true
         },
@@ -49,9 +49,9 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       OTHER_COLLECTION_QUERY,
       {
         variables: {
-          country, 
-          handle: 'new-arrivals', 
-          first: 10,
+          country,
+          handle: 'new-arrivals',
+          first: 250,
         },
       },
     );
@@ -88,6 +88,12 @@ export default function NewArrivalsPage() {
   useEffect(() => {
     setCurrentPage('New Arrivals');
   }, [setCurrentPage]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+    }
+  }, []);
 
   return (
     <div className="new-arrivals">
