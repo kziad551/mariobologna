@@ -9,7 +9,8 @@ import {
   NavigateFunction,
 } from '@remix-run/react';
 import type {ProductCardFragment} from 'storefrontapi.generated';
-import {Image, Money, CartForm} from '@shopify/hydrogen';
+import {Image, CartForm} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {
   CartLineInput,
   CountryCode,

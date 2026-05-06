@@ -16,12 +16,12 @@ import type {
 } from 'storefrontapi.generated';
 import {
   Image,
-  Money,
   VariantSelector,
   type VariantOption,
   getSelectedProductOptions,
   CartForm,
 } from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {
   CartLineInput,
   CountryCode,

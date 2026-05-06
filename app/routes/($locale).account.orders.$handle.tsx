@@ -1,6 +1,6 @@
 import {defer, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {NavLink, useLoaderData, type MetaFunction} from '@remix-run/react';
-import {Money} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import BannerContentLayout from '~/components/BannerContentLayout';
 import {RiArrowLeftLine} from 'react-icons/ri';
 import {

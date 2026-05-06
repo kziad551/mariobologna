@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
-import {CartForm, Money} from '@shopify/hydrogen';
+import {CartForm} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {
   CartLineUpdateInput,
   CurrencyCode,

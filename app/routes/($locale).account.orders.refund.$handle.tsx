@@ -11,7 +11,7 @@ import {
   useNavigate,
   type MetaFunction,
 } from '@remix-run/react';
-import {Money} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {RiArrowLeftLine} from 'react-icons/ri';
 import {GoPencil, GoPlus, GoTrash} from 'react-icons/go';
 import {PiMapPin} from 'react-icons/pi';

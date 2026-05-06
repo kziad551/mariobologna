@@ -1,5 +1,6 @@
 import {Link, useNavigate, type FetcherWithComponents} from '@remix-run/react';
-import {CartForm, Money} from '@shopify/hydrogen';
+import {CartForm} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {Image} from '@shopify/hydrogen';
 import {
   CartLineInput,

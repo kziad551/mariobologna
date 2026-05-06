@@ -6,7 +6,8 @@ import {
   type FormProps,
   NavigateFunction,
 } from '@remix-run/react';
-import {Image, Money, Pagination} from '@shopify/hydrogen';
+import {Image, Pagination} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import React, {useRef, useEffect} from 'react';
 import {applyTrackingParams} from '~/lib/search';
 

@@ -12,7 +12,8 @@ import {
 import {SCROLL_TO_PRODUCTS_FLAG, markScrollToProducts} from '~/lib/scrollFlag';
 import {resolveCountry} from '~/lib/utils';
 import {useInView} from 'react-intersection-observer';
-import {Pagination, getPaginationVariables, Money} from '@shopify/hydrogen';
+import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import type {ProductCardFragment} from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {IoIosArrowDown, IoIosArrowForward} from 'react-icons/io';

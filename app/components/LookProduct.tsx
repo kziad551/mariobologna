@@ -1,6 +1,6 @@
 import {useNavigate} from '@remix-run/react';
-import {Money} from '@shopify/hydrogen';
 import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {
   CartLineInput,
   CurrencyCode,

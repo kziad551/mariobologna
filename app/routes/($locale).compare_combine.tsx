@@ -5,7 +5,8 @@ import {
   useNavigate,
 } from '@remix-run/react';
 import {defer, LoaderFunctionArgs} from '@remix-run/server-runtime';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {BsSuitHeart, BsSuitHeartFill} from 'react-icons/bs';

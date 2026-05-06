@@ -83,10 +83,15 @@ export function usePrefixPathWithLocale(path: string) {
 }
 
 export function parseAsCurrency(value: number, currency: currencyType) {
+  // Truncate (don't round) and hide fractional digits — matches the Money
+  // component's display so filter chips and price labels stay consistent.
+  const truncated = Number.isFinite(value) ? Math.trunc(value) : 0;
   return new Intl.NumberFormat('EN' + '-' + currency.countryCode, {
     style: 'currency',
     currency: currency.currency['en'],
-  }).format(value);
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(truncated);
 }
 
 export function formatDateToDM(dateString: string, range?: number): string {

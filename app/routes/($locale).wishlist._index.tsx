@@ -18,7 +18,8 @@ import {useCustomContext} from '~/contexts/App';
 import {TFunction} from 'i18next';
 import {useViewedProducts} from '~/contexts/ViewedProducts';
 import {AnimatePresence, motion} from 'framer-motion';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {CgClose} from 'react-icons/cg';
 import {useCompareProducts} from '~/contexts/CompareProducts';
 

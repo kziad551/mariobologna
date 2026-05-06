@@ -11,7 +11,7 @@ import {IoTriangle} from 'react-icons/io5';
 import Product from '~/components/Product';
 import useWindowDimensions from '~/hooks/useWindowDimensions';
 import MobileProduct from '~/components/MobileProduct';
-import {Money} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {useCustomContext} from '~/contexts/App';
 import {ProductsSection} from '~/components/ProductsSection';
 import {useTranslation} from 'react-i18next';

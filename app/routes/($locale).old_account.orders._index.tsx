@@ -1,10 +1,10 @@
 import {Link, useLoaderData, type MetaFunction} from '@remix-run/react';
 import {
-  Money,
   Pagination,
   getPaginationVariables,
   flattenConnection,
 } from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {json, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {CUSTOMER_ORDERS_QUERY} from '~/graphql/customer-account/CustomerOrdersQuery';
 import type {

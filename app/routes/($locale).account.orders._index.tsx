@@ -13,7 +13,7 @@ import {
   type MetaFunction,
 } from '@remix-run/react';
 import React, {useEffect, useState} from 'react';
-import {Money} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import BannerContentLayout from '~/components/BannerContentLayout';
 import {useCustomContext} from '~/contexts/App';
 import {fetchCustomerDetails, tokenCookie} from '~/utils/auth';

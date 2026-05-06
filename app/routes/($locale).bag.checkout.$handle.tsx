@@ -3,7 +3,7 @@ import {NavLink, useLoaderData, type MetaFunction} from '@remix-run/react';
 import {useEffect} from 'react';
 import useWindowDimensions from '~/hooks/useWindowDimensions';
 import {useCustomContext} from '~/contexts/App';
-import {Money} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import BagSection from '~/components/BagSection';
 import {FaCheck, FaTruckFast} from 'react-icons/fa6';
 import {OTHER_COLLECTION_QUERY} from '~/lib/queries';

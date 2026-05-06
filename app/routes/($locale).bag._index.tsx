@@ -8,7 +8,8 @@ import {
 import {Suspense, useEffect, useState} from 'react';
 import useWindowDimensions from '~/hooks/useWindowDimensions';
 import {useCustomContext} from '~/contexts/App';
-import {CartForm, Money} from '@shopify/hydrogen';
+import {CartForm} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import {FloatLabel} from 'primereact/floatlabel';
 import {InputText} from 'primereact/inputtext';
 import BagSection from '~/components/BagSection';

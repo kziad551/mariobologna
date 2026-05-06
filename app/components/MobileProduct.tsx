@@ -1,5 +1,5 @@
-import {Money} from '@shopify/hydrogen';
 import {Image} from '@shopify/hydrogen';
+import {Money} from '~/components/Money';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {BsSuitHeart, BsSuitHeartFill} from 'react-icons/bs';
 import {FaCircle} from 'react-icons/fa';
