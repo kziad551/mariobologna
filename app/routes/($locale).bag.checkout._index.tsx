@@ -5,6 +5,7 @@ import {useCustomContext} from '~/contexts/App';
 import {fetchCustomerDetails, tokenCookie, returnToCookie} from '~/utils/auth';
 import {useTranslation} from 'react-i18next';
 import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
+import {resolveCountry} from '~/lib/utils';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Checkout'}];
@@ -18,6 +19,9 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   const returnTo = url.searchParams.get('returnTo');
   const pendingLines = url.searchParams.get('pendingLines');
   
+  const cookieHeader = request.headers.get('Cookie');
+  const countryCode = resolveCountry(cookieHeader);
+
   // Handle pending checkout lines from Buy Now if present
   if (pendingLines) {
     try {
@@ -25,31 +29,40 @@ export async function loader({context, request}: LoaderFunctionArgs) {
         merchandiseId: string;
         quantity: number;
       }[];
-      console.log('Processing pending checkout lines:', lines);
-      
-      // Create a new cart with these lines
-      const newCart = await cart.create({
+
+      // Create a new cart bound to the user's market so checkout
+      // doesn't fall back to a market where products aren't published.
+      const result = await cart.create({
         lines,
+        buyerIdentity: {countryCode},
       });
-      
-      // Update the current cart to the new one
-      await cart.updateBuyerIdentity({});
-      
-      console.log('Created new cart with pending lines', newCart);
+
+      const createdCart = result?.cart;
+      if (createdCart?.id && createdCart.checkoutUrl) {
+        const headers = cart.setCartId(createdCart.id);
+        if ((isGuest || isGuestCheckout) && returnTo) {
+          session.set('guestReturnTo', returnTo);
+          session.set('isGuestCheckout', true);
+        }
+        headers.append('Set-Cookie', await session.commit());
+
+        const checkoutUrl = new URL(createdCart.checkoutUrl);
+        checkoutUrl.searchParams.set('redirect_url', '/thank-you');
+        return redirect(checkoutUrl.toString(), {headers});
+      }
     } catch (error) {
       console.error('Error creating cart from pending lines:', error);
-      // Continue with existing cart if there's an error
+      // Fall through to the existing-cart path
     }
   }
-  
+
   const currentCart = await cart.get();
-  
+
   // If cart is empty, redirect to bag page
   if (!currentCart || currentCart.lines.nodes.length === 0) {
     return redirect('/bag');
   }
-  
-  const cookieHeader = request.headers.get('Cookie');
+
   const token = await tokenCookie.parse(cookieHeader);
   
   // For logged-in users, go directly to the cart checkout URL

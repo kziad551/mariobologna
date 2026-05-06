@@ -6,6 +6,7 @@ import {
   tokenCookie,
   verifyToken,
 } from '~/utils/auth';
+import {resolveCountry} from '~/lib/utils';
 
 export async function action({request, context}: ActionFunctionArgs) {
   const {storefront} = context;
@@ -16,8 +17,10 @@ export async function action({request, context}: ActionFunctionArgs) {
 
   const token: string | null = await tokenCookie.parse(cookieHeader);
 
-  // build the optional buyerIdentity
-  let buyerIdentity: any = body.buyerIdentity ?? undefined;
+  // Always bind the cart to the user's selected market so Shopify checkout
+  // doesn't fall back to a market where products aren't published.
+  const countryCode = resolveCountry(cookieHeader);
+  let buyerIdentity: any = {countryCode, ...(body.buyerIdentity ?? {})};
 
   // If token exists and is valid, add it to buyerIdentity
   // If not, we'll create an anonymous checkout
