@@ -19,7 +19,7 @@ import {useVariantUrl} from '~/lib/variants';
 import {IoIosArrowDown, IoIosArrowForward} from 'react-icons/io';
 import {CgClose} from 'react-icons/cg';
 import Product from '~/components/Product';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {filterList} from '~/lib/filter';
 import {GoSearch} from 'react-icons/go';
 import {MdArrowRight, MdMenu} from 'react-icons/md';
@@ -374,26 +374,19 @@ export default function Collection() {
   }, [width]);
 
   // Handle controlled scroll behavior using sessionStorage flag.
-  // Only depend on pathname + navigation.state — NOT location.search,
-  // because infinite-scroll pagination changes search params and must
-  // never cause a scroll-to-top jump.
-  const scrollHandledRef = useRef(false);
-
-  useEffect(() => {
-    // Reset the guard whenever the actual route (pathname) changes
-    scrollHandledRef.current = false;
-  }, [location.pathname]);
-
+  // The flag itself is a one-shot guard (read-and-clear), so we don't need
+  // a separate ref. Depend on location.search too — switching category
+  // filters from the same collection page only changes the search params,
+  // and the scroll must still fire. Infinite-scroll pagination is safe
+  // because it never sets the flag.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (scrollHandledRef.current) return;
 
     const shouldScroll = sessionStorage.getItem(SCROLL_TO_PRODUCTS_FLAG) === '1';
     if (!shouldScroll) return;
 
     if (navigation.state !== 'idle') return;
 
-    scrollHandledRef.current = true;
     sessionStorage.removeItem(SCROLL_TO_PRODUCTS_FLAG);
 
     requestAnimationFrame(() => {
@@ -405,7 +398,7 @@ export default function Collection() {
       const top = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top, behavior: 'smooth' });
     });
-  }, [location.pathname, navigation.state]);
+  }, [location.pathname, location.search, navigation.state]);
 
 
   // Let Remix handle scroll restoration for back/forward navigation

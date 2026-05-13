@@ -390,8 +390,18 @@ function LoginSection({
       }
     }
     
-    // If no pending checkout or error occurred, continue to the returnTo path
-    navigate(returnTo);
+    // If no pending checkout or error occurred, continue to the returnTo path.
+    // When the destination is the default `/account` and we're on desktop,
+    // skip straight to `/account/orders` — the account index just
+    // client-redirects there anyway, and doing it manually avoids a
+    // redundant heavy customer fetch (CUSTOMER_FRAGMENT pulls 250 orders).
+    const defaultedReturnTo =
+      returnTo === '/account' &&
+      typeof window !== 'undefined' &&
+      window.innerWidth >= 1024
+        ? '/account/orders'
+        : returnTo;
+    navigate(defaultedReturnTo);
     setLoading(false);
   };
 

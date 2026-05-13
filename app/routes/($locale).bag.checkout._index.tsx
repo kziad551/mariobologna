@@ -56,22 +56,38 @@ export async function loader({context, request}: LoaderFunctionArgs) {
     }
   }
 
-  const currentCart = await cart.get();
+  let currentCart = await cart.get();
 
   // If cart is empty, redirect to bag page
   if (!currentCart || currentCart.lines.nodes.length === 0) {
     return redirect('/bag');
   }
 
+  // Make sure the cart is bound to a market where the products are
+  // published — otherwise Shopify checkout receives line items priced at
+  // 0 and bounces the user straight back out. Old carts created before
+  // this binding existed (e.g. an incognito session that added items
+  // before the storefront default was AE) are the main repro.
+  if (currentCart.buyerIdentity?.countryCode !== countryCode) {
+    try {
+      const updated = await cart.updateBuyerIdentity({countryCode});
+      if (updated?.cart) {
+        currentCart = updated.cart as typeof currentCart;
+      }
+    } catch (error) {
+      console.error('Error updating cart buyerIdentity countryCode:', error);
+    }
+  }
+
   const token = await tokenCookie.parse(cookieHeader);
-  
+
   // For logged-in users, go directly to the cart checkout URL
   if (token && !isGuest) {
     const customer = await fetchCustomerDetails(token, storefront);
     if (customer) {
       return redirect(currentCart.checkoutUrl);
     }
-    
+
     // If token is invalid, clear it
     return defer({
       cart: currentCart,
@@ -82,22 +98,22 @@ export async function loader({context, request}: LoaderFunctionArgs) {
       },
     });
   }
-  
+
   // For guest users, handle returnTo parameter if present
   if ((isGuest || isGuestCheckout) && returnTo) {
     // Store the returnTo URL in the session
     session.set('guestReturnTo', returnTo);
     session.set('isGuestCheckout', true);
     await session.commit();
-    
+
     // Modify the checkout URL to add our redirect_url parameter
     let checkoutUrl = new URL(currentCart.checkoutUrl);
     checkoutUrl.searchParams.append('redirect_url', '/thank-you');
-    
+
     // Redirect to the modified checkout URL
     return redirect(checkoutUrl.toString());
   }
-  
+
   // For guest users without returnTo, also redirect to checkout URL
   return redirect(currentCart.checkoutUrl);
 }

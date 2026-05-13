@@ -144,6 +144,12 @@ const handleFilters = async ({
   let productTypes = filters.collection?.products.filters.find(
     (filter) => filter.label === 'Product Type',
   );
+  // Collect top-level product-type labels (case-insensitive) so we can
+  // suppress sub-items that duplicate a sibling column (e.g. a "Clothes →
+  // Accessories" tag that just repeats the top-level Accessories column).
+  const topLevelLabels = new Set(
+    (productTypes?.values || []).map((v) => v.label.toLowerCase()),
+  );
   for (const productType of productTypes?.values || []) {
     let value: submenuType = {
       id: '',
@@ -174,7 +180,17 @@ const handleFilters = async ({
     const tags = labelFilters.collection?.products.filters.find(
       (filter) => filter.label === 'Description',
     );
-    const validTags = tags?.values.filter((tag) => tag.count !== 0);
+    const validTags = tags?.values.filter(
+      (tag) =>
+        tag.count !== 0 &&
+        // Drop tags that share a name with another top-level product-type
+        // column (case-insensitive). Keep the tag if it matches THIS column
+        // — that's the natural "Accessories → Accessories" entry.
+        !(
+          topLevelLabels.has(tag.label.toLowerCase()) &&
+          tag.label.toLowerCase() !== label.toLowerCase()
+        ),
+    );
     if (validTags && validTags.length > 0) {
       value.items.push(
         ...validTags.map((tag) => ({

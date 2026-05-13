@@ -57,20 +57,50 @@ export const DEFAULT_LOCALE: I18nLocale = Object.freeze({
   pathPrefix: '',
 });
 
+// Fallback locale for unprefixed URLs. This store only sells in MENA
+// markets, so the Storefront client must @inContext one of them — otherwise
+// product prices come back as 0 (e.g. cart line items priced in the US
+// market the products aren't published to).
+const AE_FALLBACK_LOCALE: Omit<I18nLocale, 'pathPrefix'> = {
+  label: 'United Arab Emirates (AED د.إ)',
+  language: 'EN',
+  country: 'AE',
+  currency: 'AED',
+};
+
+// Markets we actually sell in; mirrors resolveCountry above.
+const ALLOWED_MARKETS = new Set([
+  'AE',
+  'BH',
+  'KW',
+  'LB',
+  'OM',
+  'SA',
+  'QA',
+]);
+
 export function getLocaleFromRequest(request: Request): I18nLocale {
   const url = new URL(request.url);
   const firstPathPart =
     '/' + url.pathname.substring(1).split('/')[0].toLowerCase();
 
-  return countries[firstPathPart]
-    ? {
-        ...countries[firstPathPart],
-        pathPrefix: firstPathPart,
-      }
-    : {
-        ...countries['default'],
-        pathPrefix: '',
-      };
+  if (countries[firstPathPart]) {
+    return {
+      ...countries[firstPathPart],
+      pathPrefix: firstPathPart,
+    };
+  }
+
+  // No locale prefix on the URL. Prefer the country cookie so cart and
+  // collection queries run in a market where products are priced.
+  const cookieCountry = resolveCountry(request.headers.get('Cookie'));
+  const country = ALLOWED_MARKETS.has(cookieCountry) ? cookieCountry : 'AE';
+
+  return {
+    ...AE_FALLBACK_LOCALE,
+    country,
+    pathPrefix: '',
+  };
 }
 
 export function usePrefixPathWithLocale(path: string) {
