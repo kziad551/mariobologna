@@ -1,6 +1,5 @@
 import React, {Suspense, useRef, useState} from 'react';
 import {Link, NavLink, useNavigate} from '@remix-run/react';
-import {BsTwitterX} from 'react-icons/bs';
 import {FaFacebook, FaInstagram, FaLinkedin, FaTiktok, FaYoutube} from 'react-icons/fa';
 import {IoStarSharp} from 'react-icons/io5';
 const QRCode = React.lazy(() => import('react-qr-code'));
@@ -146,9 +145,6 @@ export function Footer({menus, shop, showFooterAlways = false}: FooterProps) {
               target="_blank"
             >
               <FaInstagram className="w-6 h-6 text-black" />
-            </Link>
-            <Link to="https://x.com/mariobologna_ae?s=11" target="_blank">
-              <BsTwitterX className="w-6 h-6 text-black" />
             </Link>
             <Link
               to="https://www.tiktok.com/@mariobologna.ae?_t=8pnPxd3XH97&_r=1"
