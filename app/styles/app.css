@@ -609,11 +609,25 @@ aside li {
 }
 
 #currency > .p-dropdown-trigger {
-  display: none !important;
+  width: auto !important;
 }
 
 .p-dropdown-items-wrapper {
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: #b3b3b3 transparent;
+}
+
+.p-dropdown-items-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.p-dropdown-items-wrapper::-webkit-scrollbar-thumb {
+  background-color: #b3b3b3;
+  border-radius: 9999px;
+}
+
+.p-dropdown-items-wrapper::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .v360-image-container,
