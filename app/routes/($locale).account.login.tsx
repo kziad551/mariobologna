@@ -673,22 +673,6 @@ function RegisterSection({
               <label className="flex items-center justify-center gap-3">
                 <input
                   type="checkbox"
-                  id="kids"
-                  name="shopping_preference"
-                  value="Kids"
-                  onChange={(e) =>
-                    setPreferences({
-                      ...preferences,
-                      [e.target.value]: e.target.checked,
-                    })
-                  }
-                  checked={preferences['kids']}
-                />
-                <span>{t('Kids')}</span>
-              </label>
-              <label className="flex items-center justify-center gap-3">
-                <input
-                  type="checkbox"
                   id="none"
                   name="shopping_preference"
                   value="Prefer not to say"
